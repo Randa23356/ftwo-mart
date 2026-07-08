@@ -58,15 +58,9 @@ Route::post('/email/verification-notification', function () {
     return back()->with('status', 'verification-link-sent');
 })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 
-Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-    if ($request->user()->hasVerifiedEmail()) {
-        return redirectTo();
-    }
-
-    $request->fulfill();
-    
-    return redirectTo();
-})->middleware(['auth', 'signed'])->name('verification.verify');
+Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, '__invoke'])
+    ->middleware(['auth', 'signed'])
+    ->name('verification.verify');
 
 if (!function_exists('redirectTo')) {
     function redirectTo() {
