@@ -63,15 +63,7 @@ class WebsiteSettingController extends Controller
         ]);
 
         if ($request->hasFile("logo")) {
-            // Ensure directory exists
-            if (!is_dir(public_path('website'))) {
-                mkdir(public_path('website'), 0755, true);
-            }
-
-            $file = $request->file("logo");
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('website'), $filename);
-            $logoPath = 'website/' . $filename;
+            $logoPath = $request->file("logo")->store("website", "public");
             WebsiteSetting::setValue("logo", $logoPath, "image");
         }
 
@@ -85,15 +77,7 @@ class WebsiteSettingController extends Controller
         ]);
 
         if ($request->hasFile("hero_image")) {
-            // Ensure directory exists
-            if (!is_dir(public_path('website'))) {
-                mkdir(public_path('website'), 0755, true);
-            }
-
-            $file = $request->file("hero_image");
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('website'), $filename);
-            $heroPath = 'website/' . $filename;
+            $heroPath = $request->file("hero_image")->store("website", "public");
             WebsiteSetting::setValue("hero_image", $heroPath, "image");
         }
 

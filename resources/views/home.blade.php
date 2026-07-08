@@ -12,9 +12,7 @@
 
     @if(isset($settings['hero_image']) && $settings['hero_image']->value)
         <div class="absolute inset-0">
-            <!-- Debug: Show the path -->
-            <!-- hero_image value: {{ $settings['hero_image']->value }} -->
-            <img src="/{{ $settings['hero_image']->value }}" alt="Hero Image" class="w-full h-full object-cover opacity-15 mix-blend-overlay" onerror="console.log('Image failed to load: /{{ $settings['hero_image']->value }}')">
+            <img src="{{ Storage::url($settings['hero_image']->value) }}" alt="Hero Image" class="w-full h-full object-cover opacity-15 mix-blend-overlay">
             <div class="absolute inset-0 bg-green-900/80"></div>
         </div>
     @endif
@@ -83,7 +81,7 @@
 
                     @if(isset($settings['hero_image']) && $settings['hero_image']->value)
                         <div class="relative rounded-2xl overflow-hidden shadow-2xl shadow-green-900/50 border border-white/10 animate-float">
-                            <img src="/{{ $settings['hero_image']->value }}" alt="Hero Image" class="w-full h-auto">
+                            <img src="{{ Storage::url($settings['hero_image']->value) }}" alt="Hero Image" class="w-full h-auto">
                             <div class="absolute inset-0 bg-green-900/40"></div>
                         </div>
                     @else

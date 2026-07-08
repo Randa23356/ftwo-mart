@@ -148,7 +148,7 @@
                             <div class="flex-shrink-0">
                                 <div class="w-24 h-24 rounded-2xl border-2 border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center shadow-inner">
                                     @if(isset($settings['logo']) && $settings['logo']->value)
-                                        <img src="/{{ $settings['logo']->value }}" alt="Logo" class="w-full h-full object-contain p-2">
+                                        <img src="{{ Storage::url($settings['logo']->value) }}" alt="Logo" class="w-full h-full object-contain p-2">
                                     @else
                                         <i class="fas fa-image text-gray-300 text-3xl"></i>
                                     @endif
