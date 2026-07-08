@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
@@ -19,6 +20,23 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\RatingReplyController;
+
+// Fallback route for serving storage files when symlink is not available (shared hosting)
+Route::get('storage/{path}', function (string $path) {
+    $disk = Storage::disk('public');
+    if (!$disk->exists($path)) {
+        abort(404);
+    }
+
+    $mimeType = $disk->mimeType($path);
+    $size = $disk->size($path);
+    $lastModified = $disk->lastModified($path);
+
+    return response($disk->get($path))
+        ->header('Content-Type', $mimeType)
+        ->header('Content-Length', $size)
+        ->setLastModified(\Carbon\Carbon::createFromTimestamp($lastModified));
+})->where('path', '.*')->name('storage.fallback');
 
 // Public routes
 Route::get("/", [HomeController::class, "index"])->name("home");
