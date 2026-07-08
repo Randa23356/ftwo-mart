@@ -21,7 +21,7 @@
                                     <input type="checkbox"
                                            @change="toggleAllSelection($event.target.checked)"
                                            :checked="isAllSelected"
-                                           class="mr-2 text-amber-600 focus:ring-amber-500 border-gray-300 rounded">
+                                           class="mr-2 text-green-600 focus:ring-green-500 border-gray-300 rounded">
                                     <span x-text="isAllSelected ? 'Batalkan Semua' : 'Pilih Semua'"></span>
                                 </label>
                                 <span class="text-sm text-gray-500">
@@ -40,7 +40,7 @@
                                         <input type="checkbox"
                                                @change="toggleItemSelection({{ $cartItem->id }}, $event.target.checked)"
                                                :checked="selectedItems.includes({{ $cartItem->id }})"
-                                               class="w-5 h-5 text-amber-600 focus:ring-amber-500 border-gray-300 rounded">
+                                               class="w-5 h-5 text-green-600 focus:ring-green-500 border-gray-300 rounded">
                                     </div>
 
                                     <!-- Product Image -->
@@ -54,14 +54,14 @@
                                         <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                                             <div class="min-w-0">
                                                 <h3 class="text-lg md:text-xl font-semibold text-gray-900 truncate leading-tight">{{ $cartItem->product->name }}</h3>
-                                                <p class="text-xs text-amber-600 font-medium mt-1">{{ $cartItem->product->category->name }}</p>
+                                                <p class="text-xs text-green-600 font-medium mt-1">{{ $cartItem->product->category->name }}</p>
                                                 <p class="text-sm text-gray-500 mt-2 hidden sm:block truncate">{{ $cartItem->product->description }}</p>
                                                 <p class="text-sm text-gray-500 mt-2 block sm:hidden truncate">{{ Str::limit($cartItem->product->description, 80) }}</p>
                                             </div>
 
                                             <div class="flex-shrink-0 ml-3 sm:ml-0 text-right sm:text-right mt-1 sm:mt-0 sm:min-w-[110px]">
                                                 <div class="inline-flex items-baseline space-x-2 justify-end">
-                                                    <span class="text-lg md:text-2xl font-extrabold text-amber-700 truncate sm:whitespace-nowrap">{{ $cartItem->product->formatted_price }}</span>
+                                                    <span class="text-lg md:text-2xl font-extrabold text-green-700 truncate sm:whitespace-nowrap">{{ $cartItem->product->formatted_price }}</span>
                                                 </div>
                                                 <p class="text-xs text-gray-500 mt-1 whitespace-nowrap">per item</p>
                                             </div>
@@ -136,7 +136,7 @@
                                                     <div class="flex items-center border border-gray-300 rounded-lg">
                                                         <button type="button"
                                                                 @click="quantity = Math.max(1, quantity - 1); updateLocal()"
-                                                                class="px-3 py-1 text-gray-600 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-opacity-50">
+                                                            class="px-3 py-1 text-gray-600 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
                                                             <i class="fas fa-minus text-xs"></i>
                                                         </button>
                                                         <input type="number"
@@ -149,7 +149,7 @@
                                                                class="w-16 text-center border-0 focus:ring-0 text-sm bg-transparent">
                                                         <button type="button"
                                                                 @click="quantity = Math.min({{ $cartItem->product->stock }}, quantity + 1); updateLocal()"
-                                                                class="px-3 py-1 text-gray-600 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-opacity-50">
+                                                            class="px-3 py-1 text-gray-600 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
                                                             <i class="fas fa-plus text-xs"></i>
                                                         </button>
                                                     </div>
@@ -158,7 +158,7 @@
                                                 <div class="w-full sm:w-auto ml-0 sm:ml-3">
                                                     <button type="button" @click="updateLocal(); updateQuantity()"
                                                         :disabled="updating || quantity === initialQuantity"
-                                                        :class="(updating || quantity === initialQuantity) ? 'bg-gray-400 cursor-not-allowed' : 'bg-amber-600 hover:bg-amber-700'"
+                                                        :class="(updating || quantity === initialQuantity) ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'"
                                                         class="text-white px-3 py-2 rounded text-sm font-medium transition-colors w-full sm:w-auto">
                                                         <span x-show="!updating">Update</span>
                                                         <span x-show="updating">Updating...</span>
@@ -167,7 +167,7 @@
                                             </div>
 
                                             <div class="mt-2 sm:mt-0 sm:text-right">
-                                                <p class="text-lg font-bold text-amber-700 whitespace-nowrap" x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(quantity * price)"></p>
+                                                <p class="text-lg font-bold text-green-700 whitespace-nowrap" x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(quantity * price)"></p>
                                                 <p class="text-sm text-gray-500 mt-1 text-right whitespace-normal sm:whitespace-nowrap">
                                                     <span class="hidden sm:inline">Total: </span><span x-text="quantity"></span> × {{ $cartItem->product->formatted_price }}
                                                 </p>
@@ -229,10 +229,10 @@
                     <h2 class="text-lg font-semibold text-gray-900 mb-4">Ringkasan Pesanan</h2>
 
                     <!-- Selected Items Warning -->
-                    <div x-show="selectedCount === 0" class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                    <div x-show="selectedCount === 0" class="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                         <div class="flex items-center">
-                            <i class="fas fa-info-circle text-amber-500 mr-2"></i>
-                            <p class="text-amber-700 text-sm">Pilih produk yang ingin di-checkout</p>
+                            <i class="fas fa-info-circle text-green-500 mr-2"></i>
+                            <p class="text-green-700 text-sm">Pilih produk yang ingin di-checkout</p>
                         </div>
                     </div>
 
@@ -252,7 +252,7 @@
                         <div class="border-t pt-3" x-show="selectedCount > 0">
                             <div class="flex justify-between text-lg font-bold">
                                 <span>Total:</span>
-                                <span class="text-amber-600" x-text="formatPrice(selectedTotal)"></span>
+                                <span class="text-green-600" x-text="formatPrice(selectedTotal)"></span>
                             </div>
                         </div>
                     </div>
@@ -286,12 +286,12 @@
                                         class="w-full px-6 py-3 text-white font-semibold rounded-lg bg-gray-400 cursor-not-allowed"
                                     @else
                                         :disabled="selectedCount === 0"
-                                        :class="selectedCount === 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-amber-600 hover:bg-amber-700'"
+                                        :class="selectedCount === 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'"
                                         class="w-full px-6 py-3 text-white font-semibold rounded-lg transition-colors"
                                     @endif
                                 @else
                                     :disabled="selectedCount === 0"
-                                    :class="selectedCount === 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-amber-600 hover:bg-amber-700'"
+                                    :class="selectedCount === 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'"
                                     class="w-full px-6 py-3 text-white font-semibold rounded-lg transition-colors"
                                 @endauth>
                             <i class="fas fa-credit-card mr-2"></i>
@@ -353,9 +353,9 @@
                             <div class="bg-white border-t shadow-xl rounded-t-lg p-3 flex items-center justify-between">
                                 <div class="flex items-center space-x-3">
                                     <div class="text-sm text-gray-600">Dipilih: <span class="font-medium text-gray-900" x-text="selectedCount"></span></div>
-                                    <div class="text-sm text-gray-600">Total: <span class="font-semibold text-amber-600" x-text="formatPrice(selectedTotal)"></span></div>
+                                    <div class="text-sm text-gray-600">Total: <span class="font-semibold text-green-600" x-text="formatPrice(selectedTotal)"></span></div>
                                 </div>
-                                <button @click="proceedToCheckout()" :disabled="selectedCount === 0" :class="selectedCount === 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-amber-600 hover:bg-amber-700'" class="text-white px-4 py-2 rounded-md font-medium">
+                                <button @click="proceedToCheckout()" :disabled="selectedCount === 0" :class="selectedCount === 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'" class="text-white px-4 py-2 rounded-md font-medium">
                                     Checkout
                                 </button>
                             </div>

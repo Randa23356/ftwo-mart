@@ -13,7 +13,7 @@
                     <p class="text-green-800 font-medium">Pemesanan Langsung</p>
                 </div>
                 <p class="text-green-700 text-sm mt-1">Produk akan langsung dipesan tanpa masuk ke keranjang</p>
-            </div>  
+            </div>
         @elseif(session()->has('selected_cart_items'))
             <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 <div class="flex items-center">
@@ -23,12 +23,12 @@
                 <p class="text-blue-700 text-sm mt-1">{{ count(session('selected_cart_items')) }} produk dipilih dari keranjang untuk checkout</p>
             </div>
         @else
-            <div class="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+            <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
                 <div class="flex items-center">
-                    <i class="fas fa-shopping-cart text-amber-600 mr-2"></i>
-                    <p class="text-amber-800 font-medium">Checkout Semua Produk</p>
+                    <i class="fas fa-shopping-cart text-green-600 mr-2"></i>
+                    <p class="text-green-800 font-medium">Checkout Semua Produk</p>
                 </div>
-                <p class="text-amber-700 text-sm mt-1">Semua produk di keranjang akan di-checkout</p>
+                <p class="text-green-700 text-sm mt-1">Semua produk di keranjang akan di-checkout</p>
             </div>
         @endif
 
@@ -320,8 +320,8 @@
 
                         <!-- No Shipping Options - Enhanced -->
                         <div x-show="calculated && shippingOptions.length === 0" class="text-center py-12">
-                            <div class="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <i class="fas fa-exclamation-triangle text-3xl text-amber-500"></i>
+                            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-exclamation-triangle text-3xl text-green-500"></i>
                             </div>
                             <h4 class="text-lg font-semibold text-gray-800 mb-2">Tidak Ada Opsi Pengiriman</h4>
                             <p class="text-gray-600 mb-4">Maaf, tidak ada kurir yang melayani ke kota ini</p>
@@ -365,10 +365,10 @@
                     <div class="space-y-3">
                         <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
                             <input type="radio" name="payment_method" value="midtrans" x-model="paymentMethod"
-                                   class="text-amber-600 focus:ring-amber-500" checked>
+                                   class="text-green-600 focus:ring-green-500" checked>
                             <div class="ml-3">
                                 <div class="flex items-center">
-                                    <i class="fas fa-credit-card text-amber-600 mr-2"></i>
+                                    <i class="fas fa-credit-card text-green-600 mr-2"></i>
                                     <span class="font-medium text-gray-900">Transfer (E-wallet, QRIS, Bank Transfer)</span>
                                 </div>
                                 <p class="text-sm text-gray-500">Pembayaran aman dengan berbagai metode</p>
@@ -377,7 +377,7 @@
 
                         <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
                             <input type="radio" name="payment_method" value="cod" x-model="paymentMethod"
-                                   class="text-amber-600 focus:ring-amber-500">
+                                   class="text-green-600 focus:ring-green-500">
                             <div class="ml-3">
                                 <div class="flex items-center">
                                     <i class="fas fa-money-bill-wave text-green-600 mr-2"></i>
@@ -389,9 +389,9 @@
                     </div>
 
                     <!-- Payment Info -->
-                    <div x-show="paymentMethod === 'midtrans'" class="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                        <h4 class="font-medium text-amber-800 mb-2">Metode Pembayaran Transfer:</h4>
-                        <div class="grid grid-cols-2 gap-2 text-sm text-amber-700">
+                    <div x-show="paymentMethod === 'midtrans'" class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <h4 class="font-medium text-green-800 mb-2">Metode Pembayaran Transfer:</h4>
+                        <div class="grid grid-cols-2 gap-2 text-sm text-green-700">
                             <div class="flex items-center">
                                 <i class="fas fa-wallet mr-2 text-green-500"></i> E-wallet
                             </div>
@@ -425,7 +425,7 @@
                             <div class="text-center py-8">
                                 <i class="fas fa-shopping-cart text-4xl text-gray-400 mb-4"></i>
                                 <p class="text-gray-500">Tidak ada item untuk checkout</p>
-                                <a href="{{ route('products') }}" class="text-amber-600 hover:text-amber-700 mt-2 inline-block">
+                                <a href="{{ route('products') }}" class="text-green-600 hover:text-green-700 mt-2 inline-block">
                                     <i class="fas fa-arrow-left mr-1"></i> Belanja Sekarang
                                 </a>
                             </div>
@@ -467,7 +467,7 @@
                         <div class="border-t pt-3">
                             <div class="flex justify-between text-lg font-bold">
                                 <span>Total:</span>
-                                <span class="text-amber-600" id="total-cost-display">{{ 'Rp ' . number_format($total, 0, ',', '.') }}</span>
+                                <span class="text-green-600" id="total-cost-display">{{ 'Rp ' . number_format($total, 0, ',', '.') }}</span>
                             </div>
                         </div>
                     </div>
@@ -476,9 +476,9 @@
                     <div class="mb-6">
                         <label class="flex items-start">
                             <input type="checkbox" required
-                                   class="mt-1 text-amber-600 focus:ring-amber-500 border-gray-300 rounded">
+                                   class="mt-1 text-green-600 focus:ring-green-500 border-gray-300 rounded">
                             <span class="ml-2 text-sm text-gray-600">
-                                Saya setuju dengan <a href="#" class="text-amber-600 hover:text-amber-700">syarat dan ketentuan</a> yang berlaku
+                                Saya setuju dengan <a href="#" class="text-green-600 hover:text-green-700">syarat dan ketentuan</a> yang berlaku
                             </span>
                         </label>
                     </div>
@@ -489,7 +489,7 @@
                             <i class="fas fa-ban mr-2"></i> Tidak Ada Item
                         </button>
                     @else
-                        <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center">
+                        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center">
                             <i class="fas fa-lock mr-2"></i> Buat Pesanan
                         </button>
                     @endif
@@ -574,7 +574,7 @@
 <div x-data="{ loading: false }" x-show="loading"
      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg p-6 text-center">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto mb-4"></div>
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
         <p class="text-gray-700">Memproses pesanan...</p>
     </div>
 </div>
@@ -799,7 +799,7 @@ function cancelBuyNow() {
                 <h3 class="text-lg font-bold text-gray-900 mb-2">Batalkan checkout?</h3>
                 <div class="text-sm text-gray-600 mb-6 space-y-2">
                     <p class="flex items-center justify-center">
-                        <i class="fas fa-exclamation-triangle text-amber-500 mr-2"></i>
+                        <i class="fas fa-exclamation-triangle text-green-500 mr-2"></i>
                         Proses checkout akan di batalkan
                     </p>
                     <p class="flex items-center justify-center">
