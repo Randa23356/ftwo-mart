@@ -63,6 +63,11 @@ class WebsiteSettingController extends Controller
         ]);
 
         if ($request->hasFile("logo")) {
+            // Ensure directory exists
+            if (!is_dir(public_path('website'))) {
+                mkdir(public_path('website'), 0755, true);
+            }
+
             $file = $request->file("logo");
             $filename = time() . '_' . $file->getClientOriginalName();
             $file->move(public_path('website'), $filename);
@@ -80,6 +85,11 @@ class WebsiteSettingController extends Controller
         ]);
 
         if ($request->hasFile("hero_image")) {
+            // Ensure directory exists
+            if (!is_dir(public_path('website'))) {
+                mkdir(public_path('website'), 0755, true);
+            }
+
             $file = $request->file("hero_image");
             $filename = time() . '_' . $file->getClientOriginalName();
             $file->move(public_path('website'), $filename);
