@@ -46,7 +46,7 @@
                 <h2 class="text-xl lg:text-2xl font-bold text-gray-800">Aksi Cepat</h2>
                 <div class="h-1 w-20 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"></div>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 lg:gap-6">
                 <a href="{{ route('chat.index') }}" 
                    class="group relative bg-green-50 p-6 rounded-2xl border border-green-100 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                     <div class="absolute top-0 right-0 w-20 h-20 bg-green-400/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
@@ -113,6 +113,20 @@
                         <div class="space-y-1">
                             <div class="font-bold text-gray-800 text-base">Kelola User</div>
                             <div class="text-sm text-gray-600">Lihat data pelanggan</div>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="{{ route('admin.services.index') }}" 
+                   class="group relative bg-gradient-to-br from-teal-50 to-cyan-100 p-6 rounded-2xl border border-teal-100/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                    <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-teal-400/20 to-cyan-400/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+                    <div class="relative z-10">
+                        <div class="bg-gradient-to-br from-teal-500 to-cyan-600 p-3 rounded-xl shadow-lg mb-4 group-hover:scale-110 transition-transform duration-300">
+                            <i class="fas fa-concierge-bell text-white text-lg"></i>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="font-bold text-gray-800 text-base">Kelola Layanan</div>
+                            <div class="text-sm text-gray-600">Atur layanan website</div>
                         </div>
                     </div>
                 </a>
