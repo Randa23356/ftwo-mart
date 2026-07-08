@@ -127,6 +127,9 @@
                                     <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-4 px-6 py-3.5 rounded-2xl text-base font-bold text-red-600 hover:bg-red-50 transition-all">
                                         <i class="fas fa-tachometer-alt w-5 text-red-400"></i> Dashboard Admin
                                     </a>
+                                    <a href="{{ route('admin.services.index') }}" class="flex items-center gap-4 px-6 py-3.5 rounded-2xl text-base font-bold text-green-600 hover:bg-green-50 transition-all">
+                                        <i class="fas fa-concierge-bell w-5 text-green-400"></i> Kelola Layanan
+                                    </a>
                                 @endif
 
                                 @if(auth()->user()->isOperator())
@@ -282,6 +285,12 @@
                                                 <i class="fas fa-tachometer-alt"></i>
                                             </div>
                                             <span class="font-semibold">Dashboard Admin</span>
+                                        </a>
+                                        <a href="{{ route('admin.services.index') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors">
+                                            <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center text-green-600">
+                                                <i class="fas fa-concierge-bell"></i>
+                                            </div>
+                                            <span class="font-semibold">Kelola Layanan</span>
                                         </a>
                                     @endif
 
