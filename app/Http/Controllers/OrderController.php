@@ -278,29 +278,6 @@ class OrderController extends Controller
         \Midtrans\Config::$isSanitized = true;
         \Midtrans\Config::$is3ds = true;
 
-        // Calculate total with shipping for Midtrans
-        // Note: Actual shipping cost will be calculated in checkout page
-        $estimatedShippingCost = 15000; // Estimated shipping cost for Midtrans token
-        $totalWithShipping = $total + $estimatedShippingCost;
-
-        // Ensure minimum amount for Midtrans (at least 1 rupiah)
-        if ($totalWithShipping < 1) {
-            $totalWithShipping = 1000; // Minimum 1000 rupiah
-        }
-
-        $params = [
-            "transaction_details" => [
-                "order_id" => uniqid(),
-                "gross_amount" => $totalWithShipping,
-            ],
-            "customer_details" => [
-                "first_name" => Auth::user()->name,
-                "email" => Auth::user()->email,
-            ],
-        ];
-
-        $snapToken = Snap::getSnapToken($params);
-
         // Persist cart data in session as backup if not already present
         if (
             !session()->has("checkout_cart_backup") &&
@@ -325,7 +302,7 @@ class OrderController extends Controller
 
         return view(
             "orders.checkout",
-            compact("cartItems", "total", "totalWeight", "snapToken"),
+            compact("cartItems", "total", "totalWeight"),
         );
     }
 
