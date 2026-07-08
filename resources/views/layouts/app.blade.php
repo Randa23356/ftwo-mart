@@ -441,18 +441,26 @@
                     <div>
                         <h4 class="text-lg font-semibold mb-4 text-green-400">Kategori</h4>
                         <ul class="space-y-2 text-gray-300">
-                            @foreach($footer_categories as $category)
-                                <li><a href="{{ route('products', ['category' => $category->slug]) }}" class="hover:text-green-400 transition-colors">{{ $category->name }}</a></li>
-                            @endforeach
+                            @if(isset($categories) && $categories->count() > 0)
+                                @foreach($categories as $category)
+                                    <li><a href="{{ route('products', ['category' => $category->slug]) }}" class="hover:text-green-400 transition-colors">{{ $category->name }}</a></li>
+                                @endforeach
+                            @else
+                                <li class="text-gray-500">Tidak ada kategori</li>
+                            @endif
                         </ul>
                     </div>
 
                     <div>
                         <h4 class="text-lg font-semibold mb-4 text-green-400">Layanan</h4>
                         <ul class="space-y-2 text-gray-300">
-                            @foreach($footer_services as $service)
-                                <li><a href="{{ $service->url ?? '#' }}" class="hover:text-green-400 transition-colors">{{ $service->name }}</a></li>
-                            @endforeach
+                            @if(isset($services) && $services->count() > 0)
+                                @foreach($services as $service)
+                                    <li><a href="{{ $service->url ?? '#' }}" class="hover:text-green-400 transition-colors">{{ $service->name }}</a></li>
+                                @endforeach
+                            @else
+                                <li class="text-gray-500">Tidak ada layanan</li>
+                            @endif
                         </ul>
                     </div>
 
