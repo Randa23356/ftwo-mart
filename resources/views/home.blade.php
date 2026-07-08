@@ -11,8 +11,10 @@
     </div>
 
     @if(isset($settings['hero_image']) && $settings['hero_image']->value)
-            <div class="absolute inset-0">
-            <img src="/{{ $settings['hero_image']->value }}" alt="Hero Image" class="w-full h-full object-cover opacity-15 mix-blend-overlay">
+        <div class="absolute inset-0">
+            <!-- Debug: Show the path -->
+            <!-- hero_image value: {{ $settings['hero_image']->value }} -->
+            <img src="/{{ $settings['hero_image']->value }}" alt="Hero Image" class="w-full h-full object-cover opacity-15 mix-blend-overlay" onerror="console.log('Image failed to load: /{{ $settings['hero_image']->value }}')">
             <div class="absolute inset-0 bg-green-900/80"></div>
         </div>
     @endif
