@@ -9,7 +9,7 @@
 
     <!-- Favicon / Shortcut Icon -->
     @if(isset($settings['logo']) && $settings['logo']->value)
-        <link rel="shortcut icon" href="{{ Storage::url($settings['logo']->value) }}" type="image/x-icon">
+        <link rel="shortcut icon" href="{{ asset('storage/' . $settings['logo']->value) }}" type="image/x-icon">
     @else
         <link rel="shortcut icon" href="{{ asset('images/logo.png') }}" type="image/x-icon">
     @endif
@@ -202,7 +202,7 @@
                         <div class="flex-shrink-0 flex items-center">
                             <a href="{{ route('home') }}" class="flex items-center group transition-transform hover:scale-105">
                                 @if(isset($settings['logo']) && $settings['logo']->value)
-                                    <img class="h-8 lg:h-12 w-auto mr-2 md:mr-3 drop-shadow-sm" src="{{ Storage::url($settings['logo']->value) }}" alt="Logo">
+                                    <img class="h-8 lg:h-12 w-auto mr-2 md:mr-3 drop-shadow-sm" src="{{ asset('storage/' . $settings['logo']->value) }}" alt="Logo">
                                 @else
                                     <img class="h-8 lg:h-12 w-auto mr-2 md:mr-3 drop-shadow-sm" src="{{ asset('images/logo.png') }}" alt="FtwoMart Logo">
                                 @endif
