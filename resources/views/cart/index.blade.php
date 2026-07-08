@@ -507,13 +507,68 @@ function updateItemData(itemId, newQuantity, price) {
 function confirmAndSubmitForm(form, message) {
     if (!form) return;
 
-    const confirmed = window.nativeConfirm ? window.nativeConfirm(message) : window.confirm(message);
-    if (confirmed) {
-        if (window.loadingOverlay && typeof window.loadingOverlay.show === 'function') {
-            window.loadingOverlay.show('Memproses aksi...');
+    // Create modal overlay
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+
+    // Create modal content
+    modalOverlay.innerHTML = `
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 transform scale-95 opacity-0 transition-all duration-300" id="modal-content">
+            <div class="text-center">
+                <div class="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-trash-alt text-3xl text-red-600"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 mb-2">Konfirmasi Penghapusan</h3>
+                <p class="text-sm text-gray-600 mb-6">${message}</p>
+                <div class="flex space-x-3">
+                    <button type="button" class="flex-1 px-4 py-2 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors modal-cancel">
+                        Batal
+                    </button>
+                    <button type="button" class="flex-1 px-4 py-2 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 transition-colors modal-confirm">
+                        Hapus
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modalOverlay);
+
+    // Animate modal in
+    setTimeout(() => {
+        const modalContent = modalOverlay.querySelector('#modal-content');
+        modalContent.classList.remove('scale-95', 'opacity-0');
+        modalContent.classList.add('scale-100', 'opacity-100');
+    }, 10);
+
+    // Handle cancel
+    modalOverlay.querySelector('.modal-cancel').addEventListener('click', () => {
+        const modalContent = modalOverlay.querySelector('#modal-content');
+        modalContent.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => modalOverlay.remove(), 300);
+    });
+
+    // Handle confirm
+    modalOverlay.querySelector('.modal-confirm').addEventListener('click', () => {
+        const modalContent = modalOverlay.querySelector('#modal-content');
+        modalContent.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            modalOverlay.remove();
+            if (window.loadingOverlay && typeof window.loadingOverlay.show === 'function') {
+                window.loadingOverlay.show('Memproses aksi...');
+            }
+            form.submit();
+        }, 300);
+    });
+
+    // Close on overlay click
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) {
+            const modalContent = modalOverlay.querySelector('#modal-content');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => modalOverlay.remove(), 300);
         }
-        form.submit();
-    }
+    });
 }
 </script>
 @endpush

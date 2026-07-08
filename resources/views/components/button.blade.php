@@ -16,7 +16,7 @@ $variants = [
     'danger' => 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500',
     'warning' => 'bg-yellow-600 hover:bg-yellow-700 text-white focus:ring-yellow-500',
     'info' => 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500',
-    'outline' => 'border border-green-600 text-green-600 hover:bg-green-600 hover:text-white focus:ring-green-500',
+    'outline' => 'border border-green-600 text-green-600 hover:bg-green-50 hover:text-green-700 focus:ring-green-500',
     'ghost' => 'text-gray-700 hover:bg-gray-100 focus:ring-gray-500',
 ];
 
