@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\WebsiteSetting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use App\Helpers\ImageHelper;
 
 class WebsiteSettingController extends Controller
 {
@@ -63,7 +65,11 @@ class WebsiteSettingController extends Controller
         ]);
 
         if ($request->hasFile("logo")) {
-            $logoPath = $request->file("logo")->store("website", "public");
+            // Hapus logo lama jika ada
+            $oldLogo = WebsiteSetting::getValue('logo');
+            ImageHelper::deleteOldImage($oldLogo);
+            
+            $logoPath = ImageHelper::storeImage($request->file("logo"), "website");
             WebsiteSetting::setValue("logo", $logoPath, "image");
         }
 
@@ -77,7 +83,11 @@ class WebsiteSettingController extends Controller
         ]);
 
         if ($request->hasFile("hero_image")) {
-            $heroPath = $request->file("hero_image")->store("website", "public");
+            // Hapus hero image lama jika ada
+            $oldHeroImage = WebsiteSetting::getValue('hero_image');
+            ImageHelper::deleteOldImage($oldHeroImage);
+            
+            $heroPath = ImageHelper::storeImage($request->file("hero_image"), "website");
             WebsiteSetting::setValue("hero_image", $heroPath, "image");
         }
 
@@ -96,9 +106,11 @@ class WebsiteSettingController extends Controller
         WebsiteSetting::setValue("about_content", $request->about_content);
 
         if ($request->hasFile("about_image")) {
-            $aboutImagePath = $request
-                ->file("about_image")
-                ->store("website", "public");
+            // Hapus about image lama jika ada
+            $oldAboutImage = WebsiteSetting::getValue('about_image');
+            ImageHelper::deleteOldImage($oldAboutImage);
+            
+            $aboutImagePath = ImageHelper::storeImage($request->file("about_image"), "website");
             WebsiteSetting::setValue("about_image", $aboutImagePath, "image");
         }
 

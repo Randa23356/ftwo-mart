@@ -2,17 +2,13 @@
 
 namespace App\Providers;
 
-use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use App\Models\WebsiteSetting;
 use App\Models\Category;
 use App\Models\Service;
-use App\Models\Order;
-use App\Observers\OrderObserver;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Gate;
-use Spatie\Permission\Models\Permission;
+use Illuminate\Support\Facades\Blade;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,51 +25,27 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        ResetPassword::createUrlUsing(function (
-            object $notifiable,
-            string $token,
-        ) {
-            return config("app.frontend_url") .
-                "/password-reset/$token?email={$notifiable->getEmailForPasswordReset()}";
-        });
-
+        // Share website settings with all views if table exists
         if (Schema::hasTable("website_settings")) {
             $settings = WebsiteSetting::all()->keyBy("key");
             View::share("settings", $settings);
         }
 
+        // Share categories with all views
         if (Schema::hasTable("categories")) {
-            try {
-                $categories = Category::where("is_active", true)->take(4)->get();
-                View::share("footer_categories", $categories);
-            } catch (\Exception $e) {
-                // Fails if soft deletes column missing
-            }
+            $categories = Category::where("is_active", true)->get();
+            View::share("categories", $categories);
         }
 
+        // Share services with all views
         if (Schema::hasTable("services")) {
-            try {
-                $services = Service::where("is_active", true)->take(4)->get();
-                View::share("footer_services", $services);
-            } catch (\Exception $e) {
-                // Fails if soft deletes column missing
-            }
+            $services = Service::where("is_active", true)->get();
+            View::share("services", $services);
         }
 
-        // Register Order Observer
-        Order::observe(OrderObserver::class);
-
-        // Dynamically register gates for all permissions
-        if (Schema::hasTable('permissions')) {
-            try {
-                Permission::all()->map(function ($permission) {
-                    Gate::define($permission->name, function ($user) use ($permission) {
-                        return $user->hasPermissionTo($permission);
-                    });
-                });
-            } catch (\Exception $e) {
-                // Fails during initial migration, safe to ignore
-            }
-        }
+        // Blade directive for image URLs
+        Blade::directive('imageUrl', function ($expression) {
+            return "<?php echo \\App\\Helpers\\ImageHelper::getImageUrl($expression); ?>";
+        });
     }
 }

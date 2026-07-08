@@ -188,7 +188,7 @@
                     <div class="p-6 sm:p-8">
                         <div class="rounded-2xl overflow-hidden border-2 border-gray-200 mb-4 bg-gray-50 max-h-56 flex items-center justify-center">
                             @if(isset($settings['hero_image']) && $settings['hero_image']->value)
-                                <img src="{{ Storage::url($settings['hero_image']->value) }}" alt="Hero" class="w-full h-56 object-cover">
+                                <img src="{{ asset('storage/' . $settings['hero_image']->value) }}" alt="Hero" class="w-full h-56 object-cover">
                             @else
                                 <div class="flex flex-col items-center py-12 text-gray-300">
                                     <i class="fas fa-panorama text-5xl mb-2"></i>
@@ -239,7 +239,7 @@
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Gambar About</label>
                             @if(isset($settings['about_image']) && $settings['about_image']->value)
                                 <div class="mb-3 rounded-xl overflow-hidden border-2 border-gray-200 max-w-xs">
-                                    <img src="{{ Storage::url($settings['about_image']->value) }}" alt="About" class="w-full h-40 object-cover">
+                                    <img src="{{ asset('storage/' . $settings['about_image']->value) }}" alt="About" class="w-full h-40 object-cover">
                                 </div>
                             @endif
                             <input type="file" name="about_image" accept="image/*"
