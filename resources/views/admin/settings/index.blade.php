@@ -164,7 +164,17 @@
                             </div>
                         </div>
                     </div>
-                    <div class="px-6 sm:px-8 py-4 bg-gray-50 border-t border-gray-100 flex justify-end">
+                    <div class="px-6 sm:px-8 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between gap-3">
+                        @if(isset($settings['logo']) && $settings['logo']->value)
+                            <form action="{{ route('admin.settings.logo.delete') }}" method="POST" onsubmit="return confirm('Hapus logo ini?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="inline-flex items-center px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-sm font-semibold border border-red-200 transition-all duration-200">
+                                    <i class="fas fa-trash mr-2"></i> Hapus Logo
+                                </button>
+                            </form>
+                        @else
+                            <div></div>
+                        @endif
                         <button type="submit" class="inline-flex items-center px-6 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl text-sm font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
                             <i class="fas fa-upload mr-2"></i> Update Logo
                         </button>
@@ -202,7 +212,17 @@
                         <p class="text-xs text-gray-400 mt-2"><i class="fas fa-info-circle mr-1 text-green-400"></i> Rekomendasi: JPG/PNG, rasio 16:6, min 1200px lebar</p>
                         @error('hero_image') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                     </div>
-                    <div class="px-6 sm:px-8 py-4 bg-gray-50 border-t border-gray-100 flex justify-end">
+                    <div class="px-6 sm:px-8 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between gap-3">
+                        @if(isset($settings['hero_image']) && $settings['hero_image']->value)
+                            <form action="{{ route('admin.settings.hero-image.delete') }}" method="POST" onsubmit="return confirm('Hapus hero image ini?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="inline-flex items-center px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-sm font-semibold border border-red-200 transition-all duration-200">
+                                    <i class="fas fa-trash mr-2"></i> Hapus Hero Image
+                                </button>
+                            </form>
+                        @else
+                            <div></div>
+                        @endif
                         <button type="submit" class="inline-flex items-center px-6 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl text-sm font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
                             <i class="fas fa-upload mr-2"></i> Update Hero Image
                         </button>
@@ -240,6 +260,14 @@
                             @if(isset($settings['about_image']) && $settings['about_image']->value)
                                 <div class="mb-3 rounded-xl overflow-hidden border-2 border-gray-200 max-w-xs">
                                     <img src="{{ asset('storage/' . $settings['about_image']->value) }}" alt="About" class="w-full h-40 object-cover">
+                                </div>
+                                <div class="flex items-center gap-3 mb-3">
+                                    <form action="{{ route('admin.settings.about-image.delete') }}" method="POST" onsubmit="return confirm('Hapus gambar about ini?')">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="inline-flex items-center px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-semibold border border-red-200 transition-all">
+                                            <i class="fas fa-trash mr-1.5"></i> Hapus Gambar
+                                        </button>
+                                    </form>
                                 </div>
                             @endif
                             <input type="file" name="about_image" accept="image/*"

@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\WebsiteSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use App\Helpers\ImageHelper;
 
 class WebsiteSettingController extends Controller
 {
@@ -37,20 +36,11 @@ class WebsiteSettingController extends Controller
         ]);
 
         foreach ($request->all() as $key => $value) {
-            if (
-                in_array($key, [
-                    "website_name",
-                    "website_description",
-                    "phone",
-                    "address",
-                    "email",
-                    "instagram",
-                    "facebook",
-                    "opening_hours",
-                    "delivery_fee",
-                    "min_order",
-                ])
-            ) {
+            if (in_array($key, [
+                "website_name", "website_description", "phone", "address",
+                "email", "instagram", "facebook", "opening_hours",
+                "delivery_fee", "min_order",
+            ])) {
                 WebsiteSetting::setValue($key, $value);
             }
         }
@@ -65,15 +55,23 @@ class WebsiteSettingController extends Controller
         ]);
 
         if ($request->hasFile("logo")) {
-            // Hapus logo lama jika ada
-            $oldLogo = WebsiteSetting::getValue('logo');
-            ImageHelper::deleteOldImage($oldLogo);
-            
-            $logoPath = ImageHelper::storeImage($request->file("logo"), "website");
-            WebsiteSetting::setValue("logo", $logoPath, "image");
+            $old = WebsiteSetting::getValue('logo');
+            if ($old) Storage::disk('public')->delete($old);
+
+            $path = $request->file("logo")->store("website", "public");
+            WebsiteSetting::setValue("logo", $path, "image");
         }
 
         return back()->with("success", "Logo website berhasil diupdate");
+    }
+
+    public function deleteLogo()
+    {
+        $old = WebsiteSetting::getValue('logo');
+        if ($old) Storage::disk('public')->delete($old);
+        WebsiteSetting::setValue('logo', null, 'image');
+
+        return back()->with("success", "Logo berhasil dihapus");
     }
 
     public function updateHeroImage(Request $request)
@@ -83,15 +81,23 @@ class WebsiteSettingController extends Controller
         ]);
 
         if ($request->hasFile("hero_image")) {
-            // Hapus hero image lama jika ada
-            $oldHeroImage = WebsiteSetting::getValue('hero_image');
-            ImageHelper::deleteOldImage($oldHeroImage);
-            
-            $heroPath = ImageHelper::storeImage($request->file("hero_image"), "website");
-            WebsiteSetting::setValue("hero_image", $heroPath, "image");
+            $old = WebsiteSetting::getValue('hero_image');
+            if ($old) Storage::disk('public')->delete($old);
+
+            $path = $request->file("hero_image")->store("website", "public");
+            WebsiteSetting::setValue("hero_image", $path, "image");
         }
 
         return back()->with("success", "Hero image berhasil diupdate");
+    }
+
+    public function deleteHeroImage()
+    {
+        $old = WebsiteSetting::getValue('hero_image');
+        if ($old) Storage::disk('public')->delete($old);
+        WebsiteSetting::setValue('hero_image', null, 'image');
+
+        return back()->with("success", "Hero image berhasil dihapus");
     }
 
     public function updateAboutContent(Request $request)
@@ -106,15 +112,23 @@ class WebsiteSettingController extends Controller
         WebsiteSetting::setValue("about_content", $request->about_content);
 
         if ($request->hasFile("about_image")) {
-            // Hapus about image lama jika ada
-            $oldAboutImage = WebsiteSetting::getValue('about_image');
-            ImageHelper::deleteOldImage($oldAboutImage);
-            
-            $aboutImagePath = ImageHelper::storeImage($request->file("about_image"), "website");
-            WebsiteSetting::setValue("about_image", $aboutImagePath, "image");
+            $old = WebsiteSetting::getValue('about_image');
+            if ($old) Storage::disk('public')->delete($old);
+
+            $path = $request->file("about_image")->store("website", "public");
+            WebsiteSetting::setValue("about_image", $path, "image");
         }
 
         return back()->with("success", "Konten about berhasil diupdate");
+    }
+
+    public function deleteAboutImage()
+    {
+        $old = WebsiteSetting::getValue('about_image');
+        if ($old) Storage::disk('public')->delete($old);
+        WebsiteSetting::setValue('about_image', null, 'image');
+
+        return back()->with("success", "Gambar about berhasil dihapus");
     }
 
     public function updateContactInfo(Request $request)
@@ -127,18 +141,9 @@ class WebsiteSettingController extends Controller
         ]);
 
         WebsiteSetting::setValue("contact_title", $request->contact_title);
-        WebsiteSetting::setValue(
-            "contact_description",
-            $request->contact_description,
-        );
-        WebsiteSetting::setValue(
-            "contact_whatsapp",
-            $request->contact_whatsapp,
-        );
-        WebsiteSetting::setValue(
-            "contact_maps_embed",
-            $request->contact_maps_embed,
-        );
+        WebsiteSetting::setValue("contact_description", $request->contact_description);
+        WebsiteSetting::setValue("contact_whatsapp", $request->contact_whatsapp);
+        WebsiteSetting::setValue("contact_maps_embed", $request->contact_maps_embed);
 
         return back()->with("success", "Informasi kontak berhasil diupdate");
     }

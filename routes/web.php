@@ -315,14 +315,26 @@ Route::middleware(["auth", "role:admin"])
             WebsiteSettingController::class,
             "updateLogo",
         ])->name("settings.logo");
+        Route::delete("/settings/logo", [
+            WebsiteSettingController::class,
+            "deleteLogo",
+        ])->name("settings.logo.delete");
         Route::put("/settings/hero-image", [
             WebsiteSettingController::class,
             "updateHeroImage",
         ])->name("settings.hero-image");
+        Route::delete("/settings/hero-image", [
+            WebsiteSettingController::class,
+            "deleteHeroImage",
+        ])->name("settings.hero-image.delete");
         Route::put("/settings/about", [
             WebsiteSettingController::class,
             "updateAboutContent",
         ])->name("settings.about");
+        Route::delete("/settings/about-image", [
+            WebsiteSettingController::class,
+            "deleteAboutImage",
+        ])->name("settings.about-image.delete");
         Route::put("/settings/contact", [
             WebsiteSettingController::class,
             "updateContactInfo",
