@@ -22,6 +22,10 @@ Route::get('/forgot-password', function () {
     return view('auth.forgot-password');
 })->middleware('guest')->name('password.request');
 
+Route::get('/reset-password/{token}', function (string $token) {
+    return view('auth.reset-password', ['token' => $token]);
+})->middleware('guest')->name('password.reset');
+
 Route::get('/email/verify', function () {
     if (auth()->user()->hasVerifiedEmail()) {
         return redirectTo();
@@ -46,7 +50,7 @@ Route::post('/reset-password', [NewPasswordController::class, 'store'])
 
 Route::post('/email/verification-notification', function () {
     request()->user()->sendEmailVerificationNotification();
-    
+
     // Handle AJAX requests
     if (request()->expectsJson()) {
         return response()->json([
@@ -54,7 +58,7 @@ Route::post('/email/verification-notification', function () {
             'message' => 'Link verifikasi telah dikirim!'
         ]);
     }
-    
+
     return back()->with('status', 'verification-link-sent');
 })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 
@@ -65,15 +69,15 @@ Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, '__invoke
 if (!function_exists('redirectTo')) {
     function redirectTo() {
         $user = auth()->user();
-        
+
         if ($user->hasRole('admin')) {
             return redirect()->route('admin.dashboard');
         }
-        
+
         if ($user->hasRole('operator')) {
             return redirect()->route('operator.dashboard');
         }
-        
+
         return redirect()->route('home');
     }
 }
