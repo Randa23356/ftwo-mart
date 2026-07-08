@@ -465,7 +465,3 @@ Route::middleware(["auth", "role:operator|admin"]) // Allow admin to access oper
         ])->name("products.delete-all-images");
     });
 
-
-// Test routes for image debugging (remove in production)
-Route::get('/test/images', [App\Http\Controllers\TestImageController::class, 'testImages']);
-Route::get('/test/images/cleanup', [App\Http\Controllers\TestImageController::class, 'cleanup'])->name('image.cleanup');

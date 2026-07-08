@@ -8,7 +8,6 @@ use App\Models\WebsiteSetting;
 use App\Models\Category;
 use App\Models\Service;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Blade;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -45,10 +44,5 @@ class AppServiceProvider extends ServiceProvider
             $services = Service::where("is_active", true)->get();
             View::share("services", $services);
         }
-
-        // Blade directive for image URLs
-        Blade::directive('imageUrl', function ($expression) {
-            return "<?php echo \\App\\Helpers\\ImageHelper::getImageUrl($expression); ?>";
-        });
     }
 }
