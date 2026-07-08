@@ -25,6 +25,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Set umask so uploaded files get 755 permission (required by this server)
+        umask(0022);
+
         // Share website settings with all views if table exists
         if (Schema::hasTable("website_settings")) {
             $settings = WebsiteSetting::all()->keyBy("key");
