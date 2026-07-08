@@ -23,9 +23,11 @@ class WebsiteSetting extends Model
 
     public static function setValue($key, $value, $type = 'text')
     {
+        $normalizedValue = $value === null ? '' : $value;
+
         return static::updateOrCreate(
             ['key' => $key],
-            ['value' => $value, 'type' => $type]
+            ['value' => $normalizedValue, 'type' => $type]
         );
     }
 }
