@@ -875,9 +875,4 @@ function cancelSelectedItems() {
 }
 @endif
 </script>
-<script>
-  document.getElementById('pay-button').onclick = function() {
-    window.snap.pay('{{ $snapToken }}');
-  }
-</script>
 @endsection
