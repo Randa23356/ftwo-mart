@@ -43,7 +43,10 @@ class OrderController extends Controller
             Config::$isProduction = config("services.midtrans.is_production");
 
             try {
-                $status = Transaction::status($order->order_number);
+                // Get the latest Midtrans transaction_id from payment transaction
+                $paymentTx = $order->paymentTransaction;
+                $midtransId = $paymentTx ? $paymentTx->transaction_id : $order->order_number;
+                $status = Transaction::status($midtransId);
 
                 // Virtual Account
                 if (!empty($status->va_numbers)) {
@@ -592,7 +595,6 @@ class OrderController extends Controller
 
         // Check if there's an existing valid token (less than 1 hour old)
         if (
-            $order->snap_token &&
             $order->snap_token_created_at &&
             $order->snap_token_created_at->diffInHours(now()) < 1
         ) {
@@ -621,11 +623,15 @@ class OrderController extends Controller
         Config::$isSanitized = true;
         Config::$is3ds = true;
 
+        // Use unique order_id for each payment attempt to avoid "order_id has already been taken"
+        // Format: ORDER_NUMBER-TIMESTAMP (e.g. ORD-20250101-001-1720000000)
+        $midtransOrderId = $order->order_number . '-' . time();
+
         // Prepare transaction details
         $params = [
             "transaction_details" => [
-                "order_id" => $order->order_number,
-                "gross_amount" => $order->total_amount + $order->shipping_cost,
+                "order_id" => $midtransOrderId,
+                "gross_amount" => (int) ($order->total_amount + $order->shipping_cost),
             ],
             "customer_details" => [
                 "first_name" => $order->user->name,
@@ -642,7 +648,7 @@ class OrderController extends Controller
             $payment = PaymentTransaction::updateOrCreate(
                 ["order_id" => $order->id],
                 [
-                    "transaction_id" => $order->order_number,
+                    "transaction_id" => $midtransOrderId,
                     "payment_gateway" => "midtrans",
                     "amount" => $order->total_amount + $order->shipping_cost,
                     "status" => "pending",
@@ -652,9 +658,8 @@ class OrderController extends Controller
                 ],
             );
 
-            // Update order with token
+            // Update order with token timestamp
             $order->update([
-                "snap_token" => $snapToken,
                 "snap_token_created_at" => now(),
             ]);
 
@@ -662,14 +667,17 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             \Log::error("Midtrans token generation failed", [
                 "order_id" => $order->id,
+                "order_number" => $order->order_number,
+                "params" => $params ?? null,
                 "error" => $e->getMessage(),
+                "trace" => $e->getTraceAsString(),
             ]);
 
             return redirect()
                 ->back()
                 ->with(
                     "error",
-                    "Gagal memproses pembayaran. Silakan coba lagi.",
+                    "Gagal memproses pembayaran: " . $e->getMessage(),
                 );
         }
     }
@@ -697,8 +705,11 @@ class OrderController extends Controller
             return response()->json(["status" => "invalid_signature"], 403);
         }
 
-        // Cari order berdasarkan order_number
-        $order = Order::where("order_number", $request->order_id)->first();
+        // Cari order berdasarkan order_number (Midtrans order_id may have -TIMESTAMP suffix)
+        $midtransOrderId = $request->order_id;
+        // Strip timestamp suffix to get original order_number
+        $orderNumber = preg_replace('/-\d+$/', '', $midtransOrderId);
+        $order = Order::where("order_number", $orderNumber)->first();
         if (!$order) {
             \Log::warning("Order not found", [
                 "order_id" => $request->order_id,
@@ -708,8 +719,10 @@ class OrderController extends Controller
 
         // Cari atau buat PaymentTransaction terkait
         $payment = PaymentTransaction::firstOrNew(["order_id" => $order->id]);
-        $payment->transaction_id =
-            $request->transaction_id ?? $order->order_number;
+        // Keep existing transaction_id if already set, otherwise use Midtrans transaction_id
+        if (!$payment->exists) {
+            $payment->transaction_id = $request->transaction_id ?? $midtransOrderId;
+        }
         $payment->payment_gateway = "midtrans";
         $payment->amount =
             $request->gross_amount ?? $order->total_with_shipping;
