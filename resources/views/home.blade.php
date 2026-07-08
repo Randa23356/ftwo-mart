@@ -12,21 +12,21 @@
 
     @if(isset($settings['hero_image']) && $settings['hero_image']->value)
             <div class="absolute inset-0">
-            <img src="{{ Storage::url($settings['hero_image']->value) }}" alt="Hero Image" class="w-full h-full object-cover opacity-15 mix-blend-overlay">
+            <img src="/{{ $settings['hero_image']->value }}" alt="Hero Image" class="w-full h-full object-cover opacity-15 mix-blend-overlay">
             <div class="absolute inset-0 bg-green-900/80"></div>
         </div>
     @endif
 
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-32">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            <div class="space-y-6 lg:space-y-8" 
-                 x-data="{ show: false }" 
+            <div class="space-y-6 lg:space-y-8"
+                 x-data="{ show: false }"
                  x-init="setTimeout(() => show = true, 100)"
                  x-show="show"
                  x-transition:enter="transition ease-out duration-1000"
                  x-transition:enter-start="opacity-0 -translate-x-12"
                  x-transition:enter-end="opacity-100 translate-x-0">
-                
+
                 <div class="inline-flex items-center px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-green-100 text-xs sm:text-sm font-medium mb-2">
                     <span class="flex h-2 w-2 rounded-full bg-green-400 mr-2 animate-ping"></span>
                     Koleksi Terbaru 2025
@@ -38,7 +38,7 @@
                         Marketplace Terpercaya
                     </span>
                 </h1>
-                
+
                 <p class="text-base sm:text-lg md:text-xl text-green-100/90 leading-relaxed max-w-xl">
                     {{ $settings['website_description']->value ?? 'Temukan berbagai produk berkualitas dengan harga terjangkau. Marketplace terpercaya untuk kebutuhan Anda.' }}
                 </p>
@@ -67,13 +67,13 @@
             </div>
 
             <div class="hidden lg:block relative"
-                 x-data="{ show: false }" 
+                 x-data="{ show: false }"
                  x-init="setTimeout(() => show = true, 300)"
                  x-show="show"
                  x-transition:enter="transition ease-out duration-1000"
                  x-transition:enter-start="opacity-0 scale-90 translate-y-12"
                  x-transition:enter-end="opacity-100 scale-100 translate-y-0">
-                
+
                 <div class="relative">
                     <!-- Decorative shapes -->
                     <div class="absolute -top-10 -right-10 w-32 h-32 bg-green-500/20 rounded-full blur-2xl animate-pulse"></div>
@@ -81,7 +81,7 @@
 
                     @if(isset($settings['hero_image']) && $settings['hero_image']->value)
                         <div class="relative rounded-2xl overflow-hidden shadow-2xl shadow-green-900/50 border border-white/10 animate-float">
-                            <img src="{{ Storage::url($settings['hero_image']->value) }}" alt="Hero Image" class="w-full h-auto">
+                            <img src="/{{ $settings['hero_image']->value }}" alt="Hero Image" class="w-full h-auto">
                             <div class="absolute inset-0 bg-green-900/40"></div>
                         </div>
                     @else
@@ -279,12 +279,12 @@
 <div class="py-24 relative overflow-hidden bg-green-700">
     <!-- Decorative Circle Blur -->
     <div class="absolute -top-[50%] -left-[20%] w-[100%] h-[200%] bg-green-500/20 blur-[150px] rounded-full"></div>
-    
+
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
         <div class="max-w-3xl mx-auto">
             <h2 class="text-4xl md:text-5xl font-extrabold text-white mb-6 tracking-tight leading-tight">Siap Menemukan Produk Terbaik? <span class="text-green-200 text-glow">FtwoMart</span></h2>
             <p class="text-xl text-green-100/80 mb-10 leading-relaxed">Bergabunglah dengan ribuan pelanggan lainnya dan temukan produk berkualitas dengan harga terbaik.</p>
-            
+
             <div class="flex flex-col sm:flex-row gap-5 justify-center">
                 @auth
                     <x-button href="{{ route('products') }}" variant="secondary" size="xl" class="shadow-2xl shadow-green-500/30 min-w-[200px]">

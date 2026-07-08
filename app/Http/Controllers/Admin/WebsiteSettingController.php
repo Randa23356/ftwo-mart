@@ -63,7 +63,10 @@ class WebsiteSettingController extends Controller
         ]);
 
         if ($request->hasFile("logo")) {
-            $logoPath = $request->file("logo")->store("website", "public");
+            $file = $request->file("logo");
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('website'), $filename);
+            $logoPath = 'website/' . $filename;
             WebsiteSetting::setValue("logo", $logoPath, "image");
         }
 
@@ -77,9 +80,10 @@ class WebsiteSettingController extends Controller
         ]);
 
         if ($request->hasFile("hero_image")) {
-            $heroPath = $request
-                ->file("hero_image")
-                ->store("website", "public");
+            $file = $request->file("hero_image");
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('website'), $filename);
+            $heroPath = 'website/' . $filename;
             WebsiteSetting::setValue("hero_image", $heroPath, "image");
         }
 
