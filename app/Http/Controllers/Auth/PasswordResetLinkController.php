@@ -34,6 +34,10 @@ class PasswordResetLinkController extends Controller
             ]);
         }
 
-        return response()->json(['status' => __($status)]);
+        if ($request->expectsJson()) {
+            return response()->json(['status' => __($status)]);
+        }
+
+        return back()->with('status', 'Link reset password telah dikirim ke email Anda.');
     }
 }

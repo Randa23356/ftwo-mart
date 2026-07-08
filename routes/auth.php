@@ -41,11 +41,11 @@ Route::post('/login', [AuthenticatedSessionController::class, 'store'])
     ->middleware('guest');
 
 Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
-    ->middleware('guest')
+    ->middleware(['guest', 'throttle:6,1'])
     ->name('password.email');
 
 Route::post('/reset-password', [NewPasswordController::class, 'store'])
-    ->middleware('guest')
+    ->middleware(['guest', 'throttle:6,1'])
     ->name('password.store');
 
 Route::post('/email/verification-notification', function () {

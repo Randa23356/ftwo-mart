@@ -48,6 +48,10 @@ class NewPasswordController extends Controller
             ]);
         }
 
-        return response()->json(['status' => __($status)]);
+        if ($request->expectsJson()) {
+            return response()->json(['status' => __($status)]);
+        }
+
+        return redirect()->route('login')->with('status', 'Password berhasil direset. Silakan login dengan password baru Anda.');
     }
 }
