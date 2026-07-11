@@ -18,7 +18,8 @@ class ClearInvalidSession
     public function handle(Request $request, Closure $next): Response
     {
         // If user is logged in but user data is invalid, clear session
-        if (Auth::check()) {
+        // Only do this for email verification routes to avoid breaking other functionality
+        if (Auth::check() && $request->is('email/verify/*')) {
             try {
                 $user = Auth::user();
                 if (!$user || !$user->exists) {

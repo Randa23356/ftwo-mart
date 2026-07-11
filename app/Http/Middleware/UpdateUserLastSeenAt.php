@@ -23,12 +23,21 @@ class UpdateUserLastSeenAt
                 $user = Auth::user();
                 if ($user && $user->exists && $user->id) {
                     // Update last_seen_at without triggering model events
-                    \DB::table('users')
+                    $updated = \DB::table('users')
                         ->where('id', $user->id)
                         ->update(['last_seen_at' => now()]);
+                    
+                    // Log for debugging
+                    if ($updated) {
+                        \Log::info('Updated last_seen_at', ['user_id' => $user->id]);
+                    }
                 }
             } catch (\Exception $e) {
-                // Silent fail - don't break the request
+                // Log error for debugging
+                \Log::error('Failed to update last_seen_at', [
+                    'user_id' => Auth::id(),
+                    'error' => $e->getMessage()
+                ]);
             }
         }
 

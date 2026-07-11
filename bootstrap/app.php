@@ -33,7 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->web(
-            append: [\App\Http\Middleware\ClearInvalidSession::class, \App\Http\Middleware\UpdateUserLastSeenAt::class],
+            append: [\App\Http\Middleware\UpdateUserLastSeenAt::class, \App\Http\Middleware\ClearInvalidSession::class],
         );
     })
     ->withSchedule(function ($schedule) {
