@@ -16,17 +16,18 @@ class UpdateUserLastSeenAt
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && Auth::user()) {
-            // Update the last_seen_at timestamp for the authenticated user
-            try {
-                Auth::user()->update(["last_seen_at" => now()]);
-            } catch (\Exception $e) {
-                // Log error but don't break the request
-                \Log::error('Failed to update last_seen_at', [
-                    'user_id' => Auth::id(),
-                    'error' => $e->getMessage()
-                ]);
+        try {
+            if (Auth::check()) {
+                $user = Auth::user();
+                if ($user && $user->exists) {
+                    $user->update(["last_seen_at" => now()]);
+                }
             }
+        } catch (\Exception $e) {
+            // Log error but don't break the request
+            \Log::error('Failed to update last_seen_at', [
+                'error' => $e->getMessage()
+            ]);
         }
 
         return $next($request);
