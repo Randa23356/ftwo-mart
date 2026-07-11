@@ -16,13 +16,20 @@ class UpdateUserLastSeenAt
      */
     public function handle(Request $request, Closure $next): Response
     {
-        try {
-            $user = Auth::user();
-            if ($user && $user->exists) {
-                $user->update(["last_seen_at" => now()]);
+        // Only update last_seen_at for authenticated users on safe routes
+        // Skip for email verification routes to avoid errors
+        if (Auth::check() && !$request->is('email/verify/*')) {
+            try {
+                $user = Auth::user();
+                if ($user && $user->exists && $user->id) {
+                    // Update last_seen_at without triggering model events
+                    \DB::table('users')
+                        ->where('id', $user->id)
+                        ->update(['last_seen_at' => now()]);
+                }
+            } catch (\Exception $e) {
+                // Silent fail - don't break the request
             }
-        } catch (\Exception $e) {
-            // Silent fail - don't log to avoid cascading errors
         }
 
         return $next($request);
