@@ -167,6 +167,10 @@ Route::middleware(["auth", "verified"])->group(function () {
                 ChatController::class,
                 "getUsersForUser",
             ])->name("users.for.user");
+            Route::get("/presence/{userId}", [
+                ChatController::class,
+                "getPresenceStatus",
+            ])->name("presence");
         });
 
     // Cart routes

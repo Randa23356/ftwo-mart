@@ -19,6 +19,11 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // Update last_seen_at immediately on login
+        \DB::table('users')
+            ->where('id', Auth::id())
+            ->update(['last_seen_at' => now()]);
+
         // Check if user's email is verified
         if (!Auth::user()->hasVerifiedEmail()) {
             return redirect()->route('verification.notice')

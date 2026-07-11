@@ -291,7 +291,9 @@
                                          alt="{{ $conversation->user->name }}"
                                          class="chat-avatar w-12 h-12 md:w-16 md:h-16 rounded-2xl object-cover border-2 border-white shadow-lg">
                                     @if($conversation->user->presence_status == 'Online')
-                                        <div class="online-indicator"></div>
+                                        <div class="online-indicator" id="presence-indicator"></div>
+                                    @else
+                                        <div class="absolute -bottom-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-gray-400 border-2 border-white rounded-full" id="presence-indicator"></div>
                                     @endif
                                 @else
                                     <div class="chat-avatar w-12 h-12 md:w-16 md:h-16 bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center border-2 border-white shadow-lg">
@@ -314,7 +316,7 @@
                                     <h3 class="text-lg md:text-xl font-bold text-gray-900 hover:text-green-600 mb-1 truncate">
                                         {{ $conversation->user->name }}
                                     </h3>
-                                    <p class="text-xs md:text-sm font-medium text-gray-600 truncate">{{ $conversation->user->presence_status }}</p>
+                                    <p class="text-xs md:text-sm font-medium text-gray-600 truncate" id="presence-status-text">{{ $conversation->user->presence_status }}</p>
                                 @else
                                     <h3 class="text-lg md:text-xl font-bold text-orange-600 mb-1 truncate">
                                         <i class="fas fa-user-secret mr-1 md:mr-2"></i>
@@ -712,8 +714,10 @@
 <script>
 const conversationId = {{ $conversation->id }};
 const currentUserId = {{ Auth::id() }};
+const chatUserId = {{ $conversation->user_id ?? 'null' }};
 const getMessagesUrl = `/chat/${conversationId}/messages`;
 const storeMessageUrl = `/chat/${conversationId}/messages`;
+const presenceUrl = chatUserId ? `/chat/presence/${chatUserId}` : null;
 
 document.addEventListener('DOMContentLoaded', () => {
     const messageContainer = document.getElementById('message-container');
@@ -961,9 +965,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, 3000);
 
+    // Auto-refresh presence status every 10 seconds
+    const presenceIndicator = document.getElementById('presence-indicator');
+    const presenceStatusText = document.getElementById('presence-status-text');
+
+    const fetchPresence = async () => {
+        if (!presenceUrl || !presenceIndicator || !presenceStatusText) return;
+        try {
+            const response = await fetch(presenceUrl);
+            if (!response.ok) return;
+            const data = await response.json();
+
+            presenceStatusText.textContent = data.status;
+
+            if (data.is_online) {
+                presenceIndicator.className = 'online-indicator';
+            } else {
+                presenceIndicator.className = 'absolute -bottom-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-gray-400 border-2 border-white rounded-full';
+            }
+        } catch (e) {
+            // silent fail
+        }
+    };
+
+    const presenceInterval = setInterval(() => {
+        if (document.visibilityState === 'visible') {
+            fetchPresence();
+        }
+    }, 10000);
+
     // Clean up interval on page unload
     window.addEventListener('beforeunload', () => {
         clearInterval(messageInterval);
+        clearInterval(presenceInterval);
     });
 
     // Initial load

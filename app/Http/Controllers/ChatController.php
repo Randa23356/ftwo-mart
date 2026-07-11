@@ -432,30 +432,45 @@ public function destroy(Conversation $conversation)
         ]);
         
         return redirect()->route('chat.index')->with('error', 'Gagal menghapus percakapan: ' . $e->getMessage());
+        }
     }
-}
 
-public function restore($id)
-{
-    $conversation = Conversation::withTrashed()->findOrFail($id);
-    $this->authorizeUser("restore", $conversation);
-    
-    $conversation->restore();
-    
-    return redirect()->route('chat.index')->with('success', 'Percakapan berhasil dipulihkan.');
-}
+    /**
+     * Get presence status for a user (AJAX endpoint).
+     */
+    public function getPresenceStatus($userId)
+    {
+        $user = \App\Models\User::find($userId);
 
-public function forceDelete($id)
-{
-    $conversation = Conversation::withTrashed()->findOrFail($id);
-    $this->authorizeUser("force_delete", $conversation);
-    
-    $conversation->forceDelete();
-    
-    return redirect()->route('chat.index')->with('success', 'Percakapan berhasil dihapus permanen.');
-}
+        if (!$user) {
+            return response()->json(['status' => 'Offline'], 404);
+        }
 
+        return response()->json([
+            'user_id' => $user->id,
+            'status' => $user->presence_status,
+            'last_seen_at' => $user->last_seen_at?->toISOString(),
+            'is_online' => $user->last_seen_at && $user->last_seen_at->gt(now()->subMinutes(5)),
+        ]);
+    }
 
+    public function restore($id)
+    {
+        $conversation = Conversation::withTrashed()->findOrFail($id);
+        $this->authorizeUser("restore", $conversation);
+        
+        $conversation->restore();
+        
+        return redirect()->route('chat.index')->with('success', 'Percakapan berhasil dipulihkan.');
+    }
 
-
+    public function forceDelete($id)
+    {
+        $conversation = Conversation::withTrashed()->findOrFail($id);
+        $this->authorizeUser("force_delete", $conversation);
+        
+        $conversation->forceDelete();
+        
+        return redirect()->route('chat.index')->with('success', 'Percakapan berhasil dihapus permanen.');
+    }
 }
