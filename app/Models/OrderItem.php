@@ -15,7 +15,10 @@ class OrderItem extends Model
         'product_id',
         'quantity',
         'price',
-        'subtotal'
+        'subtotal',
+        'product_name',
+        'product_image',
+        'product_code'
     ];
 
     protected $casts = [
@@ -30,7 +33,7 @@ class OrderItem extends Model
 
     public function product(): BelongsTo
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Product::class)->withTrashed();
     }
 
     public function getFormattedPriceAttribute()
@@ -41,5 +44,28 @@ class OrderItem extends Model
     public function getFormattedSubtotalAttribute()
     {
         return 'Rp ' . number_format($this->subtotal, 0, ',', '.');
+    }
+
+    public function getProductNameAttribute()
+    {
+        return $this->attributes['product_name'] ?? $this->product->name ?? 'Produk Tidak Tersedia';
+    }
+
+    public function getProductImageUrlAttribute()
+    {
+        if ($this->product_image) {
+            return asset('storage/' . $this->product_image);
+        }
+        
+        if ($this->product) {
+            return $this->product->image_url;
+        }
+        
+        return asset('images/default-product.jpg');
+    }
+
+    public function getProductCodeAttribute()
+    {
+        return $this->attributes['product_code'] ?? $this->product->product_code ?? '-';
     }
 }

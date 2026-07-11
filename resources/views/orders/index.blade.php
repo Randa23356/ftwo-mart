@@ -67,9 +67,10 @@
                         <div class="flex items-center -space-x-2">
                             @foreach($order->orderItems->take(3) as $item)
                                 <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg border-2 border-white overflow-hidden bg-white shadow-sm">
-                                    <img src="{{ $item->product->image_url }}" 
-                                         alt="{{ $item->product->name }}" 
-                                         class="w-full h-full object-cover">
+                                    <img src="{{ $item->product_image_url }}" 
+                                         alt="{{ $item->product_name }}" 
+                                         class="w-full h-full object-cover"
+                                         onerror="this.src='{{ asset('images/default-product.jpg') }}'">
                                 </div>
                             @endforeach
                             @if($order->orderItems->count() > 3)

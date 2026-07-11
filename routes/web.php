@@ -50,7 +50,7 @@ Route::get("/about", [HomeController::class, "about"])->name("about");
 Route::prefix("shipping")
     ->name("shipping.")
     ->group(function () {
-        Route::get("/provinces", [ 
+        Route::get("/provinces", [
             ShippingController::class,
             "getProvinces",
         ])->name("provinces");

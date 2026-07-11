@@ -57,21 +57,22 @@
                         <div class="flex items-start md:items-center gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors border border-gray-100">
                             <!-- Product Image -->
                             <div class="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden border border-gray-200">
-                                <img src="{{ $item->product->image_url }}" 
-                                     alt="{{ $item->product->name }}" 
-                                     class="w-full h-full object-cover">
+                                <img src="{{ $item->product_image_url }}" 
+                                     alt="{{ $item->product_name }}" 
+                                     class="w-full h-full object-cover"
+                                     onerror="this.src='{{ asset('images/default-product.jpg') }}'">
                             </div>
                             
                             <div class="flex-1 min-w-0">
-                                <h4 class="font-bold text-gray-900 text-base sm:text-lg truncate">{{ $item->product->name }}</h4>
-                                <p class="text-xs sm:text-sm text-gray-500 mb-1 sm:mb-2 truncate">Kode: {{ $item->product->product_code ?? '-' }}</p>
+                                <h4 class="font-bold text-gray-900 text-base sm:text-lg truncate">{{ $item->product_name }}</h4>
+                                <p class="text-xs sm:text-sm text-gray-500 mb-1 sm:mb-2 truncate">Kode: {{ $item->product_code }}</p>
                                 <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 text-xs sm:text-sm">
                                     <span class="bg-green-50 text-green-700 px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-md font-medium border border-green-100 w-fit">
                                         {{ $item->quantity }} x {{ 'Rp ' . number_format($item->price, 0, ',', '.') }}
                                     </span>
                                     
-                                    <!-- Rating Button - Only show if order is delivered -->
-                                    @if($order->order_status === 'delivered')
+                                    <!-- Rating Button - Only show if order is delivered and product exists -->
+                                    @if($order->order_status === 'delivered' && $item->product)
                                         @php
                                             $existingRating = Auth::user()->ratings()->where('product_id', $item->product->id)->where('order_id', $order->id)->first();
                                         @endphp

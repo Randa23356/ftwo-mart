@@ -516,6 +516,9 @@ class OrderController extends Controller
                     "quantity" => $cartItem->quantity,
                     "price" => $cartItem->product->price,
                     "subtotal" => $cartItem->subtotal,
+                    "product_name" => $cartItem->product->name,
+                    "product_image" => $cartItem->product->image,
+                    "product_code" => $cartItem->product->product_code,
                 ]);
 
                 // update stok

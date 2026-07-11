@@ -63,7 +63,7 @@ Route::post('/email/verification-notification', function () {
 })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 
 Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, '__invoke'])
-    ->middleware(['auth', 'signed'])
+    ->middleware(['signed'])
     ->name('verification.verify');
 
 if (!function_exists('redirectTo')) {
