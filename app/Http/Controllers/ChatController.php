@@ -179,9 +179,18 @@ class ChatController extends Controller
         // Determine conversation visibility based on sender and recipient roles
         $visibility = $this->determineVisibility($user, $recipient);
         
-        // Create conversation with sender as user_id (owner)
+        // Set user_id based on conversation type
+        // For conversations involving regular users, user_id should be the regular user
+        // For internal conversations (admin-operator), user_id is the sender
+        $conversationUserId = $user->id;
+        if ($recipient->isUser() && !$user->isUser()) {
+            // Admin/Operator sending to User - user_id should be the user
+            $conversationUserId = $recipient->id;
+        }
+        
+        // Create conversation
         $conversation = Conversation::create([
-            "user_id" => $user->id,
+            "user_id" => $conversationUserId,
             "subject" => $validated['subject'],
             "status" => "open",
             "visibility" => $visibility,
