@@ -80,7 +80,7 @@
              @click="mobileOpen = false"></div>
 
         <!-- Menu Content -->
-        <div class="absolute right-0 top-0 h-screen w-[280px] bg-white shadow-2xl transition-transform duration-300 ease-out"
+        <div class="absolute right-0 top-0 h-screen w-[min(300px,85vw)] bg-white shadow-2xl transition-transform duration-300 ease-out flex flex-col"
              x-transition:enter="transform transition ease-out duration-300"
              x-transition:enter-start="translate-x-full"
              x-transition:enter-end="translate-x-0"
@@ -88,106 +88,108 @@
              x-transition:leave-start="translate-x-0"
              x-transition:leave-end="translate-x-full">
 
-            <div class="flex flex-col h-full">
-                <div class="p-6 flex items-center justify-between border-b border-gray-100">
-                    <span class="text-xl font-black tracking-tighter text-gray-900">
-                        Menu <span class="text-green-600">Navigasi</span>
-                    </span>
-                    <button @click="mobileOpen = false" class="h-10 w-10 flex items-center justify-center rounded-xl bg-gray-50 text-gray-400 hover:text-red-500 transition-colors">
-                        <i class="fas fa-times text-lg"></i>
-                    </button>
-                </div>
+            <!-- Header -->
+            <div class="px-4 py-3.5 flex items-center justify-between border-b border-gray-100 flex-shrink-0">
+                <span class="text-base font-black tracking-tight text-gray-900">
+                    Menu <span class="text-green-600">Navigasi</span>
+                </span>
+                <button @click="mobileOpen = false" class="h-8 w-8 flex items-center justify-center rounded-lg bg-gray-50 text-gray-400 hover:text-red-500 transition-colors">
+                    <i class="fas fa-times text-sm"></i>
+                </button>
+            </div>
 
-                <div class="flex-1 overflow-y-auto py-8 px-6 space-y-3">
+            <!-- Scrollable Menu -->
+            <div class="flex-1 overflow-y-auto min-h-0 relative">
+                <div class="px-3 py-3 space-y-0.5">
                     <a href="{{ route('home') }}"
-                       class="flex items-center gap-4 px-6 py-3.5 rounded-2xl text-base font-bold transition-all border border-transparent {{ request()->routeIs('home') ? 'bg-green-50 text-green-700 border-green-100 shadow-sm' : 'text-gray-600 hover:bg-gray-50' }}">
-                        <i class="fas fa-home w-5 text-green-400"></i> Home
+                       class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all border border-transparent {{ request()->routeIs('home') ? 'bg-green-50 text-green-700 border-green-100' : 'text-gray-600 hover:bg-gray-50' }}">
+                        <i class="fas fa-home w-4 text-center text-green-400"></i> Home
                     </a>
 
                     <a href="{{ route('products') }}"
-                       class="flex items-center gap-4 px-6 py-3.5 rounded-2xl text-base font-bold transition-all border border-transparent {{ request()->routeIs('products*') ? 'bg-green-50 text-green-700 border-green-100 shadow-sm' : 'text-gray-600 hover:bg-gray-50' }}">
-                        <i class="fas fa-box w-5 text-green-400"></i> Koleksi
+                       class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all border border-transparent {{ request()->routeIs('products*') ? 'bg-green-50 text-green-700 border-green-100' : 'text-gray-600 hover:bg-gray-50' }}">
+                        <i class="fas fa-box w-4 text-center text-green-400"></i> Koleksi
                     </a>
 
                     <a href="{{ route('about') }}"
-                       class="flex items-center gap-4 px-6 py-3.5 rounded-2xl text-base font-bold transition-all border border-transparent {{ request()->routeIs('about') ? 'bg-green-50 text-green-700 border-green-100 shadow-sm' : 'text-gray-600 hover:bg-gray-50' }}">
-                        <i class="fas fa-info-circle w-5 text-green-400"></i> Tentang
+                       class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all border border-transparent {{ request()->routeIs('about') ? 'bg-green-50 text-green-700 border-green-100' : 'text-gray-600 hover:bg-gray-50' }}">
+                        <i class="fas fa-info-circle w-4 text-center text-green-400"></i> Tentang
                     </a>
 
                     <a href="{{ route('contact') }}"
-                       class="flex items-center gap-4 px-6 py-3.5 rounded-2xl text-base font-bold transition-all border border-transparent {{ request()->routeIs('contact') ? 'bg-green-50 text-green-700 border-green-100 shadow-sm' : 'text-gray-600 hover:bg-gray-50' }}">
-                        <i class="fas fa-envelope w-5 text-green-400"></i> Kontak Kami
+                       class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all border border-transparent {{ request()->routeIs('contact') ? 'bg-green-50 text-green-700 border-green-100' : 'text-gray-600 hover:bg-gray-50' }}">
+                        <i class="fas fa-envelope w-4 text-center text-green-400"></i> Kontak Kami
                     </a>
 
-                    <div class="pt-6 border-t border-gray-100 mt-6 pb-2">
-                        <p class="px-4 text-[11px] font-black uppercase tracking-[0.2em] text-gray-400 mb-5">Akun Saya</p>
-                        <div class="space-y-3">
-                            @auth
-                                @if(auth()->user()->isAdmin())
-                                    <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-4 px-6 py-3.5 rounded-2xl text-base font-bold text-red-600 hover:bg-red-50 transition-all">
-                                        <i class="fas fa-tachometer-alt w-5 text-red-400"></i> Dashboard Admin
-                                    </a>
+                    <div class="pt-3 border-t border-gray-100 mt-2">
+                        <p class="px-2 text-[10px] font-black uppercase tracking-[0.15em] text-gray-400 mb-2">Akun Saya</p>
+                        @auth
+                            @if(auth()->user()->isAdmin())
+                                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-red-600 hover:bg-red-50 transition-all">
+                                    <i class="fas fa-tachometer-alt w-4 text-center text-red-400"></i> Dashboard Admin
+                                </a>
+                            @endif
+
+                            @if(auth()->user()->isOperator())
+                                <a href="{{ route('operator.dashboard') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-green-600 hover:bg-green-50 transition-all">
+                                    <i class="fas fa-tools w-4 text-center text-green-400"></i> Dashboard Operator
+                                </a>
+                            @endif
+
+                            @php $cartCount = auth()->user()->cartItems->sum('quantity'); @endphp
+                            <a href="{{ route('cart.index') }}" class="flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-all">
+                                <div class="flex items-center gap-3">
+                                    <i class="fas fa-shopping-cart w-4 text-center text-green-400"></i> Keranjang
+                                </div>
+                                @if($cartCount > 0)
+                                    <span class="bg-red-500 text-white text-[9px] rounded-md px-1.5 py-0.5 font-bold">{{ $cartCount }}</span>
                                 @endif
+                            </a>
 
-                                @if(auth()->user()->isOperator())
-                                    <a href="{{ route('operator.dashboard') }}" class="flex items-center gap-4 px-6 py-3.5 rounded-2xl text-base font-bold text-green-600 hover:bg-green-50 transition-all">
-                                        <i class="fas fa-tools w-5 text-green-400"></i> Dashboard Operator
-                                    </a>
-                                @endif
+                            <a href="{{ route('orders.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-all">
+                                <i class="fas fa-shopping-bag w-4 text-center text-green-400"></i> Pesanan
+                            </a>
 
-                                @php $cartCount = auth()->user()->cartItems->sum('quantity'); @endphp
-                                <a href="{{ route('cart.index') }}" class="flex items-center justify-between px-6 py-3.5 rounded-2xl text-base font-bold text-gray-600 hover:bg-gray-50 transition-all">
-                                    <div class="flex items-center gap-4">
-                                        <i class="fas fa-shopping-cart w-5 text-green-400"></i> Keranjang
-                                    </div>
-                                    @if($cartCount > 0)
-                                        <span class="bg-red-500 text-white text-[10px] rounded-lg px-2 py-0.5 font-black">{{ $cartCount }}</span>
-                                    @endif
-                                </a>
+                            <a href="{{ route('chat.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-all">
+                                <i class="fas fa-comments w-4 text-center text-green-400"></i> Pesan
+                            </a>
 
-                                <a href="{{ route('orders.index') }}" class="flex items-center gap-4 px-6 py-3.5 rounded-2xl text-base font-bold text-gray-600 hover:bg-gray-50 transition-all">
-                                    <i class="fas fa-shopping-bag w-5 text-green-400"></i> Pesanan
-                                </a>
+                            <a href="{{ route('profile.show', Auth::user()->slug ?? 'user-' . Auth::user()->id) }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-all">
+                                <i class="fas fa-user w-4 text-center text-green-400"></i> Profil
+                            </a>
+                        @else
+                            <a href="{{ route('login') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-all">
+                                <i class="fas fa-sign-in-alt w-4 text-center text-green-400"></i> Login
+                            </a>
 
-                                <a href="{{ route('chat.index') }}" class="flex items-center gap-4 px-8 py-3.5 rounded-2xl text-base font-bold text-gray-600 hover:bg-gray-50 transition-all">
-                                    <i class="fas fa-comments w-5 text-green-400"></i> Pesan
-                                </a>
-
-                                <a href="{{ route('profile.show', Auth::user()->slug ?? 'user-' . Auth::user()->id) }}" class="flex items-center gap-4 px-8 py-3.5 rounded-2xl text-base font-bold text-gray-600 hover:bg-gray-50 transition-all">
-                                    <i class="fas fa-user w-5 text-green-400"></i> Profil
-                                </a>
-                            @else
-                                <a href="{{ route('login') }}" class="flex items-center gap-4 px-8 py-3.5 rounded-2xl text-base font-bold text-gray-600 hover:bg-gray-50 transition-all">
-                                    <i class="fas fa-sign-in-alt w-5 text-green-400"></i> Login
-                                </a>
-
-                                <a href="{{ route('register') }}" class="flex items-center gap-4 px-8 py-3.5 rounded-2xl text-base font-bold text-gray-600 hover:bg-gray-50 transition-all">
-                                    <i class="fas fa-user-plus w-5 text-green-400"></i> Daftar Sekarang
-                                </a>
-                            @endauth
-                        </div>
+                            <a href="{{ route('register') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-all">
+                                <i class="fas fa-user-plus w-4 text-center text-green-400"></i> Daftar Sekarang
+                            </a>
+                        @endauth
                     </div>
                 </div>
-
-                @auth
-                    <div class="p-6 border-t border-gray-100 bg-gray-50/50">
-                        <div class="flex items-center gap-4 mb-6">
-                            <img src="{{ Auth::user()->profile_photo_url }}" class="w-12 h-12 rounded-2xl shadow-md border-2 border-white object-cover" alt="{{ Auth::user()->name }}">
-                            <div>
-                                <p class="text-sm font-black text-gray-900 leading-none mb-1">{{ Auth::user()->name }}</p>
-                                <p class="text-xs font-bold text-gray-500">{{ Auth::user()->email }}</p>
-                            </div>
-                        </div>
-
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="w-full flex items-center justify-center gap-3 py-3.5 rounded-2xl bg-white border border-red-100 text-red-600 text-sm font-black uppercase tracking-widest hover:bg-red-50 transition-all shadow-sm">
-                                <i class="fas fa-power-off"></i> Logout
-                            </button>
-                        </form>
-                    </div>
-                @endauth
+                <!-- Scroll fade -->
+                <div class="sticky bottom-0 h-6 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
             </div>
+
+            <!-- Footer: User Info + Logout -->
+            @auth
+                <div class="px-4 py-3 border-t border-gray-100 bg-gray-50/50 flex-shrink-0">
+                    <div class="flex items-center gap-3 mb-3">
+                        <img src="{{ Auth::user()->profile_photo_url }}" class="w-10 h-10 rounded-xl shadow-sm border-2 border-white object-cover" alt="{{ Auth::user()->name }}">
+                        <div class="min-w-0 flex-1">
+                            <p class="text-xs font-bold text-gray-900 truncate leading-none mb-0.5">{{ Auth::user()->name }}</p>
+                            <p class="text-[10px] text-gray-500 truncate">{{ Auth::user()->email }}</p>
+                        </div>
+                    </div>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white border border-red-100 text-red-600 text-xs font-bold uppercase tracking-wider hover:bg-red-50 transition-all shadow-sm">
+                            <i class="fas fa-power-off text-[10px]"></i> Logout
+                        </button>
+                    </form>
+                </div>
+            @endauth
         </div>
     </div>
 
@@ -250,13 +252,13 @@
                         @auth
                             <div class="hidden md:block relative" x-data="{ open: false }">
                                 <button @click="open = !open"
-                                        class="flex items-center gap-3 p-1.5 pr-4 rounded-2xl bg-gray-50 hover:bg-green-50 border border-gray-100 transition-all duration-300 group">
+                                        class="flex items-center gap-2.5 p-1.5 pr-3 rounded-xl bg-gray-50 hover:bg-green-50 border border-gray-100 transition-all duration-300 group">
                                     <img src="{{ Auth::user()->profile_photo_url }}"
                                          alt="{{ Auth::user()->name }}"
-                                         class="w-8 h-8 rounded-xl border border-white shadow-sm object-cover group-hover:scale-105 transition-transform">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-sm font-bold text-gray-700 group-hover:text-green-700">{{ Auth::user()->name }}</span>
-                                        <i class="fas fa-chevron-down text-[10px] text-gray-400 group-hover:text-green-400 transition-transform" :class="open ? 'rotate-180' : ''"></i>
+                                         class="w-8 h-8 rounded-lg border border-white shadow-sm object-cover group-hover:scale-105 transition-transform">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-sm font-bold text-gray-700 group-hover:text-green-700 hidden lg:inline max-w-[100px] truncate">{{ Auth::user()->name }}</span>
+                                        <i class="fas fa-chevron-down text-[9px] text-gray-400 group-hover:text-green-400 transition-transform" :class="open ? 'rotate-180' : ''"></i>
                                     </div>
                                 </button>
 
@@ -269,59 +271,49 @@
                                      x-transition:leave="transition ease-in duration-150"
                                      x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                                      x-transition:leave-end="opacity-0 scale-95 -translate-y-2 transform origin-top-right"
-                                     class="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-2xl shadow-green-900/10 py-2 z-50 border border-green-50">
+                                     class="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-2xl shadow-green-900/10 py-1.5 z-50 border border-green-50">
 
-                                    <div class="px-4 py-3 border-b border-gray-100 mb-1">
-                                        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Signed in as</p>
-                                        <p class="text-sm font-bold text-gray-900 truncate">{{ Auth::user()->email }}</p>
+                                    <div class="px-3 py-2.5 border-b border-gray-100 mb-1">
+                                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Signed in as</p>
+                                        <p class="text-xs font-bold text-gray-900 truncate">{{ Auth::user()->email }}</p>
                                     </div>
 
                                     @if(auth()->user()->isAdmin())
-                                        <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors">
-                                            <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center text-green-600">
-                                                <i class="fas fa-tachometer-alt"></i>
-                                            </div>
-                                            <span class="font-semibold">Dashboard Admin</span>
+                                        <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors">
+                                            <i class="fas fa-tachometer-alt w-4 text-center text-green-500 text-xs"></i>
+                                            <span class="font-semibold text-xs">Dashboard Admin</span>
                                         </a>
                                     @endif
 
                                     @if(auth()->user()->isOperator())
-                                        <a href="{{ route('operator.dashboard') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors">
-                                            <div class="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center text-green-700">
-                                                <i class="fas fa-tools"></i>
-                                            </div>
-                                            <span class="font-semibold">Dashboard Ops</span>
+                                        <a href="{{ route('operator.dashboard') }}" class="flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors">
+                                            <i class="fas fa-tools w-4 text-center text-green-600 text-xs"></i>
+                                            <span class="font-semibold text-xs">Dashboard Operator</span>
                                         </a>
                                     @endif
 
-                                    <a href="{{ route('orders.index') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors">
-                                        <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 group-hover:bg-green-100 group-hover:text-green-600">
-                                            <i class="fas fa-shopping-bag"></i>
-                                        </div>
-                                        <span class="font-semibold">Pemesanan Saya</span>
+                                    <div class="border-t border-gray-100 my-1"></div>
+
+                                    <a href="{{ route('orders.index') }}" class="flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors">
+                                        <i class="fas fa-shopping-bag w-4 text-center text-gray-400 text-xs"></i>
+                                        <span class="font-semibold text-xs">Pemesanan Saya</span>
                                     </a>
 
-                                    <a href="{{ route('chat.index') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors">
-                                        <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600">
-                                            <i class="fas fa-comments"></i>
-                                        </div>
-                                        <span class="font-semibold">Pesan Chat</span>
+                                    <a href="{{ route('chat.index') }}" class="flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors">
+                                        <i class="fas fa-comments w-4 text-center text-gray-400 text-xs"></i>
+                                        <span class="font-semibold text-xs">Pesan Chat</span>
                                     </a>
 
-                                    <a href="{{ route('profile.show', Auth::user()->slug ?? 'user-' . Auth::user()->id) }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors">
-                                        <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600">
-                                            <i class="fas fa-user-circle"></i>
-                                        </div>
-                                        <span class="font-semibold">Lihat Profil</span>
+                                    <a href="{{ route('profile.show', Auth::user()->slug ?? 'user-' . Auth::user()->id) }}" class="flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors">
+                                        <i class="fas fa-user-circle w-4 text-center text-gray-400 text-xs"></i>
+                                        <span class="font-semibold text-xs">Lihat Profil</span>
                                     </a>
 
                                     <div class="border-t border-gray-100 mt-1 pt-1">
                                         <form method="POST" action="{{ route('logout') }}">
                                             @csrf
-                                            <button type="submit" class="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors font-bold uppercase tracking-wider">
-                                                <div class="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
-                                                    <i class="fas fa-power-off"></i>
-                                                </div>
+                                            <button type="submit" class="flex w-full items-center gap-2.5 px-3 py-2 text-xs text-red-600 hover:bg-red-50 transition-colors font-bold uppercase tracking-wider">
+                                                <i class="fas fa-power-off w-4 text-center text-red-400"></i>
                                                 Logout
                                             </button>
                                         </form>
