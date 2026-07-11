@@ -129,7 +129,7 @@ class User extends Authenticatable implements MustVerifyEmail
             return "Online";
         }
 
-        return "Terakhir aktif " . $this->last_seen_at->diffForHumans();
+        return "Terakhir online " . $this->last_seen_at->locale('id')->diffForHumans();
     }
 
     /**

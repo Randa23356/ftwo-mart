@@ -462,7 +462,7 @@
                                             </div>
                                             <div>
                                                 <p class="text-xs text-gray-600 font-medium">Terakhir Dilihat</p>
-                                                <p class="text-sm font-bold text-gray-600">{{ $user->last_seen_at->diffForHumans() }}</p>
+                                                <p class="text-sm font-bold text-gray-600">{{ $user->last_seen_at->locale('id')->diffForHumans() }}</p>
                                             </div>
                                         </div>
                                     </div>
