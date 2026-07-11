@@ -29,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
             // Custom Middleware
             "checkout.protection" => \App\Http\Middleware\CheckoutProtection::class,
+            "clear.invalid.session" => \App\Http\Middleware\ClearInvalidSession::class,
         ]);
 
         $middleware->web(
