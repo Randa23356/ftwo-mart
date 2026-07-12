@@ -100,7 +100,13 @@ class HomeController extends Controller
     public function about()
     {
         $websiteSettings = WebsiteSetting::pluck("value", "key")->toArray();
-        return view("about", compact("websiteSettings"));
+
+        $totalProducts = Product::where("is_active", true)->count();
+        $totalCustomers = \App\Models\User::where("role", "user")->count();
+        $totalServices = Service::where("is_active", true)->count();
+        $avgRating = Rating::avg("rating") ?? 0;
+
+        return view("about", compact("websiteSettings", "totalProducts", "totalCustomers", "totalServices", "avgRating"));
     }
 
     public function contact()
