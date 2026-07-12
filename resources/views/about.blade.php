@@ -122,7 +122,7 @@
                 <p class="text-green-200 text-sm font-medium">Produk Tersedia</p>
             </div>
             <div>
-                <div class="text-4xl md:text-5xl font-extrabold text-white mb-2">{{ number_format($totalCompletedOrders) }}</div>
+                <div class="text-4xl md:text-5xl font-extrabold text-white mb-2">{{ number_format($totalCompletedOrders) }}+</div>
                 <p class="text-green-200 text-sm font-medium">Pesanan Selesai</p>
             </div>
             <div>
