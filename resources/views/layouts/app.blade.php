@@ -105,65 +105,87 @@
             <div class="flex-1 overflow-y-auto min-h-0 relative">
                 <div class="px-3 py-3 space-y-0.5">
                     <!-- Mobile Search -->
-                    <div class="px-1 pb-2" x-data="smartSearch()">
+                    <div class="px-1 pb-3" x-data="smartSearch()">
                         <div class="relative">
                             <form action="{{ route('products') }}" method="GET" @submit="saveHistory()">
                                 <input type="hidden" name="min_price" :value="filterMin">
                                 <input type="hidden" name="max_price" :value="filterMax">
-                                <input type="text"
-                                       name="search"
-                                       x-model="query"
-                                       @input.debounce.300ms="fetchSuggestions()"
-                                       @focus="open = true"
-                                       @keydown.escape="close()"
-                                       value="{{ request('search') }}"
-                                       placeholder="Cari produk..."
-                                       class="w-full pl-10 pr-10 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 focus:bg-white transition-all duration-200 outline-none">
-                                <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                                <button type="button" @click.stop="showFilter = !showFilter; open = false"
-                                        class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-green-600 transition-colors">
-                                    <i class="fas fa-sliders-h text-[10px]"></i>
-                                </button>
+                                <div class="flex items-center bg-gray-100 border border-gray-200 rounded-xl focus-within:border-green-400 focus-within:bg-white focus-within:ring-4 focus-within:ring-green-50 transition-all duration-300">
+                                    <i class="fas fa-search text-gray-400 text-xs ml-3.5"></i>
+                                    <input type="text"
+                                           name="search"
+                                           x-model="query"
+                                           @input.debounce.300ms="fetchSuggestions()"
+                                           @focus="open = true"
+                                           @keydown.escape="close()"
+                                           value="{{ request('search') }}"
+                                           placeholder="Cari produk..."
+                                           class="flex-1 bg-transparent border-none outline-none text-sm py-2.5 px-3 text-gray-700 placeholder-gray-400">
+                                    <button type="button" @click.stop="showFilter = !showFilter; open = false"
+                                            class="flex items-center justify-center w-8 h-8 mr-1 rounded-lg transition-all duration-200"
+                                            :class="showFilter ? 'bg-green-100 text-green-600' : 'text-gray-400 hover:text-green-600'">
+                                        <i class="fas fa-sliders-h text-[10px]"></i>
+                                    </button>
+                                </div>
                             </form>
 
                             <!-- Mobile Filter -->
-                            <div x-show="showFilter" x-cloak @click.away="showFilter = false" x-transition
-                                 class="mt-2 p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Filter Harga</p>
-                                <div class="flex gap-2 mb-2">
+                            <div x-show="showFilter" x-cloak @click.away="showFilter = false"
+                                 x-transition:enter="transition ease-out duration-200"
+                                 x-transition:enter-start="opacity-0 -translate-y-2"
+                                 x-transition:enter-end="opacity-100 translate-y-0"
+                                 class="mt-3 p-4 bg-white rounded-xl shadow-lg border border-gray-100">
+                                <div class="flex items-center gap-2 mb-3">
+                                    <div class="w-7 h-7 bg-green-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-sliders-h text-green-600 text-[10px]"></i>
+                                    </div>
+                                    <p class="text-xs font-bold text-gray-700">Filter Harga</p>
+                                </div>
+                                <div class="flex gap-2 mb-3">
                                     <div class="flex-1">
-                                        <label class="text-[10px] text-gray-500 font-medium">Min</label>
-                                        <input type="number" x-model="filterMin" placeholder="0"
-                                               class="w-full px-3 py-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 outline-none">
+                                        <label class="text-[11px] font-semibold text-gray-500 mb-1 block">Minimum</label>
+                                        <div class="relative">
+                                            <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[11px]">Rp</span>
+                                            <input type="number" x-model="filterMin" placeholder="0"
+                                                   class="w-full pl-8 pr-2 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none">
+                                        </div>
                                     </div>
                                     <div class="flex-1">
-                                        <label class="text-[10px] text-gray-500 font-medium">Maks</label>
-                                        <input type="number" x-model="filterMax" placeholder="..."
-                                               class="w-full px-3 py-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 outline-none">
+                                        <label class="text-[11px] font-semibold text-gray-500 mb-1 block">Maksimum</label>
+                                        <div class="relative">
+                                            <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[11px]">Rp</span>
+                                            <input type="number" x-model="filterMax" placeholder="..."
+                                                   class="w-full pl-8 pr-2 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none">
+                                        </div>
                                     </div>
                                 </div>
-                                <button type="button" @click="applyFilter()" class="w-full py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded-lg transition-colors">
-                                    <i class="fas fa-search mr-1"></i> Terapkan
+                                <button type="button" @click="applyFilter()" class="w-full py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-xl transition-all shadow-lg shadow-green-600/20">
+                                    <i class="fas fa-search mr-1.5"></i> Terapkan
                                 </button>
                             </div>
 
                             <!-- Mobile Autocomplete -->
                             <div x-show="open && (query.length >= 2 || history.length > 0)"
-                                 x-cloak x-transition
-                                 class="absolute left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl shadow-green-900/10 z-50 border border-green-50 overflow-hidden max-h-72 overflow-y-auto">
+                                 x-cloak
+                                 x-transition:enter="transition ease-out duration-200"
+                                 x-transition:enter-start="opacity-0 -translate-y-2"
+                                 x-transition:enter-end="opacity-100 translate-y-0"
+                                 class="absolute left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl shadow-gray-900/10 z-50 border border-gray-100 overflow-hidden max-h-80 overflow-y-auto">
 
                                 <!-- History -->
                                 <template x-if="query.length < 2 && history.length > 0">
-                                    <div>
-                                        <div class="flex items-center justify-between px-4 pt-3 pb-1">
-                                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Terakhir</p>
-                                            <button @click="clearHistory()" class="text-[10px] text-red-400 hover:text-red-600 font-medium">Hapus</button>
+                                    <div class="p-2">
+                                        <div class="flex items-center justify-between px-3 py-2">
+                                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Terakhir</p>
+                                            <button @click="clearHistory()" class="text-xs text-red-400 hover:text-red-600 font-medium">Hapus</button>
                                         </div>
                                         <template x-for="(item, i) in history" :key="i">
                                             <a :href="'{{ route('products') }}?search=' + encodeURIComponent(item)"
-                                               class="flex items-center gap-3 px-4 py-2.5 hover:bg-green-50 transition-colors">
-                                                <i class="fas fa-clock text-gray-300 text-xs"></i>
-                                                <span class="text-sm text-gray-600" x-text="item"></span>
+                                               class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-green-50 transition-all group">
+                                                <div class="w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-green-100 flex items-center justify-center flex-shrink-0">
+                                                    <i class="fas fa-clock text-gray-400 group-hover:text-green-500 text-xs"></i>
+                                                </div>
+                                                <span class="text-sm text-gray-600 group-hover:text-gray-900" x-text="item"></span>
                                             </a>
                                         </template>
                                     </div>
@@ -171,45 +193,54 @@
 
                                 <!-- Suggestions -->
                                 <template x-if="query.length >= 2">
-                                    <div>
+                                    <div class="p-2">
                                         <template x-if="categories.length > 0">
                                             <div>
-                                                <div class="px-4 pt-3 pb-1"><p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Kategori</p></div>
+                                                <div class="px-3 py-2"><p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Kategori</p></div>
                                                 <template x-for="(cat, i) in categories" :key="'c'+i">
-                                                    <a :href="cat.url" class="flex items-center gap-3 px-4 py-2.5 hover:bg-green-50 transition-colors">
-                                                        <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+                                                    <a :href="cat.url" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-green-50 transition-all group">
+                                                        <div class="w-9 h-9 rounded-xl bg-green-100 group-hover:bg-green-200 flex items-center justify-center flex-shrink-0">
                                                             <i class="fas fa-tag text-green-500 text-xs"></i>
                                                         </div>
-                                                        <span class="text-sm font-medium text-gray-700" x-text="cat.name"></span>
+                                                        <div class="min-w-0">
+                                                            <span class="text-sm font-semibold text-gray-700 group-hover:text-green-700" x-text="cat.name"></span>
+                                                            <p class="text-[11px] text-gray-400">Kategori</p>
+                                                        </div>
                                                     </a>
                                                 </template>
                                             </div>
                                         </template>
                                         <template x-if="products.length > 0">
                                             <div>
-                                                <div class="px-4 pt-3 pb-1"><p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Produk</p></div>
+                                                <div class="px-3 py-2" :class="categories.length > 0 ? 'border-t border-gray-100 mt-1 pt-3' : ''">
+                                                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Produk</p>
+                                                </div>
                                                 <template x-for="(item, i) in products" :key="'p'+i">
-                                                    <a :href="item.url" class="flex items-center gap-3 px-4 py-2.5 hover:bg-green-50 transition-colors">
-                                                        <img :src="item.image" :alt="item.name" class="w-10 h-10 rounded-lg object-cover bg-gray-100 flex-shrink-0">
+                                                    <a :href="item.url" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-green-50 transition-all group">
+                                                        <img :src="item.image" :alt="item.name"
+                                                             class="w-11 h-11 rounded-xl object-cover bg-gray-100 flex-shrink-0 border border-gray-100">
                                                         <div class="min-w-0 flex-1">
-                                                            <p class="text-sm font-medium text-gray-800 truncate" x-text="item.name"></p>
+                                                            <p class="text-sm font-semibold text-gray-800 group-hover:text-green-700 truncate" x-text="item.name"></p>
                                                             <p class="text-[11px] text-gray-400" x-text="item.category"></p>
                                                         </div>
-                                                        <span class="text-xs font-bold text-green-600 whitespace-nowrap" x-text="item.price"></span>
+                                                        <span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-lg whitespace-nowrap" x-text="item.price"></span>
                                                     </a>
                                                 </template>
                                             </div>
                                         </template>
                                         <template x-if="products.length === 0 && categories.length === 0">
-                                            <div class="px-4 py-6 text-center">
-                                                <i class="fas fa-search text-gray-300 text-2xl mb-2"></i>
-                                                <p class="text-sm text-gray-400">Tidak ada hasil</p>
+                                            <div class="px-4 py-8 text-center">
+                                                <div class="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                                    <i class="fas fa-search text-gray-300 text-lg"></i>
+                                                </div>
+                                                <p class="text-sm text-gray-500 font-medium">Tidak ada hasil</p>
                                             </div>
                                         </template>
-                                        <div class="border-t border-gray-100 px-4 py-2.5">
-                                            <button @click="saveHistory(); $el.closest('div[\\:class]').previousElementSibling?.querySelector('form')?.submit()"
-                                                    class="w-full text-center text-xs font-semibold text-green-600 hover:text-green-700">
-                                                Lihat semua hasil <i class="fas fa-arrow-right ml-1"></i>
+                                        <div class="border-t border-gray-100 mt-1 px-2 py-2">
+                                            <button @click="saveHistory(); $el.closest('div[x-data]').querySelector('form').submit()"
+                                                    class="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-green-600 hover:bg-green-50 transition-all">
+                                                <span>Lihat semua hasil</span>
+                                                <i class="fas fa-arrow-right text-xs"></i>
                                             </button>
                                         </div>
                                     </div>
@@ -360,63 +391,82 @@
                                 <form action="{{ route('products') }}" method="GET" @submit="saveHistory()">
                                     <input type="hidden" name="min_price" :value="filterMin">
                                     <input type="hidden" name="max_price" :value="filterMax">
-                                    <input type="text"
-                                           name="search"
-                                           x-model="query"
-                                           @input.debounce.300ms="fetchSuggestions()"
-                                           @focus="open = true"
-                                           @keydown.escape="close()"
-                                           value="{{ request('search') }}"
-                                           placeholder="Cari produk, kategori..."
-                                           class="w-40 lg:w-56 xl:w-64 pl-10 pr-9 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 focus:bg-white transition-all duration-200 outline-none">
-                                    <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                                    <button type="button" @click.stop="showFilter = !showFilter; open = false"
-                                            class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-green-600 transition-colors">
-                                        <i class="fas fa-sliders-h text-[10px]"></i>
-                                    </button>
+                                    <div class="flex items-center bg-gray-100/80 border border-gray-200/80 rounded-full hover:border-green-300 focus-within:border-green-400 focus-within:bg-white focus-within:ring-4 focus-within:ring-green-50 transition-all duration-300">
+                                        <i class="fas fa-search text-gray-400 text-xs ml-4"></i>
+                                        <input type="text"
+                                               name="search"
+                                               x-model="query"
+                                               @input.debounce.300ms="fetchSuggestions()"
+                                               @focus="open = true"
+                                               @keydown.escape="close()"
+                                               value="{{ request('search') }}"
+                                               placeholder="Cari produk..."
+                                               class="flex-1 bg-transparent border-none outline-none text-sm py-2.5 px-3 text-gray-700 placeholder-gray-400">
+                                        <button type="button" @click.stop="showFilter = !showFilter; open = false"
+                                                class="flex items-center justify-center w-8 h-8 mr-1 rounded-full transition-all duration-200"
+                                                :class="showFilter ? 'bg-green-100 text-green-600' : 'text-gray-400 hover:text-green-600 hover:bg-green-50'">
+                                            <i class="fas fa-sliders-h text-[10px]"></i>
+                                        </button>
+                                    </div>
                                 </form>
 
                                 <!-- Filter Dropdown -->
                                 <div x-show="showFilter" x-cloak @click.away="showFilter = false"
-                                     x-transition class="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl shadow-green-900/10 p-4 z-50 border border-green-50">
-                                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Filter Harga</p>
-                                    <div class="flex gap-2 mb-3">
+                                     x-transition:enter="transition ease-out duration-200"
+                                     x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+                                     x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                                     class="absolute right-0 mt-3 w-72 bg-white rounded-2xl shadow-2xl shadow-gray-900/10 p-5 z-50 border border-gray-100">
+                                    <div class="flex items-center gap-2 mb-4">
+                                        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-sliders-h text-green-600 text-xs"></i>
+                                        </div>
+                                        <p class="text-sm font-bold text-gray-800">Filter Harga</p>
+                                    </div>
+                                    <div class="flex gap-3 mb-4">
                                         <div class="flex-1">
-                                            <label class="text-[10px] text-gray-500 font-medium">Minimum</label>
-                                            <input type="number" x-model="filterMin" placeholder="0"
-                                                   class="w-full px-3 py-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 outline-none">
+                                            <label class="text-xs font-semibold text-gray-500 mb-1.5 block">Minimum</label>
+                                            <div class="relative">
+                                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">Rp</span>
+                                                <input type="number" x-model="filterMin" placeholder="0"
+                                                       class="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all">
+                                            </div>
                                         </div>
                                         <div class="flex-1">
-                                            <label class="text-[10px] text-gray-500 font-medium">Maksimum</label>
-                                            <input type="number" x-model="filterMax" placeholder="..."
-                                                   class="w-full px-3 py-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 outline-none">
+                                            <label class="text-xs font-semibold text-gray-500 mb-1.5 block">Maksimum</label>
+                                            <div class="relative">
+                                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">Rp</span>
+                                                <input type="number" x-model="filterMax" placeholder="..."
+                                                       class="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all">
+                                            </div>
                                         </div>
                                     </div>
-                                    <button type="button" @click="applyFilter()" class="w-full py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded-lg transition-colors">
-                                        <i class="fas fa-search mr-1"></i> Terapkan
+                                    <button type="button" @click="applyFilter()" class="w-full py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-green-600/20 hover:shadow-xl hover:-translate-y-0.5">
+                                        <i class="fas fa-search mr-1.5"></i> Terapkan Filter
                                     </button>
                                 </div>
 
                                 <!-- Autocomplete Dropdown -->
                                 <div x-show="open && (query.length >= 2 || history.length > 0)"
                                      x-cloak
-                                     x-transition:enter="transition ease-out duration-150"
-                                     x-transition:enter-start="opacity-0 -translate-y-1"
-                                     x-transition:enter-end="opacity-100 translate-y-0"
-                                     class="absolute left-0 right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl shadow-green-900/10 z-50 border border-green-50 overflow-hidden">
+                                     x-transition:enter="transition ease-out duration-200"
+                                     x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+                                     x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                                     class="absolute left-0 right-0 mt-3 w-96 bg-white rounded-2xl shadow-2xl shadow-gray-900/10 z-50 border border-gray-100 overflow-hidden">
 
                                     <!-- Search History -->
                                     <template x-if="query.length < 2 && history.length > 0">
-                                        <div>
-                                            <div class="flex items-center justify-between px-4 pt-3 pb-1">
-                                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Pencarian Terakhir</p>
-                                                <button @click="clearHistory()" class="text-[10px] text-red-400 hover:text-red-600 font-medium">Hapus</button>
+                                        <div class="p-2">
+                                            <div class="flex items-center justify-between px-3 py-2">
+                                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Pencarian Terakhir</p>
+                                                <button @click="clearHistory()" class="text-xs text-red-400 hover:text-red-600 font-medium transition-colors">Hapus</button>
                                             </div>
                                             <template x-for="(item, i) in history" :key="i">
                                                 <a :href="'{{ route('products') }}?search=' + encodeURIComponent(item)"
-                                                   class="flex items-center gap-3 px-4 py-2.5 hover:bg-green-50 transition-colors">
-                                                    <i class="fas fa-clock text-gray-300 text-xs"></i>
-                                                    <span class="text-sm text-gray-600" x-text="item"></span>
+                                                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-green-50 transition-all group">
+                                                    <div class="w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-green-100 flex items-center justify-center flex-shrink-0 transition-colors">
+                                                        <i class="fas fa-clock text-gray-400 group-hover:text-green-500 text-xs transition-colors"></i>
+                                                    </div>
+                                                    <span class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors" x-text="item"></span>
                                                 </a>
                                             </template>
                                         </div>
@@ -424,20 +474,24 @@
 
                                     <!-- Suggestions -->
                                     <template x-if="query.length >= 2">
-                                        <div>
+                                        <div class="p-2">
                                             <!-- Category Matches -->
                                             <template x-if="categories.length > 0">
                                                 <div>
-                                                    <div class="px-4 pt-3 pb-1">
-                                                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Kategori</p>
+                                                    <div class="px-3 py-2">
+                                                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Kategori</p>
                                                     </div>
                                                     <template x-for="(cat, i) in categories" :key="'c'+i">
                                                         <a :href="cat.url"
-                                                           class="flex items-center gap-3 px-4 py-2.5 hover:bg-green-50 transition-colors">
-                                                            <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+                                                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-green-50 transition-all group">
+                                                            <div class="w-9 h-9 rounded-xl bg-green-100 group-hover:bg-green-200 flex items-center justify-center flex-shrink-0 transition-colors">
                                                                 <i class="fas fa-tag text-green-500 text-xs"></i>
                                                             </div>
-                                                            <span class="text-sm font-medium text-gray-700" x-text="cat.name"></span>
+                                                            <div class="min-w-0">
+                                                                <span class="text-sm font-semibold text-gray-700 group-hover:text-green-700 transition-colors" x-text="cat.name"></span>
+                                                                <p class="text-[11px] text-gray-400">Kategori</p>
+                                                            </div>
+                                                            <i class="fas fa-arrow-right text-gray-300 group-hover:text-green-400 text-xs ml-auto transition-colors"></i>
                                                         </a>
                                                     </template>
                                                 </div>
@@ -446,19 +500,19 @@
                                             <!-- Product Matches -->
                                             <template x-if="products.length > 0">
                                                 <div>
-                                                    <div class="px-4 pt-3 pb-1">
-                                                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Produk</p>
+                                                    <div class="px-3 py-2" :class="categories.length > 0 ? 'border-t border-gray-100 mt-1 pt-3' : ''">
+                                                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Produk</p>
                                                     </div>
                                                     <template x-for="(item, i) in products" :key="'p'+i">
                                                         <a :href="item.url"
-                                                           class="flex items-center gap-3 px-4 py-2.5 hover:bg-green-50 transition-colors">
+                                                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-green-50 transition-all group">
                                                             <img :src="item.image" :alt="item.name"
-                                                                 class="w-10 h-10 rounded-lg object-cover bg-gray-100 flex-shrink-0">
+                                                                 class="w-11 h-11 rounded-xl object-cover bg-gray-100 flex-shrink-0 border border-gray-100 group-hover:border-green-200 transition-colors">
                                                             <div class="min-w-0 flex-1">
-                                                                <p class="text-sm font-medium text-gray-800 truncate" x-text="item.name"></p>
+                                                                <p class="text-sm font-semibold text-gray-800 group-hover:text-green-700 truncate transition-colors" x-text="item.name"></p>
                                                                 <p class="text-[11px] text-gray-400" x-text="item.category"></p>
                                                             </div>
-                                                            <span class="text-xs font-bold text-green-600 whitespace-nowrap" x-text="item.price"></span>
+                                                            <span class="text-xs font-bold text-green-600 bg-green-50 px-2.5 py-1 rounded-lg whitespace-nowrap" x-text="item.price"></span>
                                                         </a>
                                                     </template>
                                                 </div>
@@ -466,18 +520,21 @@
 
                                             <!-- No Results -->
                                             <template x-if="products.length === 0 && categories.length === 0">
-                                                <div class="px-4 py-6 text-center">
-                                                    <i class="fas fa-search text-gray-300 text-2xl mb-2"></i>
-                                                    <p class="text-sm text-gray-400">Tidak ditemukan hasil untuk "<span x-text="query" class="font-medium text-gray-600"></span>"</p>
+                                                <div class="px-4 py-8 text-center">
+                                                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                                        <i class="fas fa-search text-gray-300 text-xl"></i>
+                                                    </div>
+                                                    <p class="text-sm text-gray-500 font-medium">Tidak ditemukan hasil</p>
+                                                    <p class="text-xs text-gray-400 mt-1">Coba kata kunci lain</p>
                                                 </div>
                                             </template>
 
                                             <!-- View All -->
-                                            <div class="border-t border-gray-100 px-4 py-2.5">
-                                                <button @click="saveHistory(); $el.closest('div[\\:class]').querySelector('form')?.submit()"
-                                                        class="w-full text-center text-xs font-semibold text-green-600 hover:text-green-700">
-                                                    Lihat semua hasil untuk "<span x-text="query"></span>"
-                                                    <i class="fas fa-arrow-right ml-1"></i>
+                                            <div class="border-t border-gray-100 mt-1 px-2 py-2">
+                                                <button @click="saveHistory(); $el.closest('div[x-data]').querySelector('form').submit()"
+                                                        class="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-green-600 hover:bg-green-50 transition-all">
+                                                    <span>Lihat semua hasil</span>
+                                                    <i class="fas fa-arrow-right text-xs"></i>
                                                 </button>
                                             </div>
                                         </div>
@@ -671,15 +728,15 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                     <div>
-                        <h3 class="text-lg font-semibold mb-4 text-green-400 flex items-center gap-2">
+                        <h3 class="text-lg font-semibold mb-4 text-white flex items-center gap-3">
                             @if(isset($settings['logo']) && $settings['logo']->value)
-                                <img src="{{ asset('storage/' . $settings['logo']->value) }}" alt="Logo" class="h-8 w-auto rounded">
+                                <img src="{{ asset('storage/' . $settings['logo']->value) }}" alt="Logo" class="h-10 w-auto rounded-lg bg-white/10 p-1">
                             @else
-                                <i class="fas fa-store"></i>
+                                <img src="{{ asset('images/logo.png') }}" alt="Logo" class="h-10 w-auto rounded-lg bg-white/10 p-1">
                             @endif
-                            {{ $settings['website_name']->value ?? 'FtwoMart' }}
+                            <span class="text-green-400">{{ $settings['website_name']->value ?? 'FtwoMart' }}</span>
                         </h3>
-                        <p class="text-gray-300">
+                        <p class="text-gray-300 text-sm leading-relaxed">
                             {{ $settings['website_description']->value ?? 'Marketplace terpercaya untuk berbagai produk berkualitas dengan pelayanan terbaik.' }}
                         </p>
                     </div>
