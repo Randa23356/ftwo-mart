@@ -104,6 +104,119 @@
             <!-- Scrollable Menu -->
             <div class="flex-1 overflow-y-auto min-h-0 relative">
                 <div class="px-3 py-3 space-y-0.5">
+                    <!-- Mobile Search -->
+                    <div class="px-1 pb-2" x-data="smartSearch()">
+                        <div class="relative">
+                            <form action="{{ route('products') }}" method="GET" @submit="saveHistory()">
+                                <input type="hidden" name="min_price" :value="filterMin">
+                                <input type="hidden" name="max_price" :value="filterMax">
+                                <input type="text"
+                                       name="search"
+                                       x-model="query"
+                                       @input.debounce.300ms="fetchSuggestions()"
+                                       @focus="open = true"
+                                       @keydown.escape="close()"
+                                       value="{{ request('search') }}"
+                                       placeholder="Cari produk..."
+                                       class="w-full pl-10 pr-10 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 focus:bg-white transition-all duration-200 outline-none">
+                                <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                                <button type="button" @click.stop="showFilter = !showFilter; open = false"
+                                        class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-green-600 transition-colors">
+                                    <i class="fas fa-sliders-h text-[10px]"></i>
+                                </button>
+                            </form>
+
+                            <!-- Mobile Filter -->
+                            <div x-show="showFilter" x-cloak @click.away="showFilter = false" x-transition
+                                 class="mt-2 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Filter Harga</p>
+                                <div class="flex gap-2 mb-2">
+                                    <div class="flex-1">
+                                        <label class="text-[10px] text-gray-500 font-medium">Min</label>
+                                        <input type="number" x-model="filterMin" placeholder="0"
+                                               class="w-full px-3 py-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 outline-none">
+                                    </div>
+                                    <div class="flex-1">
+                                        <label class="text-[10px] text-gray-500 font-medium">Maks</label>
+                                        <input type="number" x-model="filterMax" placeholder="..."
+                                               class="w-full px-3 py-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 outline-none">
+                                    </div>
+                                </div>
+                                <button type="button" @click="applyFilter()" class="w-full py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded-lg transition-colors">
+                                    <i class="fas fa-search mr-1"></i> Terapkan
+                                </button>
+                            </div>
+
+                            <!-- Mobile Autocomplete -->
+                            <div x-show="open && (query.length >= 2 || history.length > 0)"
+                                 x-cloak x-transition
+                                 class="absolute left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl shadow-green-900/10 z-50 border border-green-50 overflow-hidden max-h-72 overflow-y-auto">
+
+                                <!-- History -->
+                                <template x-if="query.length < 2 && history.length > 0">
+                                    <div>
+                                        <div class="flex items-center justify-between px-4 pt-3 pb-1">
+                                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Terakhir</p>
+                                            <button @click="clearHistory()" class="text-[10px] text-red-400 hover:text-red-600 font-medium">Hapus</button>
+                                        </div>
+                                        <template x-for="(item, i) in history" :key="i">
+                                            <a :href="'{{ route('products') }}?search=' + encodeURIComponent(item)"
+                                               class="flex items-center gap-3 px-4 py-2.5 hover:bg-green-50 transition-colors">
+                                                <i class="fas fa-clock text-gray-300 text-xs"></i>
+                                                <span class="text-sm text-gray-600" x-text="item"></span>
+                                            </a>
+                                        </template>
+                                    </div>
+                                </template>
+
+                                <!-- Suggestions -->
+                                <template x-if="query.length >= 2">
+                                    <div>
+                                        <template x-if="categories.length > 0">
+                                            <div>
+                                                <div class="px-4 pt-3 pb-1"><p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Kategori</p></div>
+                                                <template x-for="(cat, i) in categories" :key="'c'+i">
+                                                    <a :href="cat.url" class="flex items-center gap-3 px-4 py-2.5 hover:bg-green-50 transition-colors">
+                                                        <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+                                                            <i class="fas fa-tag text-green-500 text-xs"></i>
+                                                        </div>
+                                                        <span class="text-sm font-medium text-gray-700" x-text="cat.name"></span>
+                                                    </a>
+                                                </template>
+                                            </div>
+                                        </template>
+                                        <template x-if="products.length > 0">
+                                            <div>
+                                                <div class="px-4 pt-3 pb-1"><p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Produk</p></div>
+                                                <template x-for="(item, i) in products" :key="'p'+i">
+                                                    <a :href="item.url" class="flex items-center gap-3 px-4 py-2.5 hover:bg-green-50 transition-colors">
+                                                        <img :src="item.image" :alt="item.name" class="w-10 h-10 rounded-lg object-cover bg-gray-100 flex-shrink-0">
+                                                        <div class="min-w-0 flex-1">
+                                                            <p class="text-sm font-medium text-gray-800 truncate" x-text="item.name"></p>
+                                                            <p class="text-[11px] text-gray-400" x-text="item.category"></p>
+                                                        </div>
+                                                        <span class="text-xs font-bold text-green-600 whitespace-nowrap" x-text="item.price"></span>
+                                                    </a>
+                                                </template>
+                                            </div>
+                                        </template>
+                                        <template x-if="products.length === 0 && categories.length === 0">
+                                            <div class="px-4 py-6 text-center">
+                                                <i class="fas fa-search text-gray-300 text-2xl mb-2"></i>
+                                                <p class="text-sm text-gray-400">Tidak ada hasil</p>
+                                            </div>
+                                        </template>
+                                        <div class="border-t border-gray-100 px-4 py-2.5">
+                                            <button @click="saveHistory(); $el.closest('div[\\:class]').previousElementSibling?.querySelector('form')?.submit()"
+                                                    class="w-full text-center text-xs font-semibold text-green-600 hover:text-green-700">
+                                                Lihat semua hasil <i class="fas fa-arrow-right ml-1"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
                     <a href="{{ route('home') }}"
                        class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all border border-transparent {{ request()->routeIs('home') ? 'bg-green-50 text-green-700 border-green-100' : 'text-gray-600 hover:bg-gray-50' }}">
                         <i class="fas fa-home w-4 text-center text-green-400"></i> Home
@@ -239,6 +352,140 @@
                     </div>
 
                     <div class="flex items-center gap-2 lg:gap-4">
+                        <!-- Smart Search Bar -->
+                        <div class="hidden md:flex items-center"
+                             x-data="smartSearch()"
+                             @click.away="close()">
+                            <div class="relative">
+                                <form action="{{ route('products') }}" method="GET" @submit="saveHistory()">
+                                    <input type="hidden" name="min_price" :value="filterMin">
+                                    <input type="hidden" name="max_price" :value="filterMax">
+                                    <input type="text"
+                                           name="search"
+                                           x-model="query"
+                                           @input.debounce.300ms="fetchSuggestions()"
+                                           @focus="open = true"
+                                           @keydown.escape="close()"
+                                           value="{{ request('search') }}"
+                                           placeholder="Cari produk, kategori..."
+                                           class="w-40 lg:w-56 xl:w-64 pl-10 pr-9 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 focus:bg-white transition-all duration-200 outline-none">
+                                    <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                                    <button type="button" @click.stop="showFilter = !showFilter; open = false"
+                                            class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-green-600 transition-colors">
+                                        <i class="fas fa-sliders-h text-[10px]"></i>
+                                    </button>
+                                </form>
+
+                                <!-- Filter Dropdown -->
+                                <div x-show="showFilter" x-cloak @click.away="showFilter = false"
+                                     x-transition class="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl shadow-green-900/10 p-4 z-50 border border-green-50">
+                                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Filter Harga</p>
+                                    <div class="flex gap-2 mb-3">
+                                        <div class="flex-1">
+                                            <label class="text-[10px] text-gray-500 font-medium">Minimum</label>
+                                            <input type="number" x-model="filterMin" placeholder="0"
+                                                   class="w-full px-3 py-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 outline-none">
+                                        </div>
+                                        <div class="flex-1">
+                                            <label class="text-[10px] text-gray-500 font-medium">Maksimum</label>
+                                            <input type="number" x-model="filterMax" placeholder="..."
+                                                   class="w-full px-3 py-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 outline-none">
+                                        </div>
+                                    </div>
+                                    <button type="button" @click="applyFilter()" class="w-full py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded-lg transition-colors">
+                                        <i class="fas fa-search mr-1"></i> Terapkan
+                                    </button>
+                                </div>
+
+                                <!-- Autocomplete Dropdown -->
+                                <div x-show="open && (query.length >= 2 || history.length > 0)"
+                                     x-cloak
+                                     x-transition:enter="transition ease-out duration-150"
+                                     x-transition:enter-start="opacity-0 -translate-y-1"
+                                     x-transition:enter-end="opacity-100 translate-y-0"
+                                     class="absolute left-0 right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl shadow-green-900/10 z-50 border border-green-50 overflow-hidden">
+
+                                    <!-- Search History -->
+                                    <template x-if="query.length < 2 && history.length > 0">
+                                        <div>
+                                            <div class="flex items-center justify-between px-4 pt-3 pb-1">
+                                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Pencarian Terakhir</p>
+                                                <button @click="clearHistory()" class="text-[10px] text-red-400 hover:text-red-600 font-medium">Hapus</button>
+                                            </div>
+                                            <template x-for="(item, i) in history" :key="i">
+                                                <a :href="'{{ route('products') }}?search=' + encodeURIComponent(item)"
+                                                   class="flex items-center gap-3 px-4 py-2.5 hover:bg-green-50 transition-colors">
+                                                    <i class="fas fa-clock text-gray-300 text-xs"></i>
+                                                    <span class="text-sm text-gray-600" x-text="item"></span>
+                                                </a>
+                                            </template>
+                                        </div>
+                                    </template>
+
+                                    <!-- Suggestions -->
+                                    <template x-if="query.length >= 2">
+                                        <div>
+                                            <!-- Category Matches -->
+                                            <template x-if="categories.length > 0">
+                                                <div>
+                                                    <div class="px-4 pt-3 pb-1">
+                                                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Kategori</p>
+                                                    </div>
+                                                    <template x-for="(cat, i) in categories" :key="'c'+i">
+                                                        <a :href="cat.url"
+                                                           class="flex items-center gap-3 px-4 py-2.5 hover:bg-green-50 transition-colors">
+                                                            <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+                                                                <i class="fas fa-tag text-green-500 text-xs"></i>
+                                                            </div>
+                                                            <span class="text-sm font-medium text-gray-700" x-text="cat.name"></span>
+                                                        </a>
+                                                    </template>
+                                                </div>
+                                            </template>
+
+                                            <!-- Product Matches -->
+                                            <template x-if="products.length > 0">
+                                                <div>
+                                                    <div class="px-4 pt-3 pb-1">
+                                                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Produk</p>
+                                                    </div>
+                                                    <template x-for="(item, i) in products" :key="'p'+i">
+                                                        <a :href="item.url"
+                                                           class="flex items-center gap-3 px-4 py-2.5 hover:bg-green-50 transition-colors">
+                                                            <img :src="item.image" :alt="item.name"
+                                                                 class="w-10 h-10 rounded-lg object-cover bg-gray-100 flex-shrink-0">
+                                                            <div class="min-w-0 flex-1">
+                                                                <p class="text-sm font-medium text-gray-800 truncate" x-text="item.name"></p>
+                                                                <p class="text-[11px] text-gray-400" x-text="item.category"></p>
+                                                            </div>
+                                                            <span class="text-xs font-bold text-green-600 whitespace-nowrap" x-text="item.price"></span>
+                                                        </a>
+                                                    </template>
+                                                </div>
+                                            </template>
+
+                                            <!-- No Results -->
+                                            <template x-if="products.length === 0 && categories.length === 0">
+                                                <div class="px-4 py-6 text-center">
+                                                    <i class="fas fa-search text-gray-300 text-2xl mb-2"></i>
+                                                    <p class="text-sm text-gray-400">Tidak ditemukan hasil untuk "<span x-text="query" class="font-medium text-gray-600"></span>"</p>
+                                                </div>
+                                            </template>
+
+                                            <!-- View All -->
+                                            <div class="border-t border-gray-100 px-4 py-2.5">
+                                                <button @click="saveHistory(); $el.closest('div[\\:class]').querySelector('form')?.submit()"
+                                                        class="w-full text-center text-xs font-semibold text-green-600 hover:text-green-700">
+                                                    Lihat semua hasil untuk "<span x-text="query"></span>"
+                                                    <i class="fas fa-arrow-right ml-1"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Desktop Actions -->
                         @auth
                             <a href="{{ route('cart.index') }}"
@@ -424,8 +671,12 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                     <div>
-                        <h3 class="text-lg font-semibold mb-4 text-green-400">
-                            <i class="fas fa-store mr-2"></i>
+                        <h3 class="text-lg font-semibold mb-4 text-green-400 flex items-center gap-2">
+                            @if(isset($settings['logo']) && $settings['logo']->value)
+                                <img src="{{ asset('storage/' . $settings['logo']->value) }}" alt="Logo" class="h-8 w-auto rounded">
+                            @else
+                                <i class="fas fa-store"></i>
+                            @endif
                             {{ $settings['website_name']->value ?? 'FtwoMart' }}
                         </h3>
                         <p class="text-gray-300">
@@ -622,6 +873,59 @@
             subtree: true
         });
     });
+    </script>
+
+    <script>
+    function smartSearch() {
+        return {
+            query: '',
+            open: false,
+            showFilter: false,
+            filterMin: '',
+            filterMax: '',
+            products: [],
+            categories: [],
+            history: JSON.parse(localStorage.getItem('search_history') || '[]'),
+            fetchSuggestions() {
+                if (this.query.length < 2) {
+                    this.products = [];
+                    this.categories = [];
+                    return;
+                }
+                fetch('{{ route("search.suggestions") }}?q=' + encodeURIComponent(this.query))
+                    .then(r => r.json())
+                    .then(data => {
+                        this.products = data.products;
+                        this.categories = data.categories;
+                    });
+            },
+            saveHistory() {
+                if (this.query.length < 2) return;
+                let history = JSON.parse(localStorage.getItem('search_history') || '[]');
+                history = history.filter(h => h.toLowerCase() !== this.query.toLowerCase());
+                history.unshift(this.query);
+                history = history.slice(0, 8);
+                localStorage.setItem('search_history', JSON.stringify(history));
+                this.history = history;
+            },
+            clearHistory() {
+                localStorage.removeItem('search_history');
+                this.history = [];
+            },
+            applyFilter() {
+                this.showFilter = false;
+                const url = new URL('{{ route("products") }}', window.location.origin);
+                if (this.query) url.searchParams.set('search', this.query);
+                if (this.filterMin) url.searchParams.set('min_price', this.filterMin);
+                if (this.filterMax) url.searchParams.set('max_price', this.filterMax);
+                window.location.href = url.toString();
+            },
+            close() {
+                this.open = false;
+                this.showFilter = false;
+            }
+        };
+    }
     </script>
 </body>
 </html>

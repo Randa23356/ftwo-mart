@@ -113,8 +113,12 @@
                             <tr class="hover:bg-green-50/40 transition-colors duration-150 group">
                                 <td class="px-5 py-4">
                                     <div class="flex items-center space-x-3">
-                                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold shadow-sm flex-shrink-0 group-hover:scale-105 transition-transform">
-                                            {{ strtoupper(substr($category->name, 0, 1)) }}
+                                        <div class="w-12 h-12 rounded-xl overflow-hidden bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold shadow-sm flex-shrink-0 group-hover:scale-105 transition-transform">
+                                            @if($category->image)
+                                                <img src="{{ asset('storage/' . $category->image) }}" alt="{{ $category->name }}" class="w-full h-full object-cover">
+                                            @else
+                                                {{ strtoupper(substr($category->name, 0, 1)) }}
+                                            @endif
                                         </div>
                                         <div class="min-w-0">
                                             <p class="font-semibold text-gray-900 text-sm">{{ $category->name }}</p>

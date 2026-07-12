@@ -52,9 +52,22 @@ class HomeController extends Controller
         }
 
         if ($request->search) {
-            $query
-                ->where("name", "like", "%" . $request->search . "%")
-                ->orWhere("description", "like", "%" . $request->search . "%");
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where("name", "like", "%" . $search . "%")
+                  ->orWhere("description", "like", "%" . $search . "%")
+                  ->orWhereHas("category", function ($cq) use ($search) {
+                      $cq->where("name", "like", "%" . $search . "%");
+                  });
+            });
+        }
+
+        if ($request->min_price) {
+            $query->where("price", ">=", $request->min_price);
+        }
+
+        if ($request->max_price) {
+            $query->where("price", "<=", $request->max_price);
         }
 
         $products = $query->paginate(12);
@@ -94,5 +107,47 @@ class HomeController extends Controller
     {
         $websiteSettings = WebsiteSetting::pluck("value", "key")->toArray();
         return view("contact", compact("websiteSettings"));
+    }
+
+    public function searchSuggestions(Request $request)
+    {
+        $query = $request->input('q', '');
+
+        if (strlen($query) < 2) {
+            return response()->json(['products' => [], 'categories' => []]);
+        }
+
+        $products = Product::where("is_active", true)
+            ->where(function ($q) use ($query) {
+                $q->where("name", "like", "%" . $query . "%")
+                  ->orWhere("description", "like", "%" . $query . "%");
+            })
+            ->with("category")
+            ->take(6)
+            ->get()
+            ->map(function ($product) {
+                return [
+                    'name' => $product->name,
+                    'slug' => $product->slug,
+                    'price' => $product->formatted_price,
+                    'category' => $product->category->name ?? '',
+                    'image' => $product->image_url,
+                    'url' => route('products.detail', $product->slug),
+                ];
+            });
+
+        $categories = Category::where("is_active", true)
+            ->where("name", "like", "%" . $query . "%")
+            ->take(3)
+            ->get()
+            ->map(function ($category) {
+                return [
+                    'name' => $category->name,
+                    'slug' => $category->slug,
+                    'url' => route('products', ['category' => $category->slug]),
+                ];
+            });
+
+        return response()->json(['products' => $products, 'categories' => $categories]);
     }
 }

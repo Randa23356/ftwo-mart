@@ -41,6 +41,7 @@ Route::get('storage/{path}', function (string $path) {
 // Public routes
 Route::get("/", [HomeController::class, "index"])->name("home");
 Route::get("/products", [HomeController::class, "products"])->name("products");
+Route::get("/search/suggestions", [HomeController::class, "searchSuggestions"])->name("search.suggestions");
 Route::get("/products/{slug}", [HomeController::class, "productDetail"])->name(
     "products.detail",
 );
