@@ -66,7 +66,7 @@
 
             <div class="inline-flex items-center gap-2 bg-white/10 border border-white/20 px-4 py-1.5 rounded-full mx-auto md:mx-0">
                 <span class="w-2 h-2 rounded-full bg-green-300 animate-pulse"></span>
-                <span class="text-xs font-semibold uppercase tracking-wider text-green-200">Koleksi Terbaru 2025</span>
+                <span class="text-xs font-semibold uppercase tracking-wider text-green-200">FtwoMart {{ date('Y') }}</span>
             </div>
 
             <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tight">
