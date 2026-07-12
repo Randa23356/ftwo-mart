@@ -126,8 +126,8 @@
                 <p class="text-green-200 text-sm font-medium">Pelanggan Puas</p>
             </div>
             <div>
-                <div class="text-4xl md:text-5xl font-extrabold text-white mb-2">{{ number_format($totalActiveCustomers) }}</div>
-                <p class="text-green-200 text-sm font-medium">Pelanggan Aktif</p>
+                <div class="text-4xl md:text-5xl font-extrabold text-white mb-2">{{ number_format($totalCustomers) }}</div>
+                <p class="text-green-200 text-sm font-medium">Pelanggan Terdaftar</p>
             </div>
             <div>
                 <div class="text-4xl md:text-5xl font-extrabold text-white mb-2">{{ number_format($avgRating, 1) }}</div>

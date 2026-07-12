@@ -103,10 +103,9 @@ class HomeController extends Controller
 
         $totalProducts = Product::where("is_active", true)->count();
         $totalCustomers = \App\Models\User::where("role", "user")->count();
-        $totalActiveCustomers = \App\Models\User::where("role", "user")->whereHas("orders")->count();
         $avgRating = Rating::avg("rating") ?? 0;
 
-        return view("about", compact("websiteSettings", "totalProducts", "totalCustomers", "totalActiveCustomers", "avgRating"));
+        return view("about", compact("websiteSettings", "totalProducts", "totalCustomers", "avgRating"));
     }
 
     public function contact()
