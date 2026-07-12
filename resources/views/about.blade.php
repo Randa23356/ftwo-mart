@@ -118,19 +118,19 @@
     <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
-                <div class="text-4xl md:text-5xl font-extrabold text-white mb-2">{{ $totalProducts > 0 ? number_format($totalProducts) . '+' : '500+' }}</div>
+                <div class="text-4xl md:text-5xl font-extrabold text-white mb-2">{{ number_format($totalProducts) }}+</div>
                 <p class="text-green-200 text-sm font-medium">Produk Tersedia</p>
             </div>
             <div>
-                <div class="text-4xl md:text-5xl font-extrabold text-white mb-2">{{ $totalCustomers > 0 ? number_format($totalCustomers / 1000, 1) . 'K+' : '10K+' }}</div>
+                <div class="text-4xl md:text-5xl font-extrabold text-white mb-2">{{ $totalCustomers > 0 ? number_format($totalCustomers / 1000, 1) . 'K+' : '0' }}</div>
                 <p class="text-green-200 text-sm font-medium">Pelanggan Puas</p>
             </div>
             <div>
-                <div class="text-4xl md:text-5xl font-extrabold text-white mb-2">{{ $totalServices > 0 ? number_format($totalServices) . '+' : '50+' }}</div>
+                <div class="text-4xl md:text-5xl font-extrabold text-white mb-2">{{ number_format($totalServices) }}+</div>
                 <p class="text-green-200 text-sm font-medium">Mitra UMKM</p>
             </div>
             <div>
-                <div class="text-4xl md:text-5xl font-extrabold text-white mb-2">{{ $avgRating > 0 ? number_format($avgRating, 1) : '4.9' }}</div>
+                <div class="text-4xl md:text-5xl font-extrabold text-white mb-2">{{ number_format($avgRating, 1) }}</div>
                 <p class="text-green-200 text-sm font-medium">Rating Pelanggan</p>
             </div>
         </div>
