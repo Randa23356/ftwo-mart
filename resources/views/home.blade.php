@@ -56,7 +56,7 @@
 
     <div class="max-w-7xl mx-auto px-5 md:px-16 grid md:grid-cols-2 gap-8 items-center relative z-10 w-full">
         <!-- Left Content -->
-        <div class="text-white space-y-8"
+        <div class="text-white space-y-8 text-center md:text-left"
              x-data="{ show: false }"
              x-init="setTimeout(() => show = true, 100)"
              x-show="show"
@@ -64,7 +64,7 @@
              x-transition:enter-start="opacity-0 -translate-x-12"
              x-transition:enter-end="opacity-100 translate-x-0">
 
-            <div class="inline-flex items-center gap-2 bg-white/10 border border-white/20 px-4 py-1.5 rounded-full">
+            <div class="inline-flex items-center gap-2 bg-white/10 border border-white/20 px-4 py-1.5 rounded-full mx-auto md:mx-0">
                 <span class="w-2 h-2 rounded-full bg-green-300 animate-pulse"></span>
                 <span class="text-xs font-semibold uppercase tracking-wider text-green-200">Koleksi Terbaru 2025</span>
             </div>
@@ -75,11 +75,11 @@
                 <span class="text-green-200">Marketplace Terpercaya</span>
             </h1>
 
-            <p class="text-base md:text-lg text-green-100/80 max-w-lg leading-relaxed">
+            <p class="text-base md:text-lg text-green-100/80 max-w-lg leading-relaxed mx-auto md:mx-0">
                 {{ $settings['website_description']->value ?? 'Marketplace terpercaya untuk berbagai produk berkualitas dengan pelayanan terbaik. Bergabunglah dengan ribuan pelanggan yang puas.' }}
             </p>
 
-            <div class="flex flex-wrap gap-4 pt-2">
+            <div class="flex flex-wrap gap-4 pt-2 justify-center md:justify-start">
                 <a href="{{ route('products') }}" class="bg-green-600 text-white font-semibold text-sm px-8 py-4 rounded-xl flex items-center gap-2 shadow-lg hover:bg-green-500 transition-all group">
                     <i class="fas fa-shopping-bag group-hover:rotate-12 transition-transform"></i>
                     Lihat Koleksi
@@ -90,7 +90,7 @@
                 </a>
             </div>
 
-            <div class="flex gap-6 pt-2 text-green-200/70 text-sm font-medium">
+            <div class="flex gap-6 pt-2 text-green-200/70 text-sm font-medium justify-center md:justify-start">
                 <div class="flex items-center gap-2">
                     <i class="fas fa-check-circle text-green-300"></i> Produk Asli
                 </div>
@@ -145,9 +145,11 @@
     </div>
 
     <!-- Scroll indicator -->
-    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 text-green-200 flex flex-col items-center gap-2 opacity-50 animate-pulse">
-        <span class="text-[10px] uppercase tracking-widest font-bold">Scroll</span>
-        <i class="fas fa-chevron-down"></i>
+    <div class="absolute bottom-8 left-0 right-0 flex justify-center text-green-200 opacity-50 animate-pulse">
+        <div class="flex flex-col items-center gap-2">
+            <span class="text-[10px] uppercase tracking-widest font-bold">Scroll</span>
+            <i class="fas fa-chevron-down"></i>
+        </div>
     </div>
 </section>
 
@@ -194,12 +196,12 @@
 <!-- Koleksi Terpopuler -->
 <section class="py-24 bg-gray-50">
     <div class="max-w-7xl mx-auto px-5 md:px-16">
-        <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
             <div class="max-w-lg">
                 <p class="text-green-600 font-semibold text-sm uppercase tracking-[0.2em] mb-4">Koleksi Terpopuler</p>
                 <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Produk Unggulan Kami</h2>
             </div>
-            <a href="{{ route('products') }}" class="group flex items-center gap-2 text-green-600 font-semibold text-sm hover:underline decoration-2 underline-offset-4">
+            <a href="{{ route('products') }}" class="group inline-flex items-center gap-2 text-green-600 font-semibold text-sm hover:underline decoration-2 underline-offset-4 flex-shrink-0">
                 Lihat Semua
                 <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
             </a>
@@ -234,7 +236,44 @@
         </div>
 
         @if($categories->count() > 0)
-            <div class="grid md:grid-cols-3 gap-6 h-[500px]">
+            <!-- Mobile: Stack vertically -->
+            <div class="md:hidden space-y-4">
+                @foreach($categories->take(3) as $index => $category)
+                    <a href="{{ route('products', ['category' => $category->slug]) }}" class="group relative rounded-[1.5rem] overflow-hidden ambient-shadow block {{ $index === 0 ? 'h-52' : 'h-36' }}">
+                        @if($category->image)
+                            <img src="{{ asset('storage/' . $category->image) }}" alt="{{ $category->name }}" class="absolute inset-0 w-full h-full object-cover bento-img">
+                        @else
+                            <div class="absolute inset-0 {{ $index === 0 ? 'bg-green-700' : ($index === 1 ? 'bg-green-600' : 'bg-green-50') }}"></div>
+                        @endif
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                        <div class="absolute bottom-0 left-0 p-5 w-full">
+                            @if($index === 0)
+                                <div class="w-10 h-10 glass-card rounded-xl flex items-center justify-center text-green-700 mb-3">
+                                    <i class="fas fa-box text-lg"></i>
+                                </div>
+                            @endif
+                            <h3 class="text-white {{ $index === 0 ? 'text-xl' : 'text-lg' }} font-bold mb-1">{{ $category->name }}</h3>
+                            <div class="flex items-center gap-1.5 text-green-200 text-xs font-semibold">
+                                Lihat Produk <i class="fas fa-arrow-right text-[10px]"></i>
+                            </div>
+                        </div>
+                    </a>
+                @endforeach
+                @if($categories->count() > 3)
+                    <a href="{{ route('products') }}" class="relative rounded-[1.5rem] overflow-hidden bg-green-50 border border-green-100 ambient-shadow flex items-center justify-center h-24 group">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-ellipsis-h text-xl text-green-600"></i>
+                            <div>
+                                <h4 class="text-sm font-bold text-gray-900">Lainnya ({{ $categories->count() - 3 }})</h4>
+                                <p class="text-[11px] text-gray-500">Lihat Semua Kategori</p>
+                            </div>
+                        </div>
+                    </a>
+                @endif
+            </div>
+
+            <!-- Desktop: Bento grid -->
+            <div class="hidden md:grid md:grid-cols-3 gap-6 h-[500px]">
                 <!-- First Category (Large) -->
                 <a href="{{ route('products', ['category' => $categories->first()->slug]) }}" class="group md:col-span-2 relative rounded-[2rem] overflow-hidden ambient-shadow h-full">
                     @if($categories->first()->image)
