@@ -3,13 +3,20 @@
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <!-- Modern Hero Header -->
-    <div class="relative bg-green-700 rounded-3xl p-8 md:p-12 mb-12 overflow-hidden shadow-xl">
-        <div class="absolute inset-0 opacity-10 pattern-dots"></div>
-        <div class="relative z-10 text-center">
+    <div class="relative bg-gradient-to-br from-green-800 via-green-700 to-emerald-600 rounded-3xl p-10 md:p-14 mb-12 overflow-hidden shadow-xl text-center">
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white opacity-5 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-green-500 opacity-10 rounded-full blur-3xl"></div>
+        </div>
+        <div class="relative z-10">
+            <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-5 py-2 mb-8">
+                <i class="fas fa-box text-green-200 text-xs"></i>
+                <span class="text-green-100 text-sm font-medium tracking-wide">Koleksi Kami</span>
+            </div>
             <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">
-                Koleksi Kami
+                Jelajahi Produk
             </h1>
-            <p class="text-green-100 text-lg md:text-xl max-w-2xl mx-auto font-medium">
+            <p class="text-green-100/90 text-lg md:text-xl max-w-2xl mx-auto font-medium leading-relaxed">
                 Temukan berbagai produk berkualitas dengan harga terbaik. Marketplace terpercaya untuk semua kebutuhan Anda.
             </p>
         </div>
