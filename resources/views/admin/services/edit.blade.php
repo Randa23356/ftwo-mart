@@ -18,17 +18,42 @@
         </div>
 
         <!-- FORM -->
-        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-            <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 border-b border-green-100 flex items-center gap-3">
-                <div class="w-9 h-9 bg-gradient-to-br from-green-600 to-emerald-700 rounded-xl flex items-center justify-center shadow-md">
-                    <i class="fas fa-concierge-bell text-white text-sm"></i>
+        <form action="{{ route('admin.services.update', $service) }}" method="POST">
+            @csrf @method('PUT')
+            @php $inp = 'w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm bg-gray-50 focus:bg-white'; @endphp
+
+            <!-- Icon Picker -->
+            <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden mb-6">
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 border-b border-green-100 flex items-center gap-3">
+                    <div class="w-9 h-9 bg-gradient-to-br from-green-600 to-emerald-700 rounded-xl flex items-center justify-center shadow-md">
+                        <i class="fas fa-icons text-white text-sm"></i>
+                    </div>
+                    <h2 class="text-base font-bold text-gray-900">Icon Layanan</h2>
                 </div>
-                <h2 class="text-base font-bold text-gray-900">Detail Layanan</h2>
+                <div class="p-6 sm:p-8" x-data="iconPicker('{{ old('icon', $service->icon ?? 'shopping_cart') }}')">
+                    <input type="hidden" name="icon" :value="selected">
+                    <div class="flex flex-wrap gap-2">
+                        <template x-for="icon in icons" :key="icon">
+                            <button type="button" @click="selected = icon"
+                                    class="w-11 h-11 rounded-xl flex items-center justify-center border-2 transition-all duration-200"
+                                    :class="selected === icon ? 'bg-green-50 border-green-500 text-green-600 shadow-md' : 'bg-gray-50 border-gray-200 text-gray-500 hover:border-green-300 hover:text-green-500'">
+                                <i class="fas" :class="'fa-' + icon"></i>
+                            </button>
+                        </template>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-3"><i class="fas fa-info-circle mr-1 text-green-400"></i> Pilih icon yang merepresentasikan layanan Anda</p>
+                    @error('icon') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+                </div>
             </div>
 
-            <form action="{{ route('admin.services.update', $service) }}" method="POST">
-                @csrf @method('PUT')
-                @php $inp = 'w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm bg-gray-50 focus:bg-white'; @endphp
+            <!-- Detail Form -->
+            <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 border-b border-green-100 flex items-center gap-3">
+                    <div class="w-9 h-9 bg-gradient-to-br from-green-600 to-emerald-700 rounded-xl flex items-center justify-center shadow-md">
+                        <i class="fas fa-concierge-bell text-white text-sm"></i>
+                    </div>
+                    <h2 class="text-base font-bold text-gray-900">Detail Layanan</h2>
+                </div>
 
                 <div class="p-6 sm:p-8 space-y-5">
                     <div>
@@ -65,9 +90,23 @@
                         <i class="fas fa-save mr-2"></i> Update Layanan
                     </button>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
 
     </div>
 </div>
+
+<script>
+function iconPicker(defaultIcon = 'shopping_cart') {
+    return {
+        selected: defaultIcon,
+        icons: [
+            'shopping_cart', 'truck', 'headset', 'globe', 'credit_card',
+            'shield_check', 'package', 'support_agent', 'box', 'store',
+            'handshake', 'clock', 'star', 'gift', 'bolt',
+            'heart', 'check_circle', 'rocket', 'diamond', 'crown'
+        ]
+    }
+}
+</script>
 @endsection

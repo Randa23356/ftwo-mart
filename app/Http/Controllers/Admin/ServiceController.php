@@ -28,11 +28,12 @@ class ServiceController extends Controller
     {
         $request->validate([
             "name" => "required|string|max:255|unique:services",
+            "icon" => "nullable|string|max:255",
             "url" => "nullable|url",
             "is_active" => "boolean",
         ]);
 
-        $data = $request->all();
+        $data = $request->only(['name', 'icon', 'url']);
         $data["is_active"] = $request->has("is_active");
 
         Service::create($data);
@@ -52,11 +53,12 @@ class ServiceController extends Controller
         $request->validate([
             "name" =>
                 "required|string|max:255|unique:services,name," . $service->id,
+            "icon" => "nullable|string|max:255",
             "url" => "nullable|url",
             "is_active" => "boolean",
         ]);
 
-        $data = $request->all();
+        $data = $request->only(['name', 'icon', 'url']);
         $data["is_active"] = $request->has("is_active");
 
         $service->update($data);

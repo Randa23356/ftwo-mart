@@ -16,21 +16,25 @@ class ServiceSeeder extends Seeder
         $services = [
             [
                 "name" => "Pemesanan Online",
+                "icon" => "shopping_cart",
                 "url" => "#",
                 "is_active" => true,
             ],
             [
                 "name" => "Pengiriman",
+                "icon" => "truck",
                 "url" => "#",
                 "is_active" => true,
             ],
             [
                 "name" => "Custom Design",
+                "icon" => "diamond",
                 "url" => "#",
                 "is_active" => true,
             ],
             [
                 "name" => "Konsultasi Motif",
+                "icon" => "headset",
                 "url" => "#",
                 "is_active" => true,
             ],
