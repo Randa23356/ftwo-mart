@@ -122,11 +122,11 @@
                 <p class="text-green-200 text-sm font-medium">Produk Tersedia</p>
             </div>
             <div>
-                <div class="text-4xl md:text-5xl font-extrabold text-white mb-2">{{ $totalCustomers > 0 ? number_format($totalCustomers / 1000, 1) . 'K+' : '0' }}</div>
-                <p class="text-green-200 text-sm font-medium">Pelanggan Puas</p>
+                <div class="text-4xl md:text-5xl font-extrabold text-white mb-2">{{ number_format($totalCompletedOrders) }}</div>
+                <p class="text-green-200 text-sm font-medium">Pesanan Selesai</p>
             </div>
             <div>
-                <div class="text-4xl md:text-5xl font-extrabold text-white mb-2">{{ number_format($totalCustomers) }}</div>
+                <div class="text-4xl md:text-5xl font-extrabold text-white mb-2">{{ number_format($totalCustomers) }}+</div>
                 <p class="text-green-200 text-sm font-medium">Pelanggan Terdaftar</p>
             </div>
             <div>

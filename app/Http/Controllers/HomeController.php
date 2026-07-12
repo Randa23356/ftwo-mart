@@ -103,9 +103,10 @@ class HomeController extends Controller
 
         $totalProducts = Product::where("is_active", true)->count();
         $totalCustomers = \App\Models\User::where("role", "user")->count();
+        $totalCompletedOrders = \App\Models\Order::where("order_status", "delivered")->count();
         $avgRating = Rating::avg("rating") ?? 0;
 
-        return view("about", compact("websiteSettings", "totalProducts", "totalCustomers", "avgRating"));
+        return view("about", compact("websiteSettings", "totalProducts", "totalCustomers", "totalCompletedOrders", "avgRating"));
     }
 
     public function contact()
