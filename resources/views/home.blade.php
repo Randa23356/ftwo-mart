@@ -126,18 +126,8 @@
                         </div>
                         <div>
                             <p class="text-xs text-gray-500 font-medium">Rating Pelanggan</p>
-                            <p class="font-bold text-lg text-gray-900">
-                                @if(isset($totalRatings) && $totalRatings > 0)
-                                    {{ number_format($overallRating, 1) }}/5.0
-                                @else
-                                    4.9/5.0
-                                @endif
-                            </p>
-                            @if(isset($totalRatings) && $totalRatings > 0)
-                                <p class="text-[10px] text-gray-400">{{ number_format($totalRatings) }} ulasan</p>
-                            @else
-                                <p class="text-[10px] text-gray-400 italic">Belum ada ulasan</p>
-                            @endif
+                            <p class="font-bold text-lg text-gray-900">{{ number_format($overallRating, 1) }}/5.0</p>
+                            <p class="text-[10px] text-gray-400">{{ number_format($totalRatings) }} ulasan</p>
                         </div>
                     </div>
                 </div>
