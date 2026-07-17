@@ -1,6 +1,8 @@
-# Picia Bakery Website
+# FTWO Mart
 
-Website bakery modern dengan fitur e-commerce lengkap yang dibangun menggunakan Laravel 12.
+Website e-commerce multi-produk (bakery & batik) dengan fitur lengkap yang dibangun menggunakan Laravel 12.
+
+🌐 **Domain**: [https://mart.ftwodev.id](https://mart.ftwodev.id)
 
 ## Fitur Utama
 
@@ -50,7 +52,7 @@ Website bakery modern dengan fitur e-commerce lengkap yang dibangun menggunakan 
 ### 1. Clone Repository
 ```bash
 git clone <repository-url>
-cd piciabakery
+cd ftwo-mart
 ```
 
 ### 2. Install Dependencies
@@ -66,8 +68,8 @@ cp .env.example .env
 
 Edit file `.env` dan sesuaikan konfigurasi:
 ```env
-APP_NAME="Picia Bakery"
-APP_URL=http://localhost:8000
+APP_NAME="FTWO Mart"
+APP_URL=https://mart.ftwodev.id
 
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
@@ -133,7 +135,7 @@ Setelah menjalankan seeder, tersedia akun default:
 ### Tabel Utama
 - `users` - User dengan role (user, operator, admin)
 - `categories` - Kategori produk
-- `products` - Produk bakery
+- `products` - Semua produk
 - `orders` - Pesanan customer
 - `order_items` - Item dalam pesanan
 - `cart` - Keranjang belanja
@@ -232,4 +234,4 @@ Untuk dukungan teknis, silakan buat issue di repository ini atau hubungi tim dev
 
 ---
 
-**Picia Bakery** - Website Bakery Modern dengan Fitur E-commerce Lengkap 🍞✨
+**FTWO Mart** - Website E-commerce Multi-produk dengan Fitur Lengkap 🚀
