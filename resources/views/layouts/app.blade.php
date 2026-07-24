@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ $settings['website_name']->value ?? config('app.name', 'FtwoMart') }}</title>
@@ -46,6 +46,22 @@
             display: none !important;
         }
 
+        /* Dynamic viewport height fallback for mobile browsers */
+        @supports not (height: 100dvh) {
+            .h-dvh {
+                height: 100vh;
+            }
+        }
+
+        /* Safe area insets for notched devices */
+        .pb-safe-bottom {
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        .pt-safe-top {
+            padding-top: env(safe-area-inset-top, 0px);
+        }
+
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -83,7 +99,7 @@
              @click="mobileOpen = false"></div>
 
         <!-- Menu Content -->
-        <div class="absolute right-0 top-0 h-screen w-[min(300px,85vw)] bg-white shadow-2xl transition-transform duration-300 ease-out flex flex-col"
+        <div class="absolute right-0 top-0 h-dvh w-[min(300px,85vw)] bg-white shadow-2xl transition-transform duration-300 ease-out flex flex-col"
              x-transition:enter="transform transition ease-out duration-300"
              x-transition:enter-start="translate-x-full"
              x-transition:enter-end="translate-x-0"
@@ -321,7 +337,7 @@
 
             <!-- Footer: User Info + Logout -->
             @auth
-                <div class="px-4 py-3 border-t border-gray-100 bg-gray-50/50 flex-shrink-0">
+                <div class="px-4 py-3 border-t border-gray-100 bg-gray-50/50 flex-shrink-0 pb-safe-bottom">
                     <div class="flex items-center gap-3 mb-3">
                         <img src="{{ Auth::user()->profile_photo_url }}" class="w-10 h-10 rounded-xl shadow-sm border-2 border-white object-cover" alt="{{ Auth::user()->name }}">
                         <div class="min-w-0 flex-1">
@@ -719,12 +735,12 @@
         @endauth
 
         <!-- Page Content -->
-        <main class="{{ request()->routeIs('home') ? 'pb-8' : 'py-8' }} flex-grow">
+        <main class="{{ request()->routeIs('home') ? 'pb-8' : 'py-8' }} flex-grow pb-safe-bottom">
             @yield('content')
         </main>
 
         <!-- Footer -->
-        <footer class="bg-gray-800 text-white">
+        <footer class="bg-gray-800 text-white pb-safe-bottom">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                     <div>

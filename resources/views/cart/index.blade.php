@@ -350,7 +350,7 @@
                     <!-- Mobile checkout bar (visible on small screens when items selected) -->
                     <div x-cloak x-show="selectedCount > 0" class="fixed inset-x-0 bottom-0 z-50 lg:hidden">
                         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                            <div class="bg-white border-t shadow-xl rounded-t-lg p-3 flex items-center justify-between">
+                            <div class="bg-white border-t shadow-xl rounded-t-lg p-3 pb-safe-bottom flex items-center justify-between">
                                 <div class="flex items-center space-x-3">
                                     <div class="text-sm text-gray-600">Dipilih: <span class="font-medium text-gray-900" x-text="selectedCount"></span></div>
                                     <div class="text-sm text-gray-600">Total: <span class="font-semibold text-green-600" x-text="formatPrice(selectedTotal)"></span></div>

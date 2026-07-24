@@ -24,16 +24,19 @@
     }
     
     .chat-container {
-        height: calc(100vh - 280px);
-        min-height: 500px;
+        height: calc(100dvh - 280px);
+        min-height: 400px;
         max-height: 700px;
+        display: flex;
+        flex-direction: column;
     }
     
     .chat-messages {
-        height: calc(100% - 140px);
+        flex: 1;
         overflow-y: auto;
         scroll-behavior: smooth;
         background: rgba(248, 250, 252, 0.8);
+        min-height: 0;
     }
     
     .chat-bubble-user {
@@ -129,6 +132,7 @@
     }
     
     .message-input-area {
+        flex-shrink: 0;
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.3);
@@ -147,8 +151,17 @@
         }
         
         .chat-container {
-            height: calc(100vh - 200px);
+            height: calc(100dvh - 200px);
             min-height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            scroll-behavior: smooth;
         }
         
         .chat-header-content {
@@ -212,8 +225,10 @@
         }
         
         .chat-container {
-            height: calc(100vh - 180px);
+            height: calc(100dvh - 180px);
             min-height: 350px;
+            display: flex;
+            flex-direction: column;
         }
         
         .chat-avatar {
@@ -222,6 +237,9 @@
         }
         
         .chat-messages {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
             padding: 0.5rem;
         }
         
@@ -234,16 +252,20 @@
         }
         
         .message-input-area {
+            flex-shrink: 0;
             padding: 0.75rem;
         }
         
         .message-input-area textarea {
             font-size: 0.875rem;
-            padding: 0.75rem;
+            padding: 0.625rem 0.75rem;
+            min-height: 42px;
         }
         
         .send-button {
             padding: 0.75rem;
+            min-width: 42px;
+            min-height: 42px;
         }
     }
     
@@ -456,27 +478,28 @@
                             </div>
                         </div>
                     @else
-                        <form id="message-form" class="flex flex-col md:flex-row items-stretch md:items-end space-y-3 md:space-y-0 md:space-x-4">
+                        <form id="message-form" class="flex flex-col sm:flex-row items-stretch sm:items-end space-y-3 sm:space-y-0 sm:space-x-3">
                             <!-- Textarea -->
-                            <div class="flex-1 relative">
+                            <div class="flex-1 relative min-w-0">
                                 <textarea id="message-body"
-                                          class="w-full message-input-area border-2 border-gray-200 rounded-2xl px-4 md:px-6 py-3 md:py-4 pr-12 md:pr-16 
+                                          class="w-full message-input-area border-2 border-gray-200 rounded-2xl px-4 py-3 pr-12 
                                                  focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none
-                                                 leading-relaxed text-gray-900 placeholder-gray-500 text-sm md:text-base"
+                                                 leading-relaxed text-gray-900 placeholder-gray-500 text-sm"
                                           placeholder="Ketik pesan Anda..."
                                           rows="1"
-                                          maxlength="5000"></textarea>
+                                          maxlength="5000"
+                                          style="min-height: 48px; max-height: 120px;"></textarea>
                                 <!-- Character count -->
-                                <span id="char-count" class="absolute bottom-2 right-3 md:right-4 text-xs text-gray-400 font-medium">0/5000</span>
+                                <span id="char-count" class="absolute bottom-1.5 right-3 text-xs text-gray-400 font-medium">0/5000</span>
                             </div>
 
                             <!-- Send Button -->
                             <button type="submit"
-                                    class="send-button bg-gradient-to-r from-green-600 to-emerald-600 text-white p-3 md:p-4 rounded-2xl flex-shrink-0
+                                    class="send-button bg-gradient-to-r from-green-600 to-emerald-600 text-white p-3 rounded-2xl flex-shrink-0
                                            hover:from-green-700 hover:to-emerald-700 transition-all disabled:from-gray-400 disabled:to-gray-500
-                                           disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-1 self-center md:self-auto"
+                                           disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-1 self-center"
                                     title="Kirim Pesan">
-                                <i class="fas fa-paper-plane text-sm md:text-lg"></i>
+                                <i class="fas fa-paper-plane text-lg"></i>
                             </button>
                         </form>
                     @endif
@@ -727,7 +750,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingIndicator = document.getElementById('loading-messages');
     const charCount = document.getElementById('char-count');
     let isLoading = false;
-    let lastMessageCount = 0;
+    let lastMessageId = 0;
+    let isInitialLoad = true;
 
     // Auto-resize textarea (only if exists)
     if (messageBody) {
@@ -758,10 +782,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const scrollToBottom = (smooth = true) => {
-        messageContainer.scrollTo({
-            top: messageContainer.scrollHeight,
-            behavior: smooth ? 'smooth' : 'auto'
-        });
+        setTimeout(() => {
+            messageContainer.scrollTo({
+                top: messageContainer.scrollHeight,
+                behavior: smooth ? 'smooth' : 'auto'
+            });
+        }, 50);
     };
 
     const formatTime = (timestamp) => {
@@ -879,13 +905,103 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    // New function: Append only new messages (without slideUp animation)
+    const appendMessages = (container, messages) => {
+        let lastDate = null;
+        
+        // Get the last date separator if exists
+        const existingSeparators = container.querySelectorAll('.flex.justify-center.my-4');
+        if (existingSeparators.length > 0) {
+            const lastSeparator = existingSeparators[existingSeparators.length - 1];
+            const dateText = lastSeparator.textContent.trim();
+            // Parse date from separator
+            lastDate = new Date(dateText).toDateString();
+        }
+
+        messages.forEach((message, index) => {
+            const messageDate = new Date(message.created_at).toDateString();
+
+            // Add date separator if new day
+            if (messageDate !== lastDate) {
+                const dateSeparator = document.createElement('div');
+                dateSeparator.classList.add('flex', 'justify-center', 'my-4');
+                dateSeparator.innerHTML = `
+                    <span class="bg-gray-200 text-gray-600 text-xs px-3 py-1 rounded-full">
+                        ${new Date(message.created_at).toLocaleDateString('id-ID', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        })}
+                    </span>
+                `;
+                container.appendChild(dateSeparator);
+                lastDate = messageDate;
+            }
+
+            const isCurrentUser = message.user_id === currentUserId;
+            const isGuest = message.user_id === null;
+            const messageWrapper = document.createElement('div');
+            
+            // No animation class for appended messages
+            messageWrapper.classList.add(
+                'flex', 
+                isCurrentUser ? 'justify-end' : 'justify-start', 
+                'items-start',
+                'space-x-2'
+            );
+
+            // Create avatar
+            const avatarDiv = document.createElement('div');
+            avatarDiv.classList.add('flex-shrink-0', 'relative');
+            
+            if (isGuest) {
+                avatarDiv.innerHTML = '<div class="rounded-full h-8 w-8 bg-orange-100 flex items-center justify-center border-2 border-white shadow-sm"><i class="fas fa-user-secret text-orange-600 text-xs"></i></div>';
+            } else {
+                const imgSrc = message.user ? message.user.profile_photo_url : '/images/default-avatar.svg';
+                const imgAlt = message.user ? message.user.name : 'User';
+                avatarDiv.innerHTML = '<img class="rounded-full h-8 w-8 object-cover border-2 border-white shadow-sm" src="' + imgSrc + '" alt="' + imgAlt + '">';
+            }
+
+            // Create message bubble
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.classList.add('max-w-xs', 'md:max-w-md');
+            
+            const userName = isGuest ? 'Guest' : (message.user ? message.user.name : 'User');
+            const userNameClass = isCurrentUser ? 'text-white/90' : (isGuest ? 'text-orange-700' : 'text-gray-700');
+            const bubbleClass = isCurrentUser ? 'chat-bubble-user' : 'chat-bubble-other';
+            const checkIcon = isCurrentUser ? '<i class="fas fa-check text-green-500 ml-1"></i>' : '';
+            
+            bubbleDiv.innerHTML = '<div class="flex items-center justify-between mb-1">' +
+                '<span class="text-sm font-semibold ' + userNameClass + '">' + userName + '</span>' +
+                '<span class="text-xs text-gray-400 ml-2">' + formatTime(message.created_at) + checkIcon + '</span>' +
+                '</div>' +
+                '<div class="rounded-2xl px-4 py-3 ' + bubbleClass + '" style="overflow-wrap: break-word;">' +
+                '<p class="text-sm leading-relaxed">' + message.body.replace(/\n/g, '<br>') + '</p>' +
+                '</div>';
+
+            // Append in correct order
+            if (isCurrentUser) {
+                messageWrapper.appendChild(bubbleDiv);
+                messageWrapper.appendChild(avatarDiv);
+            } else {
+                messageWrapper.appendChild(avatarDiv);
+                messageWrapper.appendChild(bubbleDiv);
+            }
+
+            container.appendChild(messageWrapper);
+        });
+    };
+
     const fetchMessages = async (showLoading = false) => {
         if (isLoading) return;
 
         isLoading = true;
         try {
             console.log('Fetching messages from:', getMessagesUrl);
-            const response = await fetch(getMessagesUrl);
+            // Only fetch new messages after initial load
+            const url = isInitialLoad ? getMessagesUrl : `${getMessagesUrl}?after=${lastMessageId}`;
+            const response = await fetch(url);
             
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -896,19 +1012,28 @@ document.addEventListener('DOMContentLoaded', () => {
             // Debug log
             console.log('Fetched messages:', messages);
             console.log('Messages count:', messages.length);
-
-            // Always render messages (remove the count check that might be causing issues)
-            renderMessages(messageContainer, messages);
-            scrollToBottom();
-            lastMessageCount = messages.length;
+            
+            if (isInitialLoad) {
+                // Initial load - render all messages
+                renderMessages(messageContainer, messages);
+                scrollToBottom(false);
+                isInitialLoad = false;
+            } else if (messages.length > 0) {
+                // Append only new messages
+                appendMessages(messageContainer, messages);
+                scrollToBottom();
+            }
+            
+            // Update last message ID
+            if (messages.length > 0) {
+                lastMessageId = Math.max(lastMessageId, ...messages.map(m => m.id));
+            }
             
         } catch (error) {
             console.error('Failed to fetch messages', error);
-            // Show error message
-            if (loadingIndicator) {
+            if (showLoading && loadingIndicator) {
                 loadingIndicator.innerHTML = '<p class="text-red-500 text-center">Gagal memuat pesan: ' + error.message + '<br><button onclick="location.reload()" class="text-green-600 underline">Coba lagi</button></p>';
-            } else {
-                // If no loading indicator, show error in container
+            } else if (!loadingIndicator) {
                 messageContainer.innerHTML = '<p class="text-red-500 text-center p-4">Gagal memuat pesan: ' + error.message + '<br><button onclick="location.reload()" class="text-green-600 underline">Coba lagi</button></p>';
             }
         } finally {
