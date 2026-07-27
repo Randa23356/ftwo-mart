@@ -11,8 +11,8 @@
     }
 </style>
 
-<div class="min-h-screen bg-gray-50 flex items-center justify-center p-4 md:p-6 lg:p-8" style="font-family: 'Inter', sans-serif;">
-    <main class="w-full max-w-[1100px] flex flex-col md:flex-row bg-white rounded-xl register-card-shadow border border-gray-200/60 md:max-h-[90vh]">
+<div class="min-h-screen bg-gray-50 flex items-start justify-center p-4 md:p-6 lg:p-8 overflow-y-auto" style="font-family: 'Inter', sans-serif;">
+    <main class="w-full max-w-[1100px] flex flex-col md:flex-row bg-white rounded-xl md:overflow-hidden register-card-shadow border border-gray-200/60 md:max-h-[90vh] my-4">
 
         {{-- ====== Left Section: Illustration (hidden on mobile) ====== --}}
         <section class="hidden md:flex md:w-1/2 bg-green-50 relative items-center justify-center p-8 lg:p-10 overflow-hidden">
@@ -196,7 +196,7 @@
     </main>
 
     {{-- Footer --}}
-    <footer class="fixed bottom-0 left-0 w-full p-4 text-center">
+    <footer class="py-4 text-center">
         <p class="text-[12px] text-gray-400">&copy; {{ date('Y') }} {{ $settings['website_name']->value ?? 'FtwoMart' }}. All rights reserved.</p>
     </footer>
 </div>
