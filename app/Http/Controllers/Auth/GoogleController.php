@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
 
 class GoogleController extends Controller
@@ -16,7 +17,12 @@ class GoogleController extends Controller
             return redirect()->route('login')->with('error', 'Google OAuth belum dikonfigurasi.');
         }
 
-        return Socialite::driver('google')->redirect();
+        try {
+            return Socialite::driver('google')->redirect();
+        } catch (\Exception $e) {
+            Log::error('Google OAuth redirect error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return redirect()->route('login')->with('error', 'Google OAuth error: ' . $e->getMessage());
+        }
     }
 
     public function callback()
