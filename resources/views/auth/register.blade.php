@@ -11,8 +11,8 @@
     }
 </style>
 
-<div class="min-h-screen bg-gray-50 flex items-start justify-center p-4 md:p-6 lg:p-8 overflow-y-auto" style="font-family: 'Inter', sans-serif;">
-    <main class="w-full max-w-[1100px] flex flex-col md:flex-row bg-white rounded-xl md:overflow-hidden register-card-shadow border border-gray-200/60 md:max-h-[90vh] my-4">
+<div class="min-h-screen bg-gray-50 flex items-center justify-center p-4 md:p-6 lg:p-8" style="font-family: 'Inter', sans-serif;">
+    <main class="w-full max-w-[1100px] flex flex-col md:flex-row bg-white rounded-xl overflow-hidden register-card-shadow border border-gray-200/60 md:max-h-[90vh]">
 
         {{-- ====== Left Section: Illustration (hidden on mobile) ====== --}}
         <section class="hidden md:flex md:w-1/2 bg-green-50 relative items-center justify-center p-8 lg:p-10 overflow-hidden">
@@ -42,10 +42,10 @@
         </section>
 
         {{-- ====== Right Section: Register Form ====== --}}
-        <section class="w-full md:w-1/2 p-6 md:p-10 bg-white flex flex-col justify-center overflow-y-auto">
+        <section class="w-full md:w-1/2 p-6 md:p-10 bg-white flex flex-col overflow-y-auto" style="max-height: 90vh;">
 
             {{-- Mobile Brand --}}
-            <div class="md:hidden flex justify-center mb-6">
+            <div class="md:hidden flex justify-center mb-4">
                 <span class="text-xl font-bold text-green-700">{{ $settings['website_name']->value ?? 'FtwoMart' }}</span>
             </div>
 
@@ -56,7 +56,7 @@
             </div>
 
             {{-- Form --}}
-            <form action="{{ route('register') }}" method="POST" class="space-y-4">
+            <form action="{{ route('register') }}" method="POST" class="space-y-3">
                 @csrf
 
                 {{-- Name --}}
@@ -168,7 +168,7 @@
             </form>
 
             {{-- Divider --}}
-            <div class="relative my-6 text-center">
+            <div class="relative my-5 text-center">
                 <div class="absolute inset-0 flex items-center">
                     <div class="w-full border-t border-gray-200"></div>
                 </div>
@@ -188,17 +188,12 @@
             </a>
 
             {{-- Login Link --}}
-            <p class="mt-6 text-center text-[14px] text-gray-500">
+            <p class="mt-5 text-center text-[14px] text-gray-500">
                 Sudah punya akun?
                 <a href="{{ route('login') }}" class="text-green-700 font-bold hover:underline">Masuk Sekarang</a>
             </p>
         </section>
     </main>
-
-    {{-- Footer --}}
-    <footer class="py-4 text-center">
-        <p class="text-[12px] text-gray-400">&copy; {{ date('Y') }} {{ $settings['website_name']->value ?? 'FtwoMart' }}. All rights reserved.</p>
-    </footer>
 </div>
 
 <script>
