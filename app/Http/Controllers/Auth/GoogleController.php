@@ -12,6 +12,10 @@ class GoogleController extends Controller
 {
     public function redirect()
     {
+        if (!env('GOOGLE_CLIENT_ID') || !env('GOOGLE_CLIENT_SECRET')) {
+            return redirect()->route('login')->with('error', 'Google OAuth belum dikonfigurasi.');
+        }
+
         return Socialite::driver('google')->redirect();
     }
 
