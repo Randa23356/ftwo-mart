@@ -16,7 +16,9 @@ class ComprehensiveCitiesSeeder extends Seeder
         $this->command->info('🏙️ Mengimpor data kota/kabupaten lengkap Indonesia...');
 
         // Clear existing cities
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
         City::truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
         // Import comprehensive city data
         $this->importAllCities();
