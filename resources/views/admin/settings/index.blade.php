@@ -17,7 +17,7 @@
             </div>
         </div>
 
-        <!-- SUCCESS ALERT -->
+        <!-- SUCCEESS ALERT -->
         @if(session('success'))
             <div class="bg-green-50 border border-green-200 text-green-800 px-5 py-4 rounded-2xl mb-6 flex items-center gap-3 shadow-sm">
                 <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">

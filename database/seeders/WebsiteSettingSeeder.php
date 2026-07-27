@@ -9,7 +9,7 @@ use App\Models\WebsiteSetting;
 class WebsiteSettingSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Run the databasee seeds.
      */
     public function run(): void
     {

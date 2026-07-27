@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Schema;
 class BatikSeeder extends Seeder
 {
     /**
-     * Run the database seedss.
+     * Run the database sedss.
      */
     public function run(): void
     {

@@ -7,6 +7,7 @@ use App\Models\WebsiteSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
+//ini websetting controller
 class WebsiteSettingController extends Controller
 {
     public function __construct()
