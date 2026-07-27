@@ -220,16 +220,6 @@ class BatikSeeder extends Seeder
             ['value' => 'Senin - Minggu: 08:00 - 20:00', 'type' => 'text']
         );
 
-        WebsiteSetting::updateOrCreate(
-            ['key' => 'delivery_fee'],
-            ['value' => '15000', 'type' => 'number']
-        );
-
-        WebsiteSetting::updateOrCreate(
-            ['key' => 'min_order'],
-            ['value' => '200000', 'type' => 'number']
-        );
-
         // Add new batik-specific settings
         WebsiteSetting::updateOrCreate(
             ['key' => 'custom_order_info'],

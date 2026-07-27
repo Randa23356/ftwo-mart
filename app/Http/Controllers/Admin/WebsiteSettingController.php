@@ -31,8 +31,6 @@ class WebsiteSettingController extends Controller
             "instagram" => "nullable|string|max:255",
             "facebook" => "nullable|string|max:255",
             "opening_hours" => "required|string|max:255",
-            "delivery_fee" => "required|numeric|min:0",
-            "min_order" => "required|numeric|min:0",
             "platform_commission_rate" => "required|numeric|min:0|max:100",
             "cod_min_price" => "nullable|numeric|min:0",
             "cod_max_price" => "nullable|numeric|min:0",
@@ -42,7 +40,7 @@ class WebsiteSettingController extends Controller
             if (in_array($key, [
                 "website_name", "website_description", "phone", "address",
                 "email", "instagram", "facebook", "opening_hours",
-                "delivery_fee", "min_order", "platform_commission_rate",
+                "platform_commission_rate",
                 "cod_min_price", "cod_max_price",
             ])) {
                 WebsiteSetting::setValue($key, $value);

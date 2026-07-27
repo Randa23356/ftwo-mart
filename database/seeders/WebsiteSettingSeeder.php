@@ -55,8 +55,6 @@ class WebsiteSettingSeeder extends Seeder
                 "value" => "Senin - Minggu: 08:00 - 20:00",
                 "type" => "text",
             ],
-            ["key" => "delivery_fee", "value" => "20000", "type" => "number"],
-            ["key" => "min_order", "value" => "50000", "type" => "number"],
             ["key" => "cod_min_price", "value" => "10000", "type" => "number"],
             ["key" => "cod_max_price", "value" => "500000", "type" => "number"],
             [

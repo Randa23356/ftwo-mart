@@ -99,20 +99,6 @@
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Biaya Pengiriman (Rp)</label>
-                            <div class="relative">
-                                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400">Rp</span>
-                                <input type="number" name="delivery_fee" value="{{ old('delivery_fee', $settings['delivery_fee']->value ?? '0') }}" class="{{ $inp }} pl-10">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Minimum Order (Rp)</label>
-                            <div class="relative">
-                                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400">Rp</span>
-                                <input type="number" name="min_order" value="{{ old('min_order', $settings['min_order']->value ?? '0') }}" class="{{ $inp }} pl-10">
-                            </div>
-                        </div>
-                        <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Komisi Platform (%)</label>
                             <div class="relative">
                                 <input type="number" name="platform_commission_rate" value="{{ old('platform_commission_rate', $settings['platform_commission_rate']->value ?? '5') }}" min="0" max="100" step="0.5"
