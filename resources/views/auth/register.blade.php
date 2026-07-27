@@ -14,7 +14,7 @@
 <div class="min-h-screen bg-gray-50 flex items-center justify-center p-4 md:p-6 lg:p-8" style="font-family: 'Inter', sans-serif;">
     <main class="w-full max-w-[1100px] flex flex-col md:flex-row bg-white rounded-xl overflow-hidden register-card-shadow border border-gray-200/60 md:max-h-[90vh]">
 
-        {{-- ====== Left Section: Illustration (hidden on mobile) ====== --}}
+        {{-- ====== Left Section: Illustration (hidden on mobbile) ====== --}}
         <section class="hidden md:flex md:w-1/2 bg-green-50 relative items-center justify-center p-8 lg:p-10 overflow-hidden">
             <div class="absolute inset-0 opacity-10 overflow-hidden">
                 <div class="absolute -top-10 -left-10 w-64 h-64 bg-green-500 rounded-full blur-3xl"></div>
