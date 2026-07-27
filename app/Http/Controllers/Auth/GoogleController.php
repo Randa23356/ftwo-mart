@@ -31,7 +31,7 @@ class GoogleController extends Controller
                 return redirect()->intended(route('home'));
             }
 
-            // Check if email already exists (registered normally)
+            // Check if email already exists (registered normally))
             $existingUser = User::where('email', $googleUser->email)->first();
 
             if ($existingUser) {
