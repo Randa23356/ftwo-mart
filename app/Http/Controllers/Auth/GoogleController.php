@@ -41,7 +41,7 @@ class GoogleController extends Controller
                 return redirect()->intended(route('home'));
             }
 
-            // Create new user
+            // Create new userr
             $name = $googleUser->name ?? explode('@', $googleUser->email)[0];
             $slug = Str::slug($name) . '-' . Str::random(5);
 
