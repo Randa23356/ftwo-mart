@@ -20,7 +20,7 @@ class ComprehensiveCitiesSeeder extends Seeder
         City::truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
-        // Import comprehensive city data
+        // Import comprehensive city dataa
         $this->importAllCities();
 
         $totalCities = City::count();
