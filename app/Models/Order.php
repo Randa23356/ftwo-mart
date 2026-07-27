@@ -8,6 +8,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use BaconQrCode\Renderer\ImageRenderer\ImageBackEndInterface;
+use BaconQrCode\Renderer\Image\SvgImageBackEnd;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use BaconQrCode\Writer;
 
 class Order extends Model
 {
@@ -43,6 +47,9 @@ class Order extends Model
         'destination_city',
         'destination_postal_code',
         'total_weight',
+        'courier_token',
+        'courier_confirmed_at',
+        'refund_status',
     ];
 
     protected $dates = [
@@ -52,6 +59,7 @@ class Order extends Model
         'paid_at',
         'expires_at',
         'shipped_at',
+        'courier_confirmed_at',
         'snap_token_created_at',
     ];
 
@@ -62,6 +70,7 @@ class Order extends Model
         'expires_at' => 'datetime',
         'snap_token_created_at' => 'datetime',
         'shipped_at' => 'datetime',
+        'courier_confirmed_at' => 'datetime',
         'payment_va' => 'array',
         'payment_qris' => 'array',
     ];
@@ -88,6 +97,57 @@ class Order extends Model
     public function ratings(): HasMany
     {
         return $this->hasMany(Rating::class);
+    }
+
+    // Relasi ke OrderStatusHistory
+    public function histories(): HasMany
+    {
+        return $this->hasMany(OrderStatusHistory::class)->latest();
+    }
+
+    // Relasi ke RefundRequest
+    public function refundRequest(): HasOne
+    {
+        return $this->hasOne(RefundRequest::class)->latest();
+    }
+
+    // Scope: order yang sudah dikonfirmasi kurir tapi belum dikonfirmasi buyer (eligible for auto-complete)
+    public function scopeAwaitingBuyerConfirmation($query)
+    {
+        return $query->where('order_status', 'shipped')
+                     ->whereNotNull('courier_confirmed_at')
+                     ->whereNull('refund_status')
+                     ->where('courier_confirmed_at', '<=', now()->subDays(3));
+    }
+
+    // Cek apakah order eligible untuk buyer confirm / refund
+    public function isAwaitingBuyerConfirmation(): bool
+    {
+        return $this->order_status === 'shipped'
+            && $this->courier_confirmed_at !== null
+            && $this->refund_status === null;
+    }
+
+    // Sisa hari sebelum auto-complete (3 hari dari courier_confirmed_at)
+    public function getDaysUntilAutoCompleteAttribute(): ?int
+    {
+        if (!$this->courier_confirmed_at || $this->order_status !== 'shipped') {
+            return null;
+        }
+        $deadline = $this->courier_confirmed_at->addDays(3);
+        $days = (int) now()->diffInDays($deadline, false);
+        return max(0, $days);
+    }
+
+    public function logStatusChange(?string $oldStatus, string $newStatus, ?int $userId, ?string $role, ?string $notes = null): void
+    {
+        $this->histories()->create([
+            'old_status' => $oldStatus,
+            'new_status' => $newStatus,
+            'changed_by' => $userId,
+            'changed_by_role' => $role,
+            'notes' => $notes,
+        ]);
     }
 
     // Format total_amount (subtotal only)
@@ -123,29 +183,10 @@ class Order extends Model
         return $statuses[$this->order_status] ?? 'bg-gray-100 text-gray-800';
     }
 
-    // Badge status payment
-    public function getPaymentStatusBadgeAttribute()
-    {
-        $statuses = [
-            'pending' => 'bg-yellow-100 text-yellow-800',
-            'paid' => 'bg-green-100 text-green-800',
-            'failed' => 'bg-red-100 text-red-800'
-        ];
-
-        return $statuses[$this->payment_status] ?? 'bg-gray-100 text-gray-800';
-    }
-
     // Cek apakah pesanan sudah expired
     public function isExpired()
     {
         return $this->expires_at && now()->isAfter($this->expires_at);
-    }
-
-    // Set waktu expired (default 24 jam dari pembuatan)
-    public function setExpirationTime($hours = 24)
-    {
-        $this->expires_at = $this->created_at->addHours($hours);
-        $this->save();
     }
 
     // Scope untuk pesanan yang expired dan belum dibayar
@@ -230,6 +271,34 @@ class Order extends Model
         return $this->courier_name ? "Cek Resi {$this->courier_name}" : 'Cek Resi';
     }
 
+    public static function generateToken(): string
+    {
+        return \Str::random(40);
+    }
+
+    public function getQrUrlAttribute(): ?string
+    {
+        if (!$this->courier_token) {
+            return null;
+        }
+        return route('courier.scan', $this->courier_token);
+    }
+
+    public function getQrDataUriAttribute(): ?string
+    {
+        if (!$this->courier_token) {
+            return null;
+        }
+        $url = $this->qr_url;
+        $renderer = new \BaconQrCode\Renderer\ImageRenderer(
+            new RendererStyle(300),
+            new SvgImageBackEnd()
+        );
+        $writer = new Writer($renderer);
+        $svg = $writer->writeString($url);
+        return 'data:image/svg+xml;base64,' . base64_encode($svg);
+    }
+
     /**
      * Cancel order and restore stock
      */
@@ -297,5 +366,48 @@ class Order extends Model
         return $this->order_status !== 'cancelled' 
             && $this->payment_status !== 'paid'
             && !in_array($this->order_status, ['shipped', 'delivered']);
+    }
+
+    /**
+     * Create seller transactions for this order when delivered
+     */
+    public function createSellerTransactions()
+    {
+        $this->loadMissing('orderItems.product.seller');
+
+        $commissionRate = (float) (\App\Models\WebsiteSetting::getValue('platform_commission_rate') ?? '5');
+        $commissionDecimal = $commissionRate / 100;
+
+        foreach ($this->orderItems as $item) {
+            $product = $item->product;
+            if (!$product || !$product->seller_id) {
+                continue;
+            }
+
+            $existing = \App\Models\SellerTransaction::where('order_item_id', $item->id)->first();
+            if ($existing) {
+                continue;
+            }
+
+            $seller = $product->seller;
+            $grossAmount = $item->subtotal;
+            $commission = round($grossAmount * $commissionDecimal, 2);
+            $netAmount = $grossAmount - $commission;
+
+            \App\Models\SellerTransaction::create([
+                'seller_id' => $seller->id,
+                'order_id' => $this->id,
+                'order_item_id' => $item->id,
+                'product_id' => $product->id,
+                'gross_amount' => $grossAmount,
+                'commission' => $commission,
+                'net_amount' => $netAmount,
+                'status' => 'settled',
+                'settled_at' => now(),
+            ]);
+
+            $seller->increment('total_earnings', $grossAmount);
+            $seller->increment('balance', $netAmount);
+        }
     }
 }

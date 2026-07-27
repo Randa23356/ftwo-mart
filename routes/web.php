@@ -20,6 +20,9 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\RatingReplyController;
+use App\Http\Controllers\Seller\SellerController;
+use App\Http\Controllers\Seller\SellerRegistrationController;
+use App\Http\Controllers\Admin\AdminSellerController;
 
 // Fallback route for serving storage files when symlink is not available (shared hosting)
 Route::get('storage/{path}', function (string $path) {
@@ -69,6 +72,12 @@ Route::post("/shipping/calculate", [ShippingController::class, "calculateCost"])
     ->name("shipping.calculate")
     ->middleware("auth");
 
+// Courier QR scan routes (public, no auth required)
+Route::get('/courier/scan/{token}', [\App\Http\Controllers\CourierController::class, 'scan'])
+    ->name('courier.scan');
+Route::post('/courier/scan/{token}/confirm', [\App\Http\Controllers\CourierController::class, 'confirm'])
+    ->name('courier.scan.confirm');
+
 // Rating and Review Routes (require authentication)
 Route::middleware('auth')->group(function () {
     Route::get('/orders/{order}/products/{product}/rating', [RatingController::class, 'create'])->name('ratings.create');
@@ -88,11 +97,6 @@ Route::post("/contact", [ContactController::class, "store"])->name(
 
 // Authentication routes
 require __DIR__ . "/auth.php";
-
-// Test routes (remove in production)
-if (app()->environment("local")) {
-    require __DIR__ . "/test.php";
-}
 
 // Public user profile routes
 Route::get('/users/{name}', [UserController::class, 'show'])->name('users.profile');
@@ -172,6 +176,10 @@ Route::middleware(["auth", "verified"])->group(function () {
                 ChatController::class,
                 "getPresenceStatus",
             ])->name("presence");
+            Route::post("/seller/{seller}", [
+                ChatController::class,
+                "chatSeller",
+            ])->name("seller");
         });
 
     // Cart routes
@@ -222,7 +230,49 @@ Route::middleware(["auth", "verified"])->group(function () {
     );
 
     // Cancel order route
-    Route::patch('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+        Route::patch('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+        Route::patch('/orders/{order}/confirm-delivery', [OrderController::class, 'confirmDelivery'])->name('orders.confirm-delivery');
+
+    // Refund request
+        Route::post('/orders/{order}/refund', [\App\Http\Controllers\RefundController::class, 'request'])->name('orders.refund');
+        Route::post('/orders/{order}/return', [\App\Http\Controllers\RefundController::class, 'submitReturn'])->name('orders.return');
+
+    // Seller Registration
+    Route::get('/seller/register', [SellerRegistrationController::class, 'show'])->name('seller.register');
+    Route::post('/seller/register', [SellerRegistrationController::class, 'store'])->name('seller.register.store');
+});
+
+// Seller routes (require auth + seller role)
+Route::middleware(['auth', 'verified', 'role:seller'])->prefix('seller')->name('seller.')->group(function () {
+    Route::get('/dashboard', [SellerController::class, 'dashboard'])->name('dashboard');
+
+    // Products
+    Route::get('/products', [SellerController::class, 'products'])->name('products.index');
+    Route::get('/products/create', [SellerController::class, 'createProduct'])->name('products.create');
+    Route::post('/products', [SellerController::class, 'storeProduct'])->name('products.store');
+    Route::get('/products/{product}/edit', [SellerController::class, 'editProduct'])->name('products.edit');
+    Route::put('/products/{product}', [SellerController::class, 'updateProduct'])->name('products.update');
+    Route::delete('/products/{product}', [SellerController::class, 'destroyProduct'])->name('products.destroy');
+    Route::put('/products/{product}/toggle-status', [SellerController::class, 'toggleProductStatus'])->name('products.toggle-status');
+    Route::delete('/products/{product}/images/{imageId}', [SellerController::class, 'destroyImage'])->name('products.delete-image');
+    Route::delete('/products/{product}/delete-all-images', [SellerController::class, 'deleteAllImages'])->name('products.delete-all-images');
+
+    // Earnings
+    Route::get('/earnings', [SellerController::class, 'earnings'])->name('earnings');
+
+    // Orders
+    Route::get('/orders', [SellerController::class, 'orders'])->name('orders');
+    Route::get('/orders/{order}', [SellerController::class, 'orderDetail'])->name('orders.show');
+    Route::put('/orders/{order}/status', [SellerController::class, 'updateOrderStatus'])->name('orders.update-status');
+    Route::post('/orders/{order}/confirm-return', [SellerController::class, 'confirmReturn'])->name('orders.confirm-return');
+
+    // Withdrawals
+    Route::get('/withdrawals', [SellerController::class, 'withdrawals'])->name('withdrawals');
+    Route::post('/withdrawals', [SellerController::class, 'requestWithdrawal'])->name('withdrawals.store');
+
+    // Profile
+    Route::get('/profile', [SellerController::class, 'profile'])->name('profile');
+    Route::put('/profile', [SellerController::class, 'updateProfile'])->name('profile.update');
 });
 
 // Public routes for COD confirmation (signed)
@@ -265,6 +315,10 @@ Route::middleware(["auth", "role:admin"])
             AdminController::class,
             "updateOrderStatus",
         ])->name("orders.update-status");
+        Route::post("/orders/{order}/confirm-return", [
+            AdminController::class,
+            "confirmReturn",
+        ])->name("orders.confirm-return");
         Route::post("/orders/{order}/tracking", [
             AdminController::class,
             "updateTrackingNumber",
@@ -344,6 +398,30 @@ Route::middleware(["auth", "role:admin"])
             WebsiteSettingController::class,
             "updateContactInfo",
         ])->name("settings.contact");
+        Route::put("/settings/login-page", [
+            WebsiteSettingController::class,
+            "updateLoginPage",
+        ])->name("settings.login-page");
+        Route::put("/settings/login-image", [
+            WebsiteSettingController::class,
+            "updateLoginImage",
+        ])->name("settings.login-image");
+        Route::delete("/settings/login-image", [
+            WebsiteSettingController::class,
+            "deleteLoginImage",
+        ])->name("settings.login-image.delete");
+        Route::put("/settings/register-page", [
+            WebsiteSettingController::class,
+            "updateRegisterPage",
+        ])->name("settings.register-page");
+        Route::put("/settings/register-image", [
+            WebsiteSettingController::class,
+            "updateRegisterImage",
+        ])->name("settings.register-image");
+        Route::delete("/settings/register-image", [
+            WebsiteSettingController::class,
+            "deleteRegisterImage",
+        ])->name("settings.register-image.delete");
         Route::post("/settings/inline-update", [
             WebsiteSettingController::class,
             "inlineUpdate",
@@ -354,6 +432,25 @@ Route::middleware(["auth", "role:admin"])
             AdminController::class,
             "emailReply",
         ])->name("email-reply");
+
+        // Seller management
+        Route::get('/sellers', [AdminSellerController::class, 'index'])->name('sellers');
+        Route::get('/sellers/{seller}', [AdminSellerController::class, 'show'])->name('sellers.show');
+        Route::put('/sellers/{seller}/approve', [AdminSellerController::class, 'approve'])->name('sellers.approve');
+        Route::post('/sellers/{seller}/reject', [AdminSellerController::class, 'reject'])->name('sellers.reject');
+        Route::put('/sellers/{seller}/toggle-verification', [AdminSellerController::class, 'toggleVerification'])->name('sellers.toggle-verification');
+        Route::put('/sellers/{seller}/toggle-status', [AdminSellerController::class, 'toggleStatus'])->name('sellers.toggle-status');
+
+        // Seller withdrawals
+        Route::get('/withdrawals', [AdminSellerController::class, 'withdrawals'])->name('withdrawals');
+        Route::get('/withdrawals/{withdrawal}', [AdminSellerController::class, 'showWithdrawal'])->name('withdrawals.show');
+        Route::put('/withdrawals/{withdrawal}/process', [AdminSellerController::class, 'processWithdrawal'])->name('withdrawals.process');
+
+        // Refund management
+        Route::get('/refunds', [\App\Http\Controllers\Admin\AdminRefundController::class, 'index'])->name('refunds');
+        Route::get('/refunds/{refund}', [\App\Http\Controllers\Admin\AdminRefundController::class, 'show'])->name('refunds.show');
+        Route::post('/refunds/{refund}/approve', [\App\Http\Controllers\Admin\AdminRefundController::class, 'approve'])->name('refunds.approve');
+        Route::post('/refunds/{refund}/reject', [\App\Http\Controllers\Admin\AdminRefundController::class, 'reject'])->name('refunds.reject');
 
         // Shipping settings
         Route::prefix("shipping")
@@ -367,6 +464,17 @@ Route::middleware(["auth", "role:admin"])
                     App\Http\Controllers\Admin\ShippingSettingController::class,
                     "update",
                 ])->name("update");
+                Route::post("/multipliers", [
+                    App\Http\Controllers\Admin\ShippingSettingController::class,
+                    "storeMultiplier",
+                ])->name("multipliers.store");
+                Route::delete("/multipliers/{id}", [
+                    App\Http\Controllers\Admin\ShippingSettingController::class,
+                    "destroyMultiplier",
+                ])->name("multipliers.destroy");
+                Route::get("/update", function () {
+                    return redirect()->route("admin.shipping.index");
+                });
                 Route::post("/test", [
                     App\Http\Controllers\Admin\ShippingSettingController::class,
                     "testShipping",
@@ -450,6 +558,7 @@ Route::middleware(["auth", "role:operator|admin"]) // Allow admin to access oper
             "orderDetail",
         ])->name("orders.detail");
         Route::put('/orders/{order}/status', [OperatorController::class, 'updateOrderStatus'])->name('orders.update-status')->middleware('permission:order-edit');
+        Route::post('/orders/{order}/confirm-return', [OperatorController::class, 'confirmReturn'])->name('orders.confirm-return')->middleware('permission:order-edit');
         Route::post('/orders/{order}/tracking', [OperatorController::class, 'updateTrackingNumber'])->name('orders.tracking')->middleware('permission:order-edit');
         Route::get("/orders/{order}/print", [
             OperatorController::class,

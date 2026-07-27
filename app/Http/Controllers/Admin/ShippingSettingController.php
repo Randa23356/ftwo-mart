@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ShippingSetting;
+use App\Models\ShippingProvinceMultiplier;
 use App\Models\City;
 use App\Services\ShippingService;
 use Illuminate\Http\Request;
@@ -25,8 +26,9 @@ class ShippingSettingController extends Controller
     {
         $setting = ShippingSetting::getActiveOrigin();
         $cities = City::orderBy('province')->orderBy('city_name')->get();
+        $multipliers = ShippingProvinceMultiplier::orderBy('province_name')->get();
         
-        return view('admin.shipping.index', compact('setting', 'cities'));
+        return view('admin.shipping.index', compact('setting', 'cities', 'multipliers'));
     }
 
     /**
@@ -39,6 +41,8 @@ class ShippingSettingController extends Controller
             'warehouse_name' => 'required|string|max:255',
             'warehouse_address' => 'nullable|string|max:500',
             'contact_phone' => 'nullable|string|max:20',
+            'base_cost' => 'required|integer|min:0',
+            'cost_per_kg' => 'required|integer|min:0',
         ]);
 
         // Get city details
@@ -56,10 +60,12 @@ class ShippingSettingController extends Controller
                 'origin_city_id' => $city->city_id,
                 'origin_city_name' => $city->type . ' ' . $city->city_name,
                 'origin_province' => $city->province,
-                'origin_postal_code' => $city->postal_code,
+                'origin_postal_code' => $city->postal_code ?? '',
                 'warehouse_name' => $request->warehouse_name,
                 'warehouse_address' => $request->warehouse_address,
                 'contact_phone' => $request->contact_phone,
+                'base_cost' => $request->base_cost,
+                'cost_per_kg' => $request->cost_per_kg,
                 'is_active' => true,
             ]);
         } else {
@@ -67,10 +73,12 @@ class ShippingSettingController extends Controller
                 'origin_city_id' => $city->city_id,
                 'origin_city_name' => $city->type . ' ' . $city->city_name,
                 'origin_province' => $city->province,
-                'origin_postal_code' => $city->postal_code,
+                'origin_postal_code' => $city->postal_code ?? '',
                 'warehouse_name' => $request->warehouse_name,
                 'warehouse_address' => $request->warehouse_address,
                 'contact_phone' => $request->contact_phone,
+                'base_cost' => $request->base_cost,
+                'cost_per_kg' => $request->cost_per_kg,
                 'is_active' => true,
             ]);
         }
@@ -78,7 +86,7 @@ class ShippingSettingController extends Controller
         // Clear cache
         Cache::forget('shipping_origin');
 
-        return back()->with('success', 'Pengaturan pengiriman berhasil diperbarui!');
+        return redirect()->route('admin.shipping.index')->with('success', 'Pengaturan pengiriman berhasil diperbarui!');
     }
 
     /**
@@ -136,5 +144,38 @@ class ShippingSettingController extends Controller
             'success' => true,
             'data' => $setting
         ]);
+    }
+
+    /**
+     * Store new province multiplier
+     */
+    public function storeMultiplier(Request $request)
+    {
+        $request->validate([
+            'province_name' => 'required|string|unique:shipping_province_multipliers,province_name',
+            'distance_multiplier' => 'required|numeric|min:0.1',
+        ], [
+            'province_name.unique' => 'Provinsi ini sudah memiliki pengaturan pengali jarak.'
+        ]);
+
+        ShippingProvinceMultiplier::create([
+            'province_name' => $request->province_name,
+            'distance_multiplier' => $request->distance_multiplier,
+        ]);
+
+        Cache::forget('shipping_origin'); // You might want to cache multipliers too if needed
+
+        return redirect()->route('admin.shipping.index')->with('success', 'Pengali jarak berhasil ditambahkan!');
+    }
+
+    /**
+     * Delete a province multiplier
+     */
+    public function destroyMultiplier($id)
+    {
+        $multiplier = ShippingProvinceMultiplier::findOrFail($id);
+        $multiplier->delete();
+
+        return redirect()->route('admin.shipping.index')->with('success', 'Pengali jarak berhasil dihapus!');
     }
 }

@@ -4,7 +4,6 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use App\Jobs\CancelExpiredOrders;
 
 class Kernel extends ConsoleKernel
 {
@@ -24,11 +23,9 @@ class Kernel extends ConsoleKernel
      * @return void
      */
     protected function schedule(Schedule $schedule)
-{
-    $schedule->command('orders:cancel-expired')
-             ->everyFiveMinutes()
-             ->withoutOverlapping();
-}
+    {
+        //
+    }
 
     /**
      * Register the commands for the application.

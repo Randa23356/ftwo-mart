@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Conversation;
+use App\Models\Seller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,15 +23,8 @@ class ChatController extends Controller
         // Base query with additional CS user info
         $query = Conversation::with([
             "user", 
+            "seller",
             "latestMessage.user",
-            "messages" => function($query) use ($user) {
-                // Load one CS message per conversation for name display
-                $query->where('user_id', '!=', $user->id)
-                      ->whereNotNull('user_id')
-                      ->with('user')
-                      ->latest()
-                      ->limit(1);
-            }
         ])->latest('last_activity_at');
 
         if ($user->isAdmin()) {
@@ -39,18 +33,28 @@ class ChatController extends Controller
         } elseif ($user->isOperator()) {
             // Operators see staff and internal conversations
             $allConversations = $query->whereIn("visibility", ["staff", "internal"])->get();
+        } elseif ($user->isSeller() && $user->seller) {
+            // Sellers see their seller-buyer conversations + their own user conversations
+            $sellerConversations = Conversation::with([
+                "seller",
+                "user",
+                "latestMessage.user",
+            ])->where('visibility', 'seller_buyer')
+              ->where('seller_id', $user->seller->id)
+              ->latest('last_activity_at')
+              ->get();
+
+            $userConversations = $user->conversations()->with([
+                "seller",
+                "latestMessage.user",
+            ])->latest('last_activity_at')->get();
+
+            $allConversations = $sellerConversations->merge($userConversations)->sortByDesc('last_activity_at');
         } else {
             // Regular users can only see their own conversations
             $allConversations = $user->conversations()->with([
+                "seller",
                 "latestMessage.user",
-                "messages" => function($query) use ($user) {
-                    // Load one CS message per conversation for name display
-                    $query->where('user_id', '!=', $user->id)
-                          ->whereNotNull('user_id')
-                          ->with('user')
-                          ->latest()
-                          ->limit(1);
-                }
             ])->latest('last_activity_at')->get();
         }
 
@@ -59,11 +63,12 @@ class ChatController extends Controller
         
         $stats = [
             'total' => $allConversations->count(),
-            'unread' => Conversation::getUnreadCount($userRole),
+            'unread' => $user->isSeller() ? Conversation::where('has_unread_seller', true)->where('seller_id', $user->seller?->id)->count() : Conversation::getUnreadCount($userRole),
             'guest' => $allConversations->where('type', 'guest')->count(),
             'admin_user' => $allConversations->where('type', 'admin_user')->count(),
             'operator_user' => $allConversations->where('type', 'operator_user')->count(),
             'internal' => $allConversations->where('type', 'internal')->count(),
+            'seller_buyer' => $allConversations->where('type', 'seller_buyer')->count(),
         ];
 
         // Filter conversations by type for display
@@ -252,8 +257,12 @@ class ChatController extends Controller
 
         // Mark as read for current user
         $user = Auth::user();
-        $userRole = $user->isAdmin() ? 'admin' : ($user->isOperator() ? 'operator' : 'user');
-        $conversation->markAsRead($userRole);
+        if ($user->isSeller() && $user->seller && $conversation->seller_id === $user->seller->id) {
+            $conversation->markAsRead('seller');
+        } else {
+            $userRole = $user->isAdmin() ? 'admin' : ($user->isOperator() ? 'operator' : 'user');
+            $conversation->markAsRead($userRole);
+        }
 
         // Eager load messages with the sender information
         $conversation->load("messages.user");
@@ -291,7 +300,11 @@ class ChatController extends Controller
 
         // Update conversation notifications
         $user = Auth::user();
-        $senderRole = $user->isAdmin() ? 'admin' : ($user->isOperator() ? 'operator' : 'user');
+        if ($user->isSeller() && $user->seller && $conversation->seller_id === $user->seller->id) {
+            $senderRole = 'seller';
+        } else {
+            $senderRole = $user->isAdmin() ? 'admin' : ($user->isOperator() ? 'operator' : 'user');
+        }
         $conversation->markAsUnreadForOthers($senderRole);
 
         // Load the user relationship for the response
@@ -310,6 +323,20 @@ class ChatController extends Controller
 
     // Deny operators from accessing admin_only conversations
     if ($user->isOperator() && $conversation->visibility === "admin_only") {
+        abort(403, "This action is unauthorized.");
+    }
+
+    // Seller-buyer conversations: seller can access if it's their conversation
+    if ($conversation->visibility === 'seller_buyer') {
+        if ($user->seller && $conversation->seller_id === $user->seller->id) {
+            return; // Seller accessing their own conversation
+        }
+        if ($conversation->user_id === $user->id) {
+            return; // Buyer accessing their own conversation
+        }
+        if ($user->isAdmin()) {
+            return; // Admin can access all
+        }
         abort(403, "This action is unauthorized.");
     }
 
@@ -472,5 +499,47 @@ public function destroy(Conversation $conversation)
         $conversation->forceDelete();
         
         return redirect()->route('chat.index')->with('success', 'Percakapan berhasil dihapus permanen.');
+    }
+
+    public function chatSeller(Seller $seller)
+    {
+        $user = Auth::user();
+
+        if (!$user->hasVerifiedEmail()) {
+            return back()->with('error', 'Verifikasi email terlebih dahulu untuk menghubungi penjual.');
+        }
+
+        if ($user->seller && $user->seller->id === $seller->id) {
+            return back()->with('error', 'Anda tidak dapat mengchat toko sendiri.');
+        }
+
+        $existing = Conversation::where('visibility', 'seller_buyer')
+            ->where('seller_id', $seller->id)
+            ->where('user_id', $user->id)
+            ->where('status', 'open')
+            ->first();
+
+        if ($existing) {
+            return redirect()->route('chat.show', $existing);
+        }
+
+        $conversation = Conversation::create([
+            'user_id' => $user->id,
+            'seller_id' => $seller->id,
+            'subject' => 'Chat dengan ' . $seller->shop_name,
+            'status' => 'open',
+            'visibility' => 'seller_buyer',
+            'last_activity_at' => now(),
+        ]);
+
+        $conversation->messages()->create([
+            'user_id' => $user->id,
+            'body' => 'Halo, saya tertarik dengan produk di toko ' . $seller->shop_name . '.',
+        ]);
+
+        $conversation->markAsUnreadForOthers('user');
+
+        return redirect()->route('chat.show', $conversation)
+            ->with('success', 'Percakapan dengan ' . $seller->shop_name . ' berhasil dibuat.');
     }
 }

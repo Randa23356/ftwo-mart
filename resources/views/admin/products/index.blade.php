@@ -176,17 +176,27 @@
 
                                 <!-- Price -->
                                 <td class="px-5 py-4 hidden md:table-cell">
-                                    <div class="font-bold text-green-700 text-sm">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
+                                    @if($product->pricing_type === 'variant' && $product->has_variants)
+                                        <div class="font-bold text-green-700 text-sm">{{ $product->formatted_price_range }}</div>
+                                        <span class="text-xs text-gray-400">per varian</span>
+                                    @else
+                                        <div class="font-bold text-green-700 text-sm">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
+                                    @endif
                                 </td>
 
                                 <!-- Stock -->
                                 <td class="px-5 py-4 hidden lg:table-cell">
                                     @php
-                                        $stockClass = $product->stock > 10 ? 'text-green-600 bg-green-50 border-green-200' : ($product->stock > 0 ? 'text-amber-600 bg-amber-50 border-amber-200' : 'text-red-600 bg-red-50 border-red-200');
-                                        $stockLabel = $product->stock > 10 ? 'Tersedia' : ($product->stock > 0 ? 'Terbatas' : 'Habis');
+                                        if ($product->pricing_type === 'variant' && $product->has_variants) {
+                                            $totalStock = $product->variantCombinations->sum('stock');
+                                        } else {
+                                            $totalStock = $product->stock;
+                                        }
+                                        $stockClass = $totalStock > 10 ? 'text-green-600 bg-green-50 border-green-200' : ($totalStock > 0 ? 'text-amber-600 bg-amber-50 border-amber-200' : 'text-red-600 bg-red-50 border-red-200');
+                                        $stockLabel = $totalStock > 10 ? 'Tersedia' : ($totalStock > 0 ? 'Terbatas' : 'Habis');
                                     @endphp
                                     <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-semibold {{ $stockClass }}">
-                                        <span class="font-bold text-sm">{{ $product->stock }}</span>
+                                        <span class="font-bold text-sm">{{ $totalStock }}</span>
                                         <span class="font-normal opacity-70">· {{ $stockLabel }}</span>
                                     </div>
                                 </td>

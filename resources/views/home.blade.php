@@ -377,6 +377,26 @@
 </section>
 
 <!-- Call to Action -->
+@auth
+    @if(!auth()->user()->isSeller() && !auth()->user()->isAdmin() && !auth()->user()->isOperator())
+    <section class="px-5 md:px-16 mb-12">
+        <div class="bg-white rounded-2xl p-6 md:p-10 flex flex-col md:flex-row items-center gap-6 md:gap-10 shadow-sm border border-orange-100">
+            <div class="w-16 h-16 md:w-20 md:h-20 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-store text-2xl md:text-3xl text-orange-600"></i>
+            </div>
+            <div class="text-center md:text-left flex-1">
+                <h3 class="text-lg md:text-xl font-bold text-gray-900 mb-1">Jualan di {{ $settings['website_name']->value ?? 'FtwoMart' }}?</h3>
+                <p class="text-gray-500 text-sm">Buka toko online kamu sekarang. Gratis, mudah, dan langsung mulai jualan!</p>
+            </div>
+            <a href="{{ route('seller.register') }}" class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-8 py-3 rounded-xl flex items-center gap-2 shadow-md transition-all flex-shrink-0 active:scale-95">
+                <i class="fas fa-store"></i>
+                <span class="text-sm">Jadi Seller</span>
+            </a>
+        </div>
+    </section>
+    @endif
+@endauth
+
 <section class="px-5 md:px-16 mb-24">
     <div class="relative rounded-[3rem] overflow-hidden hero-gradient py-20 px-8 text-center">
         <div class="relative z-10 max-w-3xl mx-auto space-y-8">

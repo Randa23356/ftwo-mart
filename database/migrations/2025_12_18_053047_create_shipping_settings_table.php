@@ -31,7 +31,7 @@ return new class extends Migration
             'origin_postal_code' => '83115',
             'origin_latitude' => -8.5833,
             'origin_longitude' => 116.1167,
-            'warehouse_name' => 'Picia Bakery Warehouse',
+            'warehouse_name' => 'Ftwo Mart',
             'warehouse_address' => 'Mataram, Lombok, Nusa Tenggara Barat',
             'contact_phone' => null,
             'is_active' => true,

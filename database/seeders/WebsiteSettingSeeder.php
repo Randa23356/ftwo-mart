@@ -57,6 +57,8 @@ class WebsiteSettingSeeder extends Seeder
             ],
             ["key" => "delivery_fee", "value" => "20000", "type" => "number"],
             ["key" => "min_order", "value" => "50000", "type" => "number"],
+            ["key" => "cod_min_price", "value" => "10000", "type" => "number"],
+            ["key" => "cod_max_price", "value" => "500000", "type" => "number"],
             [
                 "key" => "contact_title",
                 "value" => "Hubungi Kami",
@@ -100,6 +102,28 @@ class WebsiteSettingSeeder extends Seeder
                 "key" => "batik_care_instructions",
                 "value" =>
                     "Cuci dengan tangan menggunakan detergen lembut, hindari pemutih, jemur tidak langsung terkena sinar matahari.",
+                "type" => "textarea",
+            ],
+            [
+                "key" => "login_title",
+                "value" => "Selamat Datang Kembali",
+                "type" => "text",
+            ],
+            [
+                "key" => "login_description",
+                "value" =>
+                    "Temukan produk terbaik dari vendor terpercaya di seluruh penjuru negeri hanya di FtwoMart.",
+                "type" => "textarea",
+            ],
+            [
+                "key" => "register_title",
+                "value" => "Bergabung Bersama Kami",
+                "type" => "text",
+            ],
+            [
+                "key" => "register_description",
+                "value" =>
+                    "Buat akun baru untuk mulai berbelanja produk terbaik dari vendor terpercaya.",
                 "type" => "textarea",
             ],
         ];

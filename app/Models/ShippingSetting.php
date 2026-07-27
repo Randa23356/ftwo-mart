@@ -21,12 +21,16 @@ class ShippingSetting extends Model
         'warehouse_address',
         'contact_phone',
         'is_active',
+        'base_cost',
+        'cost_per_kg',
     ];
 
     protected $casts = [
         'origin_latitude' => 'decimal:7',
         'origin_longitude' => 'decimal:7',
         'is_active' => 'boolean',
+        'base_cost' => 'integer',
+        'cost_per_kg' => 'integer',
     ];
 
     /**

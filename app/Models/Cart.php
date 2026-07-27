@@ -15,7 +15,14 @@ class Cart extends Model
     protected $fillable = [
         'user_id',
         'product_id',
-        'quantity'
+        'quantity',
+        'selected_variants',
+        'unit_price',
+    ];
+
+    protected $casts = [
+        'selected_variants' => 'array',
+        'unit_price' => 'decimal:2',
     ];
 
     public function user(): BelongsTo
@@ -30,11 +37,37 @@ class Cart extends Model
 
     public function getSubtotalAttribute()
     {
-        return $this->product ? $this->product->price * $this->quantity : 0;
+        $price = $this->unit_price ?? ($this->product ? $this->product->price : 0);
+        return (float) $price * $this->quantity;
     }
 
     public function getFormattedSubtotalAttribute()
     {
         return 'Rp ' . number_format($this->subtotal, 0, ',', '.');
+    }
+
+    /**
+     * Get formatted variant summary string (e.g. "Ukuran: M, Warna: Biru").
+     */
+    public function getStockAttribute(): int
+    {
+        if ($this->product) {
+            return $this->product->getStockForVariants($this->selected_variants ?? []);
+        }
+        return 0;
+    }
+
+    public function getVariantSummaryAttribute(): string
+    {
+        if (!$this->selected_variants || count($this->selected_variants) === 0) {
+            return '';
+        }
+
+        $parts = [];
+        foreach ($this->selected_variants as $label => $value) {
+            $parts[] = "{$label}: {$value}";
+        }
+
+        return implode(', ', $parts);
     }
 }

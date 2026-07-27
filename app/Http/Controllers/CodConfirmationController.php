@@ -43,11 +43,16 @@ class CodConfirmationController extends Controller
             return back()->with('error', 'Verifikasi nomor HP tidak cocok.');
         }
 
+        $oldStatus = $order->order_status;
+
         $order->update([
             'order_status' => 'delivered',
             'payment_status' => 'paid',
             'paid_at' => now(),
         ]);
+
+        $order->logStatusChange($oldStatus, 'delivered', null, 'system', 'Konfirmasi COD oleh pelanggan');
+        $order->createSellerTransactions();
 
         return redirect()->route('cod.confirm.show', ['order' => $order->id, 'signature' => $request->query('signature')])
             ->with('success', 'Pembayaran COD berhasil dikonfirmasi.');

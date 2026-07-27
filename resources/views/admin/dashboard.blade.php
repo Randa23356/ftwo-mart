@@ -46,7 +46,7 @@
                 <h2 class="text-xl lg:text-2xl font-bold text-gray-800">Aksi Cepat</h2>
                 <div class="h-1 w-20 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"></div>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 lg:gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4 lg:gap-6">
                 <a href="{{ route('chat.index') }}" 
                    class="group relative bg-green-50 p-6 rounded-2xl border border-green-100 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                     <div class="absolute top-0 right-0 w-20 h-20 bg-green-400/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
@@ -117,21 +117,117 @@
                     </div>
                 </a>
 
-                <a href="{{ route('admin.services.index') }}" 
-                   class="group relative bg-gradient-to-br from-teal-50 to-cyan-100 p-6 rounded-2xl border border-teal-100/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                    <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-teal-400/20 to-cyan-400/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+                <a href="{{ route('admin.sellers') }}" 
+                   class="group relative bg-gradient-to-br from-yellow-50 to-orange-100 p-6 rounded-2xl border border-yellow-100/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                    <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-yellow-400/20 to-orange-400/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
                     <div class="relative z-10">
-                        <div class="bg-gradient-to-br from-teal-500 to-cyan-600 p-3 rounded-xl shadow-lg mb-4 group-hover:scale-110 transition-transform duration-300">
-                            <i class="fas fa-concierge-bell text-white text-lg"></i>
+                        <div class="bg-gradient-to-br from-yellow-500 to-orange-600 p-3 rounded-xl shadow-lg mb-4 group-hover:scale-110 transition-transform duration-300">
+                            <i class="fas fa-store text-white text-lg"></i>
                         </div>
                         <div class="space-y-1">
-                            <div class="font-bold text-gray-800 text-base">Kelola Layanan</div>
-                            <div class="text-sm text-gray-600">Atur layanan website</div>
+                            <div class="font-bold text-gray-800 text-base">Kelola Seller</div>
+                            <div class="text-sm text-gray-600">Verifikasi & kelola seller</div>
                         </div>
                     </div>
                 </a>
+
+                @php $pendingRefunds = \App\Models\RefundRequest::where('status', 'pending')->count(); @endphp
+                <a href="{{ route('admin.refunds') }}" 
+                   class="group relative bg-gradient-to-br from-red-50 to-pink-100 p-6 rounded-2xl border border-red-100/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                    <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-red-400/20 to-pink-400/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+                    <div class="relative z-10">
+                        <div class="bg-gradient-to-br from-red-500 to-pink-600 p-3 rounded-xl shadow-lg mb-4 group-hover:scale-110 transition-transform duration-300">
+                            <i class="fas fa-undo text-white text-lg"></i>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="font-bold text-gray-800 text-base">Pengembalian</div>
+                            <div class="text-sm text-gray-600">{{ $pendingRefunds > 0 ? $pendingRefunds . ' menunggu review' : 'Tidak ada baru' }}</div>
+                        </div>
+                    </div>
+                </a>
+
+                @php $pendingWithdrawals = \App\Models\SellerWithdrawal::where('status', 'pending')->count(); @endphp
+                <a href="{{ route('admin.withdrawals') }}" 
+                   class="group relative bg-gradient-to-br from-indigo-50 to-violet-100 p-6 rounded-2xl border border-indigo-100/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                    <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-indigo-400/20 to-violet-400/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+                    <div class="relative z-10">
+                        <div class="bg-gradient-to-br from-indigo-500 to-violet-600 p-3 rounded-xl shadow-lg mb-4 group-hover:scale-110 transition-transform duration-300">
+                            <i class="fas fa-wallet text-white text-lg"></i>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="font-bold text-gray-800 text-base">Penarikan Seller</div>
+                            <div class="text-sm text-gray-600">{{ $pendingWithdrawals > 0 ? $pendingWithdrawals . ' menunggu diproses' : 'Tidak ada baru' }}</div>
+                        </div>
+                    </div>
+                </a>
+
+                 <a href="{{ route('admin.services.index') }}" 
+                    class="group relative bg-gradient-to-br from-teal-50 to-cyan-100 p-6 rounded-2xl border border-teal-100/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                     <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-teal-400/20 to-cyan-400/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+                     <div class="relative z-10">
+                         <div class="bg-gradient-to-br from-teal-500 to-cyan-600 p-3 rounded-xl shadow-lg mb-4 group-hover:scale-110 transition-transform duration-300">
+                             <i class="fas fa-concierge-bell text-white text-lg"></i>
+                         </div>
+                         <div class="space-y-1">
+                             <div class="font-bold text-gray-800 text-base">Kelola Layanan</div>
+                             <div class="text-sm text-gray-600">Atur layanan website</div>
+                         </div>
+                     </div>
+                 </a>
+
+                 <a href="{{ route('admin.shipping.index') }}" 
+                    class="group relative bg-gradient-to-br from-blue-50 to-indigo-100 p-6 rounded-2xl border border-blue-100/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                     <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-400/20 to-indigo-400/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+                     <div class="relative z-10">
+                         <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-xl shadow-lg mb-4 group-hover:scale-110 transition-transform duration-300">
+                             <i class="fas fa-truck text-white text-lg"></i>
+                         </div>
+                         <div class="space-y-1">
+                             <div class="font-bold text-gray-800 text-base">Pengaturan Pengiriman</div>
+                             <div class="text-sm text-gray-600">Atur kota asal & ongkos kirim</div>
+                         </div>
+                     </div>
+                 </a>
+             </div>
+         </div>
+
+        <!-- Perlu Perhatian -->
+        @if($orderCounts['shipped'] > 0 || $orderCounts['pending'] > 0)
+        <div class="mb-8">
+            <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                Perlu Perhatian
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                @if($orderCounts['shipped'] > 0)
+                <a href="{{ route('admin.orders.shipped') }}" class="bg-gradient-to-r from-cyan-50 to-blue-50 border border-cyan-200 rounded-2xl p-5 flex items-center gap-4 hover:shadow-lg transition-all group">
+                    <div class="w-14 h-14 bg-cyan-500 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                        <i class="fas fa-truck text-white text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm text-cyan-600 font-semibold">Perlu Dikonfirmasi</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ $orderCounts['shipped'] }}</p>
+                        <p class="text-xs text-gray-500">Pesanan terkirim, tunggu konfirmasi diterima</p>
+                    </div>
+                    <i class="fas fa-chevron-right text-cyan-400 group-hover:translate-x-1 transition-transform"></i>
+                </a>
+                @endif
+                @if($orderCounts['pending'] > 0)
+                <a href="{{ route('admin.orders.pending') }}" class="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-2xl p-5 flex items-center gap-4 hover:shadow-lg transition-all group">
+                    <div class="w-14 h-14 bg-yellow-500 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                        <i class="fas fa-clock text-white text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm text-yellow-600 font-semibold">Menunggu Diproses</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ $orderCounts['pending'] }}</p>
+                        <p class="text-xs text-gray-500">Pesanan baru, belum diproses seller</p>
+                    </div>
+                    <i class="fas fa-chevron-right text-yellow-400 group-hover:translate-x-1 transition-transform"></i>
+                </a>
+                @endif
             </div>
         </div>
+        @endif
 
         <!-- Modern Stats Cards -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Province;
 use App\Models\City;
 use App\Models\ShippingSetting;
+use App\Models\ShippingProvinceMultiplier;
 
 class ShippingService
 {
@@ -248,57 +249,66 @@ class ShippingService
     /**
      * Calculate shipping cost - Dynamic provider based on config
      */
-    public function calculateShippingCost($destinationCityId, $weight, $courier = null)
+    public function calculateShippingCost($destinationCityId, $weight, $courier = null, $originCityId = null)
     {
-        $provider = config('services.shipping_provider', 'komerce');
-        
-        Log::info('Using shipping provider', ['provider' => $provider]);
-        
-        // Try primary provider first
-        switch ($provider) {
-            case 'binderbyte':
+        $previousOrigin = $this->originCityId;
+        if ($originCityId !== null) {
+            $this->originCityId = $originCityId;
+        }
+
+        try {
+            $provider = config('services.shipping_provider', 'komerce');
+
+            Log::info('Using shipping provider', ['provider' => $provider]);
+
+            // Try primary provider first
+            switch ($provider) {
+                case 'binderbyte':
+                    $results = $this->calculateBinderbyteCost($destinationCityId, $weight, $courier);
+                    if (!empty($results)) {
+                        Log::info('BinderByte API success (primary)', [
+                            'destination' => $destinationCityId,
+                            'options' => count($results)
+                        ]);
+                        return $results;
+                    }
+                    break;
+
+                case 'komerce':
+                default:
+                    $results = $this->calculateKomerceShippingCost($destinationCityId, $weight, $courier);
+                    if (!empty($results)) {
+                        Log::info('Komerce Shipping API success (primary)', [
+                            'destination' => $destinationCityId,
+                            'options' => count($results)
+                        ]);
+                        return $results;
+                    }
+                    break;
+            }
+
+            // Try backup providers if primary fails
+            if ($provider !== 'binderbyte') {
                 $results = $this->calculateBinderbyteCost($destinationCityId, $weight, $courier);
                 if (!empty($results)) {
-                    Log::info('BinderByte API success (primary)', [
+                    Log::info('BinderByte API success (backup)', [
                         'destination' => $destinationCityId,
                         'options' => count($results)
                     ]);
                     return $results;
                 }
-                break;
-                
-            case 'komerce':
-            default:
-                $results = $this->calculateKomerceShippingCost($destinationCityId, $weight, $courier);
-                if (!empty($results)) {
-                    Log::info('Komerce Shipping API success (primary)', [
-                        'destination' => $destinationCityId,
-                        'options' => count($results)
-                    ]);
-                    return $results;
-                }
-                break;
-        }
-
-        // Try backup providers if primary fails
-        if ($provider !== 'binderbyte') {
-            $results = $this->calculateBinderbyteCost($destinationCityId, $weight, $courier);
-            if (!empty($results)) {
-                Log::info('BinderByte API success (backup)', [
-                    'destination' => $destinationCityId,
-                    'options' => count($results)
-                ]);
-                return $results;
             }
-        }
 
-        // Fallback to static calculation if all APIs fail
-        Log::info('All APIs failed, using fallback system', [
-            'destination' => $destinationCityId,
-            'weight' => $weight
-        ]);
-        
-        return $this->getFallbackShippingOptions($destinationCityId, $weight);
+            // Fallback to static calculation if all APIs fail
+            Log::info('All APIs failed, using fallback system', [
+                'destination' => $destinationCityId,
+                'weight' => $weight
+            ]);
+
+            return $this->getFallbackShippingOptions($destinationCityId, $weight);
+        } finally {
+            $this->originCityId = $previousOrigin;
+        }
     }
 
     /**
@@ -682,29 +692,19 @@ class ShippingService
      */
     private function getEstimatedShippingRate($destinationCityId, $weight)
     {
-        // Base rate per kg
-        $baseRatePerKg = 15000; // Rp 15,000 per kg
-        
-        // Adjustment berdasarkan destination (estimasi jarak dari Lombok)
-        $distanceMultiplier = 1.0;
-        
-        // Jakarta, Surabaya, Bandung (Jawa) - jauh
-        if (in_array($destinationCityId, [152, 153, 154, 155, 156, 157, 158])) {
-            $distanceMultiplier = 1.5;
-        }
-        // Bali - dekat
-        elseif (in_array($destinationCityId, [114, 115, 116, 117])) {
-            $distanceMultiplier = 0.8;
-        }
-        // Sumatra - sangat jauh
-        elseif ($destinationCityId < 100) {
-            $distanceMultiplier = 2.0;
-        }
-        
+        $originSettings = $this->getOriginSettings();
+        $baseRatePerKg = $originSettings ? ($originSettings->base_cost ?? 15000) : 15000;
         $weightInKg = $weight / 1000;
-        $estimatedCost = $baseRatePerKg * $weightInKg * $distanceMultiplier;
-        
-        // Minimum cost
+
+        // Get destination city province for distance calculation
+        $destinationCity = City::where('city_id', $destinationCityId)->first();
+        $province = $destinationCity ? $destinationCity->province : '';
+
+        $distanceMultiplier = $this->getDistanceMultiplier($destinationCityId, $province);
+        $islandPenalty = $this->getIslandPenalty($province);
+
+        $estimatedCost = $baseRatePerKg * $weightInKg * $distanceMultiplier * $islandPenalty;
+
         return max($estimatedCost, 10000);
     }
 
@@ -818,9 +818,12 @@ class ShippingService
         $destinationCity = City::where('city_id', $destinationCityId)->first();
         $province = $destinationCity ? $destinationCity->province : '';
         
-        // Base cost calculation from Lombok
-        $baseCost = 8000; // Base cost from Lombok
-        $weightCost = ceil($weight / 1000) * 2500; // Per kg
+        // Base cost calculation from DB settings (fallback to default if null)
+        $originSettings = $this->getOriginSettings();
+        $baseCost = $originSettings ? ($originSettings->base_cost ?? 8000) : 8000;
+        $costPerKg = $originSettings ? ($originSettings->cost_per_kg ?? 2500) : 2500;
+        
+        $weightCost = ceil($weight / 1000) * $costPerKg; // Per kg
         
         // Realistic distance multiplier based on actual geography from Lombok
         $distanceMultiplier = $this->getDistanceMultiplier($destinationCityId, $province);
@@ -969,13 +972,19 @@ class ShippingService
      */
     private function getDistanceMultiplier($destinationCityId, $province)
     {
+        // Check if there is an override in database
+        $override = ShippingProvinceMultiplier::where('province_name', $province)->first();
+        if ($override) {
+            return $override->distance_multiplier;
+        }
+
         // Lombok/NTB area (same island)
-        if (strpos($province, 'Nusa Tenggara') !== false) {
+        if (stripos($province, 'Nusa Tenggara') !== false) {
             return 0.8; // Cheapest - same island
         }
         
         // Bali (very close)
-        if (strpos($province, 'Bali') !== false) {
+        if (stripos($province, 'Bali') !== false) {
             return 1.0;
         }
         
@@ -985,72 +994,72 @@ class ShippingService
         }
         
         // Java - Central (Jawa Tengah, DI Yogyakarta)
-        if (strpos($province, 'Jawa Tengah') !== false || strpos($province, 'Yogyakarta') !== false) {
+        if (stripos($province, 'Jawa Tengah') !== false || stripos($province, 'Yogyakarta') !== false) {
             return 1.4;
         }
         
         // Java - West (Jawa Barat, DKI Jakarta, Banten)
-        if (strpos($province, 'Jawa Barat') !== false || strpos($province, 'DKI Jakarta') !== false || strpos($province, 'Banten') !== false) {
+        if (stripos($province, 'Jawa Barat') !== false || stripos($province, 'DKI Jakarta') !== false || stripos($province, 'Banten') !== false) {
             return 1.6;
         }
         
         // Sumatera - South (closer)
-        if (strpos($province, 'Sumatera Selatan') !== false || strpos($province, 'Lampung') !== false || strpos($province, 'Bengkulu') !== false) {
+        if (stripos($province, 'Sumatera Selatan') !== false || stripos($province, 'Lampung') !== false || stripos($province, 'Bengkulu') !== false) {
             return 1.8;
         }
         
         // Sumatera - Central
-        if (strpos($province, 'Sumatera Barat') !== false || strpos($province, 'Riau') !== false || strpos($province, 'Jambi') !== false) {
+        if (stripos($province, 'Sumatera Barat') !== false || stripos($province, 'Riau') !== false || stripos($province, 'Jambi') !== false) {
             return 2.0;
         }
         
         // Sumatera - North (farthest in Sumatera)
-        if (strpos($province, 'Sumatera Utara') !== false || strpos($province, 'Aceh') !== false) {
+        if (stripos($province, 'Sumatera Utara') !== false || stripos($province, 'Aceh') !== false) {
             return 2.2;
         }
         
         // Kalimantan - South (closer to Lombok)
-        if (strpos($province, 'Kalimantan Selatan') !== false || strpos($province, 'Kalimantan Tengah') !== false) {
+        if (stripos($province, 'Kalimantan Selatan') !== false || stripos($province, 'Kalimantan Tengah') !== false) {
             return 1.9;
         }
         
         // Kalimantan - East & West
-        if (strpos($province, 'Kalimantan Timur') !== false || strpos($province, 'Kalimantan Barat') !== false) {
+        if (stripos($province, 'Kalimantan Timur') !== false || stripos($province, 'Kalimantan Barat') !== false) {
             return 2.1;
         }
         
         // Kalimantan - North (farthest)
-        if (strpos($province, 'Kalimantan Utara') !== false) {
+        if (stripos($province, 'Kalimantan Utara') !== false) {
             return 2.3;
         }
         
         // Sulawesi - South (closer)
-        if (strpos($province, 'Sulawesi Selatan') !== false || strpos($province, 'Sulawesi Barat') !== false) {
+        if (stripos($province, 'Sulawesi Selatan') !== false || stripos($province, 'Sulawesi Barat') !== false) {
             return 1.7;
         }
         
         // Sulawesi - Central & Southeast
-        if (strpos($province, 'Sulawesi Tengah') !== false || strpos($province, 'Sulawesi Tenggara') !== false) {
+        if (stripos($province, 'Sulawesi Tengah') !== false || stripos($province, 'Sulawesi Tenggara') !== false) {
             return 1.9;
         }
         
         // Sulawesi - North (farthest)
-        if (strpos($province, 'Sulawesi Utara') !== false || strpos($province, 'Gorontalo') !== false) {
+        if (stripos($province, 'Sulawesi Utara') !== false || stripos($province, 'Gorontalo') !== false) {
             return 2.1;
         }
         
         // Papua (very far)
-        if (strpos($province, 'Papua') !== false) {
+        if (stripos($province, 'Papua') !== false) {
             return 3.0;
         }
         
         // Maluku (far)
-        if (strpos($province, 'Maluku') !== false) {
+        if (stripos($province, 'Maluku') !== false) {
             return 2.5;
         }
         
         // Kepulauan Riau, Bangka Belitung
-        if (strpos($province, 'Kepulauan Riau') !== false || strpos($province, 'Bangka Belitung') !== false) {
+        if (stripos($province, 'Kepulauan Riau') !== false || stripos($province, 'Bangka Belitung') !== false) {
             return 1.8;
         }
         
@@ -1064,41 +1073,41 @@ class ShippingService
     private function getIslandPenalty($province)
     {
         // Same island group (Nusa Tenggara, Bali) - no penalty
-        if (strpos($province, 'Nusa Tenggara') !== false || strpos($province, 'Bali') !== false) {
+        if (stripos($province, 'Nusa Tenggara') !== false || stripos($province, 'Bali') !== false) {
             return 1.0;
         }
         
         // Java (major route) - small penalty
-        if (strpos($province, 'Jawa') !== false || strpos($province, 'DKI Jakarta') !== false || 
-            strpos($province, 'Banten') !== false || strpos($province, 'Yogyakarta') !== false) {
+        if (stripos($province, 'Jawa') !== false || stripos($province, 'DKI Jakarta') !== false || 
+            stripos($province, 'Banten') !== false || stripos($province, 'Yogyakarta') !== false) {
             return 1.1;
         }
         
         // Sumatera (major route) - moderate penalty
-        if (strpos($province, 'Sumatera') !== false || strpos($province, 'Aceh') !== false || 
-            strpos($province, 'Lampung') !== false || strpos($province, 'Bengkulu') !== false || 
-            strpos($province, 'Jambi') !== false || strpos($province, 'Riau') !== false ||
-            strpos($province, 'Kepulauan Riau') !== false || strpos($province, 'Bangka Belitung') !== false) {
+        if (stripos($province, 'Sumatera') !== false || stripos($province, 'Aceh') !== false || 
+            stripos($province, 'Lampung') !== false || stripos($province, 'Bengkulu') !== false || 
+            stripos($province, 'Jambi') !== false || stripos($province, 'Riau') !== false ||
+            stripos($province, 'Kepulauan Riau') !== false || stripos($province, 'Bangka Belitung') !== false) {
             return 1.2;
         }
         
         // Kalimantan - higher penalty
-        if (strpos($province, 'Kalimantan') !== false) {
+        if (stripos($province, 'Kalimantan') !== false) {
             return 1.3;
         }
         
         // Sulawesi - higher penalty
-        if (strpos($province, 'Sulawesi') !== false || strpos($province, 'Gorontalo') !== false) {
+        if (stripos($province, 'Sulawesi') !== false || stripos($province, 'Gorontalo') !== false) {
             return 1.3;
         }
         
         // Papua (very remote) - highest penalty
-        if (strpos($province, 'Papua') !== false) {
+        if (stripos($province, 'Papua') !== false) {
             return 1.8;
         }
         
         // Maluku (remote) - high penalty
-        if (strpos($province, 'Maluku') !== false) {
+        if (stripos($province, 'Maluku') !== false) {
             return 1.5;
         }
         

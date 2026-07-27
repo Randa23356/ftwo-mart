@@ -240,7 +240,31 @@
             </a>
 
             <div class="relative flex-shrink-0">
-                @if(Auth::user()->isAdmin() || Auth::user()->isOperator())
+                @if($conversation->visibility === 'seller_buyer')
+                    @if(Auth::user()->seller && Auth::user()->seller->id === $conversation->seller_id)
+                        {{-- Seller viewing: show buyer --}}
+                        @if($conversation->user)
+                            <img src="{{ $conversation->user->profile_photo_url }}"
+                                 alt="{{ $conversation->user->name }}"
+                                 class="w-10 h-10 rounded-xl object-cover border-2 border-white shadow-lg">
+                        @else
+                            <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center border-2 border-white shadow-lg">
+                                <i class="fas fa-user text-white text-sm"></i>
+                            </div>
+                        @endif
+                    @else
+                        {{-- Buyer viewing: show seller --}}
+                        @if($conversation->seller && $conversation->seller->logo)
+                            <img src="{{ $conversation->seller->logo_url }}"
+                                 alt="{{ $conversation->seller->shop_name }}"
+                                 class="w-10 h-10 rounded-xl object-cover border-2 border-white shadow-lg">
+                        @else
+                            <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center border-2 border-white shadow-lg">
+                                <i class="fas fa-store text-white text-sm"></i>
+                            </div>
+                        @endif
+                    @endif
+                @elseif(Auth::user()->isAdmin() || Auth::user()->isOperator())
                     @if($conversation->user)
                         <img src="{{ $conversation->user->profile_photo_url }}"
                              alt="{{ $conversation->user->name }}"
@@ -264,7 +288,17 @@
             </div>
 
             <div class="flex-1 min-w-0">
-                @if(Auth::user()->isAdmin() || Auth::user()->isOperator())
+                @if($conversation->visibility === 'seller_buyer')
+                    @if(Auth::user()->seller && Auth::user()->seller->id === $conversation->seller_id)
+                        {{-- Seller viewing: show buyer name --}}
+                        <h3 style="font-size:0.875rem;font-weight:700;color:#111827;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ $conversation->user->name ?? 'Pembeli' }}</h3>
+                        <p style="font-size:0.75rem;color:#6b7280;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Pembeli</p>
+                    @else
+                        {{-- Buyer viewing: show seller shop name --}}
+                        <h3 style="font-size:0.875rem;font-weight:700;color:#111827;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ $conversation->seller->shop_name ?? 'Penjual' }}</h3>
+                        <p style="font-size:0.75rem;color:#6b7280;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Penjual</p>
+                    @endif
+                @elseif(Auth::user()->isAdmin() || Auth::user()->isOperator())
                     @if($conversation->user)
                         <h3 style="font-size:0.875rem;font-weight:700;color:#111827;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ $conversation->user->name }}</h3>
                         <p style="font-size:0.75rem;color:#6b7280;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="presence-status-text">{{ $conversation->user->presence_status }}</p>

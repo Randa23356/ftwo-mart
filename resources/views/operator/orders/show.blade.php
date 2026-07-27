@@ -201,42 +201,6 @@
                             <span class="font-bold text-lg text-green-700">{{ $order->formatted_total_with_shipping }}</span>
                         </div>
                     </div>
-                    
-                    @if($order->payment_method === 'cod' && $order->order_status === 'shipped' && $order->payment_status !== 'paid')
-                        @php($codUrl = URL::signedRoute('cod.confirm.show', ['order' => $order->id]))
-                        <div class="bg-green-50/50 px-6 py-4 border-t border-green-100">
-                             <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-                                <div class="flex items-center gap-4">
-                                    <div class="bg-white p-2 rounded-xl shadow-sm border border-green-100">
-                                         <canvas id="cod-qr" class="h-16 w-16"></canvas>
-                                    </div>
-                                    <div>
-                                        <h4 class="font-bold text-green-800">Konfirmasi COD</h4>
-                                        <p class="text-sm text-green-700">Scan QR atau gunakan link ini</p>
-                                    </div>
-                                </div>
-                                <a href="{{ $codUrl }}" target="_blank" 
-                                   class="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl shadow-lg shadow-green-200 transition-all hover:-translate-y-0.5">
-                                    Buka Link Konfirmasi
-                                </a>
-                            </div>
-                            <script>
-                                (function() {
-                                    const url = "{{ $codUrl }}";
-                                    function tryRender() {
-                                        if (window.renderQrCode) {
-                                            window.renderQrCode('#cod-qr', url);
-                                        } else {
-                                            window.addEventListener('load', function() {
-                                                if (window.renderQrCode) window.renderQrCode('#cod-qr', url);
-                                            });
-                                        }
-                                    }
-                                    tryRender();
-                                })();
-                            </script>
-                        </div>
-                    @endif
                 </div>
 
                 <!-- Informations Grid -->
@@ -310,43 +274,187 @@
                         @csrf
                         @method('PUT')
                         
-                        @if($order->order_status === 'cancelled')
-                             <div class="bg-red-50 border border-red-200 rounded-xl p-4 text-center">
-                                <i class="fas fa-ban text-red-500 text-3xl mb-3 block"></i>
-                                <p class="font-bold text-red-800">Pesanan Dibatalkan</p>
-                                <p class="text-xs text-red-600 mt-1">Status tidak dapat diubah lagi</p>
-                            </div>
-                        @elseif($order->order_status === 'delivered')
-                             <div class="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
-                                <i class="fas fa-check-circle text-green-500 text-3xl mb-3 block"></i>
-                                <p class="font-bold text-green-800">Pesanan Selesai</p>
-                                <p class="text-xs text-green-600 mt-1">Transaksi telah selesai</p>
-                            </div>
-                        @else
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Pilih Status</label>
-                                <div class="relative">
-                                    <select name="order_status" class="w-full pl-4 pr-10 py-3 rounded-xl border-gray-200 focus:ring-green-500 focus:border-green-500 text-gray-800 font-medium bg-gray-50 transition-shadow">
-                                        @foreach(['pending','processing','ready','shipped','delivered','cancelled'] as $status)
-                                            <option value="{{ $status }}" @selected($order->order_status === $status)>
-                                                {{ ucfirst($status) }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            
-                            <button type="submit" class="w-full flex justify-center items-center px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
-                                <i class="fas fa-save mr-2"></i> Simpan Status
-                            </button>
+@if($order->order_status === 'cancelled')
+     <div class="bg-red-50 border border-red-200 rounded-xl p-4 text-center">
+        <i class="fas fa-ban text-red-500 text-3xl mb-3 block"></i>
+        <p class="font-bold text-red-800">Pesanan Dibatalkan</p>
+        <p class="text-xs text-red-600 mt-1">Status tidak dapat diubah lagi</p>
+    </div>
+@elseif($order->order_status === 'delivered')
+     <div class="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
+        <i class="fas fa-check-circle text-green-500 text-3xl mb-3 block"></i>
+        <p class="font-bold text-green-800">Pesanan Selesai</p>
+        <p class="text-xs text-green-600 mt-1">Transaksi telah selesai</p>
+    </div>
+@elseif($order->order_status === 'shipped')
+    @if($order->courier_confirmed_at)
+        <div class="text-center">
+            @if($order->refund_status === 'pending')
+            <div class="bg-yellow-50 rounded-xl p-4 mb-3">
+                <i class="fas fa-hourglass-half text-yellow-500 text-2xl mb-2"></i>
+                <p class="text-sm font-semibold text-yellow-800">Pengembalian Diajukan</p>
+                <p class="text-xs text-yellow-600 mt-1">Pembeli mengajukan pengembalian. Menunggu review admin.</p>
+            </div>
+            @elseif($order->refund_status === 'return_pending')
+            <div class="bg-blue-50 rounded-xl p-4 mb-3">
+                <i class="fas fa-box text-blue-500 text-2xl mb-2"></i>
+                <p class="text-sm font-semibold text-blue-800">Menunggu Pengembalian Barang</p>
+                <p class="text-xs text-blue-600 mt-1">Admin menyetujui. Menunggu pembeli mengirim barang kembali.</p>
+            </div>
+            @elseif($order->refund_status === 'return_shipped')
+            @php $refund = $order->refundRequest; @endphp
+            <div class="bg-purple-50 rounded-xl p-4 mb-3">
+                <i class="fas fa-truck text-purple-500 text-2xl mb-2"></i>
+                <p class="text-sm font-semibold text-purple-800">Barang Dikirim Kembali</p>
+                @if($refund)
+                <p class="text-xs text-purple-600 mt-1">Resi: <span class="font-bold">{{ $refund->return_tracking_number }}</span></p>
+                @if($refund->return_evidence_image)
+                <div class="mt-2">
+                    <img src="{{ asset('storage/' . $refund->return_evidence_image) }}" alt="Bukti" class="rounded-lg border border-gray-200 max-w-[200px] mx-auto">
+                </div>
+                @endif
+                @endif
+            </div>
+            @elseif($order->refund_status === 'completed')
+            <div class="bg-green-50 rounded-xl p-4 mb-3">
+                <i class="fas fa-check-circle text-green-500 text-2xl mb-2"></i>
+                <p class="text-sm font-semibold text-green-800">Retur Selesai</p>
+                <p class="text-xs text-green-600 mt-1">Barang diterima. Pesanan dibatalkan dan stok dikembalikan.</p>
+            </div>
+            @elseif($order->refund_status === 'rejected')
+            <div class="bg-blue-50 rounded-xl p-4 mb-3">
+                <i class="fas fa-info-circle text-blue-500 text-2xl mb-2"></i>
+                <p class="text-sm font-semibold text-blue-800">Pengembalian Ditolak</p>
+                <p class="text-xs text-blue-600 mt-1">Menunggu konfirmasi penerimaan dari pembeli.</p>
+            </div>
+            @else
+            <div class="bg-green-50 rounded-xl p-4 mb-3">
+                <i class="fas fa-clock text-green-500 text-2xl mb-2"></i>
+                <p class="text-sm font-semibold text-green-800">Menunggu Konfirmasi Pembeli</p>
+                <p class="text-xs text-green-600 mt-1">Kurir sudah konfirmasi. Pesanan otomatis selesai dalam {{ $order->days_until_auto_complete }} hari.</p>
+            </div>
+            @endif
+            @if(!$order->refund_status)
+            <p class="text-xs text-gray-400 mb-3">
+                <i class="fas fa-qrcode text-purple-500 mr-1"></i> QR sudah discan kurir
+            </p>
+            @endif
+        </div>
+    @elseif($order->courier_token)
+    <div class="text-center">
+        <p class="text-sm text-gray-500 mb-3">
+            <i class="fas fa-qrcode text-purple-500 mr-1"></i> Kurir scan QR ini untuk konfirmasi pengiriman
+        </p>
+        <div class="inline-block bg-white p-3 rounded-xl border border-gray-200 shadow-sm mb-3">
+            <img src="{{ $order->qr_data_uri }}" alt="QR Code" class="w-48 h-48 mx-auto" id="qrImage">
+        </div>
+        <p class="text-xs text-gray-400 mb-3 font-mono break-all">{{ $order->qr_url }}</p>
+        <button onclick="printQR()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2.5 rounded-xl transition-all text-sm">
+            <i class="fas fa-print mr-1"></i> Cetak QR
+        </button>
+    </div>
+    @else
+    <p class="text-sm text-gray-400 text-center py-4">
+        <i class="fas fa-clock mr-1"></i> QR belum tersedia
+    </p>
+    @endif
+@elseif($order->payment_method !== 'cod' && $order->payment_status !== 'paid')
+     <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-center">
+        <i class="fas fa-exclamation-triangle text-yellow-500 text-3xl mb-3 block"></i>
+        <p class="font-bold text-yellow-800">Menunggu Pembayaran</p>
+        <p class="text-xs text-yellow-600 mt-1">Pesanan belum dibayar. Tidak dapat diproses sebelum pembayaran lunas.</p>
+    </div>
+@else
+    @if($order->courier_token)
+    <div class="text-center mb-4">
+        <p class="text-sm text-gray-500 mb-3">
+            <i class="fas fa-qrcode text-purple-500 mr-1"></i> Kurir scan QR ini untuk konfirmasi pengiriman
+        </p>
+        <div class="inline-block bg-white p-3 rounded-xl border border-gray-200 shadow-sm mb-3">
+            <img src="{{ $order->qr_data_uri }}" alt="QR Code" class="w-48 h-48 mx-auto" id="qrImage">
+        </div>
+        <p class="text-xs text-gray-400 mb-3 font-mono break-all">{{ $order->qr_url }}</p>
+        <button onclick="printQR()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2.5 rounded-xl transition-all text-sm">
+            <i class="fas fa-print mr-1"></i> Cetak QR
+        </button>
+    </div>
+    @endif
 
-                            <button type="button" onclick="handleCancelOrder(this)" 
-                                class="w-full flex justify-center items-center px-4 py-3 bg-white border-2 border-red-100 text-red-600 hover:bg-red-50 hover:border-red-200 font-bold rounded-xl transition-all">
-                                <i class="fas fa-times-circle mr-2"></i> Batalkan Pesanan
-                            </button>
-                        @endif
+    <div>
+        <label class="block text-sm font-bold text-gray-700 mb-2">Pilih Status</label>
+        <div class="relative">
+            <select name="order_status" id="order_status_select" class="w-full pl-4 pr-10 py-3 rounded-xl border-gray-200 focus:ring-green-500 focus:border-green-500 text-gray-800 font-medium bg-gray-50 transition-shadow">
+                @php
+                    $allowed = [];
+                    $current = $order->order_status;
+                    $transitions = [
+                        'pending' => ['processing'],
+                        'processing' => ['ready'],
+                        'ready' => ['shipped'],
+                        'shipped' => [],
+                        'delivered' => [],
+                    ];
+                    $allowed = $transitions[$current] ?? [];
+                @endphp
+                @foreach($allowed as $status)
+                    <option value="{{ $status }}" @selected($order->order_status === $status)>
+                        {{ ucfirst($status) }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+        <p class="text-xs text-gray-500 mt-1">Hanya transisi valid: {{ implode(', ', array_map('ucfirst', $allowed)) }}</p>
+    </div>
+    
+    <div id="tracking_number_field" class="hidden mt-4 space-y-3">
+        <div class="relative">
+            <label class="block text-sm font-bold text-gray-700 mb-1">Nomor Resi (Wajib saat dikirim)</label>
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fas fa-keyboard text-gray-400"></i>
+            </div>
+            <input type="text" name="tracking_number" id="tracking_number" 
+                class="pl-10 w-full rounded-xl border-gray-200 focus:ring-green-500 focus:border-green-500 text-gray-800 py-3 bg-gray-50 placeholder-gray-400 font-medium"
+                placeholder="Input No. Resi"
+                value="{{ $order->tracking_number }}">
+        </div>
+    </div>
+
+    <div id="notes_field" class="hidden mt-4">
+        <label class="block text-sm font-bold text-gray-700 mb-1">Catatan (Opsional)</label>
+        <textarea name="notes" rows="2" class="w-full rounded-xl border-gray-200 focus:ring-green-500 focus:border-green-500 text-gray-800 py-2 px-3 bg-gray-50 placeholder-gray-400 font-medium" placeholder="Alasan perubahan status..."></textarea>
+    </div>
+    
+    <button type="submit" class="w-full flex justify-center items-center px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+        <i class="fas fa-save mr-2"></i> Simpan Status
+    </button>
+
+    <button type="button" onclick="handleCancelOrder(this)" 
+        class="w-full flex justify-center items-center px-4 py-3 bg-white border-2 border-red-100 text-red-600 hover:bg-red-50 hover:border-red-200 font-bold rounded-xl transition-all">
+        <i class="fas fa-times-circle mr-2"></i> Batalkan Pesanan
+    </button>
+@endif
                     </form>
                 </div>
+
+                <!-- Confirm Return Button (for return_shipped refunds) -->
+                @if($order->refundRequest && $order->refundRequest->status === 'return_shipped')
+                <div class="bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-6">
+                    <div class="flex items-center space-x-3 mb-5 border-b border-gray-100 pb-4">
+                        <div class="bg-orange-100 p-2 rounded-xl text-orange-600">
+                            <i class="fas fa-undo"></i>
+                        </div>
+                        <h3 class="font-bold text-gray-900 text-lg">Konfirmasi Retur</h3>
+                    </div>
+                    <form id="confirmReturnFormCard" method="POST" action="{{ route('operator.orders.confirm-return', $order) }}">
+                        @csrf
+                        @method('POST')
+                        <p class="text-sm text-gray-600 mb-4">Pembeli telah mengirimkan barang retur. Konfirmasi setelah barang diterima untuk membatalkan pesanan dan mengembalikan stok.</p>
+                        <button type="button" onclick="handleConfirmReturn(this)" class="w-full flex justify-center items-center px-4 py-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+                            <i class="fas fa-check-circle mr-2"></i> Konfirmasi Retur Diterima
+                        </button>
+                    </form>
+                </div>
+                @endif
 
                 <!-- Tracking Number -->
                 <div class="bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-6">
@@ -370,7 +478,7 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i class="fas fa-keyboard text-gray-400"></i>
                                 </div>
-                                <input type="text" id="tracking_number" name="tracking_number" 
+                                <input type="text" id="tracking_number_standalone" name="tracking_number" 
                                     class="pl-10 w-full rounded-xl border-gray-200 focus:ring-green-500 focus:border-green-500 text-gray-800 py-3 bg-gray-50 placeholder-gray-400 font-medium"
                                     placeholder="Input No. Resi" required>
                             </div>
@@ -412,12 +520,28 @@
 
 @push('scripts')
 <script>
+function printQR() {
+    var img = document.getElementById('qrImage');
+    if (!img) return;
+    var win = window.open('', '_blank', 'width=400,height=500');
+    win.document.write('<html><head><title>QR - {{ $order->order_number }}</title>');
+    win.document.write('<style>body{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;margin:0;font-family:sans-serif;} img{width:250px;height:250px;} h2{margin:10px 0 5px;font-size:14px;} p{margin:2px 0;font-size:11px;color:#666;}</style></head><body>');
+    win.document.write('<h2>Ftowo Mart</h2>');
+    win.document.write('<p>{{ $order->order_number }}</p>');
+    win.document.write('<img src="' + img.src + '">');
+    win.document.write('<p style="font-size:10px;color:#999;margin-top:8px;">Scan QR untuk konfirmasi pengiriman</p>');
+    win.document.write('</body></html>');
+    win.document.close();
+    win.focus();
+    setTimeout(function(){ win.print(); }, 300);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const trackingForm = document.getElementById('tracking-form');
     if (trackingForm) {
         trackingForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            const trackingNumber = document.getElementById('tracking_number').value.trim();
+            const trackingNumber = document.getElementById('tracking_number_standalone').value.trim();
             
             if (!trackingNumber) {
                 Swal.fire({
@@ -469,7 +593,24 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-async function handleCancelOrder(btn) {
+// Handle status dropdown change - show/hide tracking number field
+    const statusSelect = document.getElementById('order_status_select');
+    const trackingField = document.getElementById('tracking_number_field');
+    const notesField = document.getElementById('notes_field');
+    
+    if (statusSelect && trackingField) {
+        statusSelect.addEventListener('change', function() {
+            if (this.value === 'shipped') {
+                trackingField.classList.remove('hidden');
+                notesField.classList.remove('hidden');
+            } else {
+                trackingField.classList.add('hidden');
+                notesField.classList.add('hidden');
+            }
+        });
+    }
+
+    async function handleCancelOrder(btn) {
     const isConfirmed = await Swal.fire({
         title: 'Batalkan Pesanan?',
         text: "Tindakan ini tidak dapat dibatalkan!",
@@ -495,6 +636,29 @@ async function handleCancelOrder(btn) {
         input.value = 'cancelled';
         form.appendChild(input);
         form.submit();
+    }
+}
+
+async function handleConfirmReturn(btn) {
+    const result = await Swal.fire({
+        title: 'Konfirmasi Barang Retur?',
+        text: "Pesanan akan dibatalkan dan stok dikembalikan.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#10b981',
+        cancelButtonColor: '#9ca3af',
+        confirmButtonText: 'Ya, Terima Retur',
+        cancelButtonText: 'Batal',
+        customClass: {
+            popup: 'rounded-2xl',
+            confirmButton: 'rounded-xl',
+            cancelButton: 'rounded-xl'
+        }
+    });
+
+    if (result.isConfirmed) {
+        Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        btn.closest('form').submit();
     }
 }
 </script>

@@ -12,7 +12,7 @@
                             <i class="fas fa-store mr-3 text-green-600"></i>
                             Daftar Produk
                         </h1>
-                        <p class="text-sm sm:text-base text-gray-600">Kelola semua produk FtwoMart</p>
+                        <p class="text-sm sm:text-base text-gray-600">Kelola produk staf (admin & operator)</p>
                     </div>
                     <div class="flex gap-2">
                         @can('product-delete')
@@ -43,7 +43,7 @@
                             <i class="fas fa-list text-white text-sm"></i>
                         </div>
                         <div>
-                            <h2 class="text-lg font-bold text-gray-900">Semua Produk</h2>
+                            <h2 class="text-lg font-bold text-gray-900">Produk Staf</h2>
                             <p class="text-xs text-gray-600">{{ $products->count() }} produk tersedia</p>
                         </div>
                     </div>
@@ -86,15 +86,27 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 hidden md:table-cell">
-                                        <span class="font-bold text-green-600">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
+                                        @if($product->pricing_type === 'variant' && $product->has_variants)
+                                            <span class="font-bold text-green-600">{{ $product->formatted_price_range }}</span>
+                                            <br><span class="text-xs text-gray-400">per varian</span>
+                                        @else
+                                            <span class="font-bold text-green-600">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 hidden lg:table-cell">
+                                        @php
+                                            if ($product->pricing_type === 'variant' && $product->has_variants) {
+                                                $totalStock = $product->variantCombinations->sum('stock');
+                                            } else {
+                                                $totalStock = $product->stock;
+                                            }
+                                        @endphp
                                         <div class="flex items-center">
-                                            <span class="font-bold {{ $product->stock > 10 ? 'text-green-600' : ($product->stock > 0 ? 'text-yellow-600' : 'text-red-600') }}">
-                                                {{ $product->stock }}
+                                            <span class="font-bold {{ $totalStock > 10 ? 'text-green-600' : ($totalStock > 0 ? 'text-yellow-600' : 'text-red-600') }}">
+                                                {{ $totalStock }}
                                             </span>
                                             <span class="ml-2 text-xs text-gray-500">
-                                                {{ $product->stock > 10 ? '✅ Tersedia' : ($product->stock > 0 ? '⚠️ Terbatas' : '❌ Habis') }}
+                                                {{ $totalStock > 10 ? '✅ Tersedia' : ($totalStock > 0 ? '⚠️ Terbatas' : '❌ Habis') }}
                                             </span>
                                         </div>
                                     </td>

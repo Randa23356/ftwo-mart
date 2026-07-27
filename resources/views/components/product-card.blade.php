@@ -15,7 +15,7 @@
                 Unggulan
             </span>
         @endif
-        @if($product->stock <= 0)
+        @if($product->total_stock <= 0)
             <span class="inline-block rounded-full bg-red-500/90 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white shadow-sm">
                 Habis
             </span>
@@ -36,8 +36,15 @@
         <p class="mt-1 text-base font-semibold text-gray-900 sm:mt-2 sm:text-lg">{{ $product->formatted_price }}</p>
 
         <!-- Actions (appear on hover) -->
+        @php
+            $isBlockedPurchase = Auth::check() && $product->isBlockedForUser(Auth::id());
+        @endphp
         <div class="mt-4 transition-all duration-300 lg:translate-y-4 lg:opacity-0 lg:group-hover:translate-y-0 lg:group-hover:opacity-100">
-            @if($product->stock > 0)
+            @if($isBlockedPurchase)
+                <div class="text-xs text-blue-600 bg-blue-50 rounded-lg px-3 py-2 text-center font-medium">
+                    Tidak dapat membeli
+                </div>
+            @elseif($product->total_stock > 0)
                 <div class="flex flex-col xs:flex-row gap-2">
                     <button 
                         @click.prevent.stop="addToCart({{ $product->id }}, 1)"

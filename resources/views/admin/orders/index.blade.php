@@ -38,6 +38,9 @@
                         <i class="fas fa-clock mr-2 text-sm"></i>
                         <span class="hidden sm:inline">Pending</span>
                         <span class="sm:hidden">Pending</span>
+                        @if($orderCounts['pending'] > 0)
+                            <span class="ml-1.5 bg-white/25 text-[10px] font-bold px-1.5 py-0.5 rounded-full">{{ $orderCounts['pending'] }}</span>
+                        @endif
                     </a>
                     
                     <a href="{{ route('admin.orders.processing') }}" 
@@ -48,6 +51,9 @@
                         <i class="fas fa-spinner mr-2 text-sm"></i>
                         <span class="hidden sm:inline">Processing</span>
                         <span class="sm:hidden">Process</span>
+                        @if($orderCounts['processing'] > 0)
+                            <span class="ml-1.5 bg-white/25 text-[10px] font-bold px-1.5 py-0.5 rounded-full">{{ $orderCounts['processing'] }}</span>
+                        @endif
                     </a>
                     
                     <a href="{{ route('admin.orders.ready') }}" 
@@ -58,6 +64,9 @@
                         <i class="fas fa-box mr-2 text-sm"></i>
                         <span class="hidden sm:inline">Ready</span>
                         <span class="sm:hidden">Ready</span>
+                        @if($orderCounts['ready'] > 0)
+                            <span class="ml-1.5 bg-white/25 text-[10px] font-bold px-1.5 py-0.5 rounded-full">{{ $orderCounts['ready'] }}</span>
+                        @endif
                     </a>
                     
                     <a href="{{ route('admin.orders.shipped') }}" 
@@ -68,6 +77,9 @@
                         <i class="fas fa-shipping-fast mr-2 text-sm"></i>
                         <span class="hidden sm:inline">Shipped</span>
                         <span class="sm:hidden">Shipped</span>
+                        @if($orderCounts['shipped'] > 0)
+                            <span class="ml-1.5 bg-white/25 text-[10px] font-bold px-1.5 py-0.5 rounded-full">{{ $orderCounts['shipped'] }}</span>
+                        @endif
                     </a>
                     
                     <a href="{{ route('admin.orders.delivered') }}" 

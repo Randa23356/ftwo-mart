@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules;
 use App\Models\Category;
 use App\Models\Conversation;
@@ -21,6 +22,19 @@ class AdminController extends Controller
     public function __construct()
     {
         $this->middleware(['auth', 'role:admin']);
+        view()->share('orderCounts', $this->getOrderCounts());
+    }
+
+    private function getOrderCounts(): array
+    {
+        return [
+            'pending'    => Order::where('order_status', 'pending')->count(),
+            'processing' => Order::where('order_status', 'processing')->count(),
+            'ready'      => Order::where('order_status', 'ready')->count(),
+            'shipped'    => Order::where('order_status', 'shipped')->count(),
+            'delivered'  => Order::where('order_status', 'delivered')->count(),
+            'cancelled'  => Order::where('order_status', 'cancelled')->count(),
+        ];
     }
 
     public function dashboard()
@@ -185,39 +199,102 @@ class AdminController extends Controller
     {
         $order->load(['user', 'orderItems.product' => function($query) {
             $query->withTrashed();
-        }, 'paymentTransaction']);
+        }, 'paymentTransaction', 'histories.user']);
         return view('admin.orders.show', compact('order'));
     }
 
     public function updateOrderStatus(Request $request, Order $order)
     {
-        $request->validate([
-            'order_status' => 'required|in:pending,processing,ready,shipped,delivered,cancelled'
-        ]);
+        $oldStatus = $order->order_status;
 
-        if ($order->order_status === 'cancelled') {
+        // Guard: prevent changes to already cancelled orders
+        if ($oldStatus === 'cancelled') {
             return back()->with('error', 'Pesanan telah dibatalkan dan tidak dapat diubah.');
         }
 
-        // Handle cancellation with stock restoration
-        if ($request->order_status === 'cancelled') {
-            if ($order->cancelOrder('Dibatalkan oleh admin')) {
-                return back()->with('success', 'Pesanan berhasil dibatalkan dan stok produk telah dikembalikan.');
-            } else {
-                return back()->with('error', 'Gagal membatalkan pesanan. Pesanan mungkin sudah dibayar atau tidak dapat dibatalkan.');
-            }
+        // Guard: require payment for non-COD orders
+        if ($order->payment_method !== 'cod' && $order->payment_status !== 'paid') {
+            return back()->with('error', 'Pesanan belum dibayar. Tidak dapat memproses pesanan sebelum pembayaran lunas.');
+        }
+
+        // Strict status transitions matching seller flow exactly
+        $allowed = $this->getAllowedStatuses($oldStatus);
+
+        $request->validate([
+            'order_status' => 'required|in:' . implode(',', $allowed),
+            'tracking_number' => 'required_if:order_status,shipped|nullable|string|max:255',
+            'notes' => 'nullable|string|max:500',
+        ]);
+
+        if (!in_array($request->order_status, $allowed)) {
+            return back()->with('error', 'Status tidak valid untuk pesanan ini. Hanya boleh: ' . implode(', ', $allowed));
         }
 
         $updates = ['order_status' => $request->order_status];
 
-        if ($request->order_status === 'delivered' && $order->payment_method === 'cod') {
-            $updates['payment_status'] = 'paid';
-            $updates['paid_at'] = now();
+        if ($request->order_status === 'cancelled') {
+            // Cancel order and restore stock
+            $order->cancelOrder('Dibatalkan oleh admin: ' . ($request->notes ?? 'Tidak ada keterangan'));
+            $order->logStatusChange($oldStatus, 'cancelled', Auth::id(), 'admin', 'Dibatalkan oleh admin');
+            return back()->with('success', 'Pesanan berhasil dibatalkan dan stok dikembalikan.');
+        }
+
+        if ($request->order_status === 'shipped' && $request->tracking_number) {
+            $updates['tracking_number'] = $request->tracking_number;
+            $updates['shipped_at'] = now();
         }
 
         $order->update($updates);
+        $order->logStatusChange($oldStatus, $request->order_status, Auth::id(), 'admin', $request->notes ?? null);
 
         return back()->with('success', 'Status pesanan berhasil diupdate');
+    }
+
+    /**
+     * Get allowed status transitions - SAME as seller flow (no direct delivered,
+     * delivered only via COD buyer confirmation or system auto-complete 3 days after courier scan)
+     */
+    private function getAllowedStatuses(string $current): array
+    {
+        return match ($current) {
+            'pending' => ['processing', 'cancelled'],
+            'processing' => ['ready', 'cancelled'],
+            'ready' => ['shipped', 'cancelled'],
+            'shipped' => [],
+            'delivered' => [],
+            default => [],
+        };
+    }
+
+    /**
+     * Confirm return received (matching seller confirmReturn)
+     */
+    public function confirmReturn(Order $order)
+    {
+        $refund = $order->refundRequest;
+
+        if (!$refund || $refund->status !== 'return_shipped') {
+            return back()->with('error', 'Pengembalian belum dikirim oleh pembeli.');
+        }
+
+        $refund->update([
+            'status' => 'completed',
+            'seller_returned_at' => now(),
+        ]);
+
+        $order->update(['refund_status' => 'completed']);
+
+        $order->cancelOrder('Pengembalian barang dikonfirmasi diterima oleh admin');
+
+        $order->logStatusChange(
+            'shipped',
+            'cancelled',
+            Auth::id(),
+            'admin',
+            'Barang retur diterima. Pesanan dibatalkan dan stok dikembalikan.'
+        );
+
+        return back()->with('success', 'Barang retur dikonfirmasi diterima. Pesanan dibatalkan dan stok dikembalikan.');
     }
 
     public function updateTrackingNumber(Request $request, Order $order)

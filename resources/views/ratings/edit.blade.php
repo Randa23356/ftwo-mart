@@ -1,138 +1,110 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
-    <div class="max-w-4xl mx-auto px-4">
-        <!-- Header Card -->
-        <div class="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl p-4 md:p-8 mb-4 md:mb-6 border border-white/20">
-            <div class="flex flex-col items-center justify-between mb-4 md:mb-6 md:flex-row">
-                <h1 class="text-xl md:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent text-center md:text-left mb-3 md:mb-0">
-                    <i class="fas fa-edit mr-2 md:mr-3 text-blue-500"></i>
-                    <span class="hidden md:inline">Edit Rating & Ulasan</span>
-                    <span class="md:hidden">Edit Rating</span>
-                </h1>
-                <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-3 py-1 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-semibold">
-                    <i class="fas fa-pen mr-1 md:mr-2 text-xs md:text-sm"></i>
-                    <span class="hidden md:inline">Edit Mode</span>
-                    <span class="md:hidden">Edit</span>
-                </div>
+<div class="min-h-screen bg-gray-50 py-8 md:py-12">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        {{-- Header --}}
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-2xl mb-4 shadow-sm">
+                <i class="fas fa-edit text-green-600 text-2xl"></i>
             </div>
-             
-            <!-- Product Info Card -->
-            <div class="bg-gradient-to-r from-gray-50 to-white rounded-2xl p-3 md:p-6 border border-gray-100 shadow-lg">
-                <div class="flex flex-col items-center space-y-3 md:flex-row md:space-y-0 md:space-x-4">
-                    <div class="relative group">
-                        <img src="{{ $product->image_url }}" alt="{{ $product->name }}"
-                             class="w-14 h-14 md:w-20 md:h-20 object-cover rounded-xl border-2 border-white shadow-lg transition-all duration-300 group-hover:scale-105">
-                        <div class="absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                            <i class="fas fa-edit text-white text-xs"></i>
-                        </div>
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-1">Edit Ulasan</h1>
+            <p class="text-gray-500 text-sm">Perbarui rating dan ulasan Anda</p>
+        </div>
+
+        {{-- Product Info --}}
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-5">
+            <div class="p-5 flex items-center gap-4">
+                @if($product->image_url)
+                    <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-16 h-16 rounded-xl object-cover border border-gray-200 flex-shrink-0">
+                @else
+                    <div class="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-image text-gray-400"></i>
                     </div>
-                    <div class="flex-1 text-center md:text-left">
-                        <h3 class="font-bold text-gray-900 text-base md:text-xl mb-1">{{ $product->name }}</h3>
-                        <div class="flex flex-col items-center space-y-1 md:items-start md:flex-row md:space-y-0 md:space-x-3">
-                            <span class="text-xs md:text-sm text-gray-600">
-                                <i class="fas fa-shopping-bag mr-1 text-blue-500"></i>
-                                Order: {{ $order->order_number }}
-                            </span>
-                            <span class="hidden md:inline text-gray-400">•</span>
-                            <span class="text-xs md:text-sm text-gray-600">
-                                <i class="fas fa-truck mr-1 text-green-500"></i>
-                                {{ $order->order_status }}
-                            </span>
-                            <span class="hidden md:inline text-gray-400">•</span>
-                            <span class="text-xs md:text-sm text-gray-600">
-                                <i class="fas fa-calendar mr-1 text-purple-500"></i>
-                                {{ $rating->created_at->format('d M Y') }}
-                            </span>
-                        </div>
+                @endif
+                <div class="flex-1 min-w-0">
+                    <h3 class="font-semibold text-gray-900 truncate">{{ $product->name }}</h3>
+                    <div class="flex items-center gap-3 mt-1">
+                        <span class="text-xs text-gray-500">
+                            <i class="fas fa-receipt mr-1 text-green-500"></i>#{{ $order->order_number }}
+                        </span>
+                        <span class="text-xs text-gray-400">•</span>
+                        <span class="text-xs text-gray-500 capitalize">{{ $order->order_status }}</span>
                     </div>
                 </div>
+                <span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full flex-shrink-0">Edit</span>
             </div>
         </div>
 
-        <!-- Rating Form Card -->
-        <div class="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl p-4 md:p-8 border border-white/20">
-            <form action="{{ route('ratings.update', [$order, $product]) }}" method="POST" class="space-y-4 md:space-y-8">
+        {{-- Form --}}
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
+                <div class="w-8 h-8 bg-amber-50 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-pen text-amber-500 text-sm"></i>
+                </div>
+                <h2 class="font-semibold text-gray-900 text-sm">Edit Ulasan</h2>
+            </div>
+
+            <form action="{{ route('ratings.update', [$order, $product]) }}" method="POST" class="p-6 space-y-6">
                 @csrf
                 @method('PUT')
 
-                <!-- Rating Stars Section -->
-                <div class="bg-gradient-to-r from-gray-50 to-white rounded-2xl p-4 md:p-8 border border-gray-100 shadow-lg">
-                    <div class="text-center mb-4 md:mb-6">
-                        <label class="block text-base md:text-lg font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-2 md:mb-4">
-                            <i class="fas fa-star mr-2 text-amber-500"></i>
-                            <span class="hidden md:inline">Perbarui Rating Anda</span>
-                            <span class="md:hidden">Update Rating</span>
-                        </label>
-                        <p class="text-gray-600 text-xs md:text-sm">Rating saat ini: <span class="font-bold text-amber-500">{{ $rating->rating }}</span>/5</p>
-                    </div>
-
-                    <div class="flex justify-center space-x-1 md:space-x-4" id="rating-stars">
+                {{-- Star Rating --}}
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Rating</label>
+                    <p class="text-xs text-gray-500 mb-3">Rating saat ini: <span class="font-bold text-amber-500">{{ $rating->rating }}</span>/5</p>
+                    <div class="flex items-center gap-2" id="rating-stars">
                         @for ($i = 1; $i <= 5; $i++)
                             <button type="button"
-                                    class="star-btn text-2xl md:text-4xl {{ $i <= $rating->rating ? 'text-amber-400' : 'text-gray-300' }} hover:text-amber-400 transition-all duration-300 transform hover:scale-110 focus:outline-none focus:scale-110 p-1 md:p-0"
+                                    class="star-btn text-3xl md:text-4xl {{ $i <= $rating->rating ? 'text-amber-400' : 'text-gray-300' }} hover:text-amber-400 transition-all duration-200 focus:outline-none p-0.5"
                                     data-rating="{{ $i }}"
                                     onclick="setRating({{ $i }})">
-                                <span class="inline-block">★</span>
+                                ★
                             </button>
                         @endfor
+                        <span id="rating-label" class="text-sm text-gray-500 ml-2 font-medium"></span>
                     </div>
                     <input type="hidden" name="rating" id="rating-input" value="{{ $rating->rating }}" required>
                     @error('rating')
-                        <div class="mt-2 md:mt-4 p-2 md:p-3 bg-red-50 border border-red-200 rounded-xl">
-                            <p class="text-xs md:text-sm text-red-600 font-medium">
-                                <i class="fas fa-exclamation-circle mr-2"></i>
-                                {{ $message }}
-                            </p>
-                        </div>
+                        <p class="mt-2 text-xs text-red-600 flex items-center gap-1">
+                            <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                        </p>
                     @enderror
                 </div>
 
-                <!-- Review Text Section -->
-                <div class="bg-gradient-to-r from-gray-50 to-white rounded-2xl p-4 md:p-8 border border-gray-100 shadow-lg">
-                    <div class="mb-3 md:mb-4">
-                        <label for="review_text" class="block text-base md:text-lg font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-1 md:mb-2">
-                            <i class="fas fa-pen mr-2 text-blue-500"></i>
-                            <span class="hidden md:inline">Perbarui Ulasan (Opsional)</span>
-                            <span class="md:hidden">Update Ulasan</span>
-                        </label>
-                        <p class="text-gray-600 text-xs md:text-sm">Edit ulasan Anda untuk produk ini</p>
-                    </div>
-
-                    <div class="relative">
-                        <textarea name="review_text"
-                                  id="review_text"
-                                  rows="3"
-                                  class="w-full px-3 py-2 md:px-4 md:py-3 rounded-xl border-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 resize-none text-sm md:text-base"
-                                  placeholder="Ceritakan kembali pengalaman Anda..."
-                                  maxlength="1000">{{ old('review_text', $rating->review_text) }}</textarea>
-                        <div class="absolute bottom-2 md:bottom-3 right-2 md:right-3 text-xs text-gray-500">
-                            <span id="char-count">{{ strlen(old('review_text', $rating->review_text)) }}</span>/1000
-                        </div>
-                    </div>
-                    @error('review_text')
-                        <div class="mt-2 md:mt-4 p-2 md:p-3 bg-red-50 border border-red-200 rounded-xl">
-                            <p class="text-xs md:text-sm text-red-600 font-medium">
-                                <i class="fas fa-exclamation-circle mr-2"></i>
-                                {{ $message }}
+                {{-- Review Text --}}
+                <div>
+                    <label for="review_text" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Ulasan <span class="text-gray-400 font-normal">(opsional)</span>
+                    </label>
+                    <textarea name="review_text"
+                              id="review_text"
+                              rows="4"
+                              class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:border-green-500 focus:ring-2 focus:ring-green-500/10 transition-all duration-200 resize-none"
+                              placeholder="Ceritakan kembali pengalaman Anda..."
+                              maxlength="1000">{{ old('review_text', $rating->review_text) }}</textarea>
+                    <div class="flex justify-between items-center mt-1.5">
+                        @error('review_text')
+                            <p class="text-xs text-red-600 flex items-center gap-1">
+                                <i class="fas fa-exclamation-circle"></i> {{ $message }}
                             </p>
-                        </div>
-                    @enderror
+                        @else
+                            <span></span>
+                        @enderror
+                        <span class="text-xs text-gray-400"><span id="char-count">{{ strlen(old('review_text', $rating->review_text)) }}</span>/1000</span>
+                    </div>
                 </div>
 
-                <!-- Action Buttons -->
-                <div class="flex flex-col space-y-2 md:flex-row md:justify-end md:space-y-0 md:space-x-4">
+                {{-- Actions --}}
+                <div class="flex items-center gap-3 pt-2">
                     <a href="{{ route('products.detail', $product->slug) }}"
-                       class="px-4 py-2 md:px-6 md:py-3 text-center font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 transform hover:scale-105 shadow-lg text-sm md:text-base">
-                        <i class="fas fa-times mr-2"></i>
+                       class="flex-1 sm:flex-none px-5 py-2.5 text-center text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">
                         Batal
                     </a>
                     <button type="submit"
-                            class="px-4 py-2 md:px-6 md:py-3 font-semibold text-white bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg text-sm md:text-base">
-                        <i class="fas fa-save mr-2"></i>
-                        <span class="hidden md:inline">Update Rating</span>
-                        <span class="md:hidden">Update</span>
+                            class="flex-1 sm:flex-none px-6 py-2.5 text-sm font-semibold text-white bg-green-700 hover:bg-green-800 rounded-xl transition-colors shadow-sm">
+                        <i class="fas fa-save mr-1.5"></i> Update Ulasan
                     </button>
                 </div>
             </form>
@@ -141,22 +113,22 @@
 </div>
 
 <script>
+const ratingLabels = ['', 'Sangat Buruk', 'Buruk', 'Cukup', 'Bagus', 'Sangat Bagus'];
+
 function setRating(rating) {
     const stars = document.querySelectorAll('.star-btn');
     const input = document.getElementById('rating-input');
+    const label = document.getElementById('rating-label');
 
-    // Set input value
     input.value = rating;
+    label.textContent = ratingLabels[rating];
 
-    // Update star colors with animation
     stars.forEach((star, index) => {
         if (index < rating) {
             star.classList.remove('text-gray-300');
             star.classList.add('text-amber-400');
-            star.style.transform = 'scale(1.2)';
-            setTimeout(() => {
-                star.style.transform = 'scale(1)';
-            }, 200);
+            star.style.transform = 'scale(1.15)';
+            setTimeout(() => { star.style.transform = 'scale(1)'; }, 150);
         } else {
             star.classList.remove('text-amber-400');
             star.classList.add('text-gray-300');
@@ -164,27 +136,18 @@ function setRating(rating) {
     });
 }
 
-// Character counter
 document.addEventListener('DOMContentLoaded', function() {
     const textarea = document.getElementById('review_text');
     const charCount = document.getElementById('char-count');
-    const rating = document.getElementById('rating-input').value || 0;
+    const rating = parseInt(document.getElementById('rating-input').value) || 0;
 
     if (rating > 0) {
         setRating(rating);
     }
 
-    // Update character count
     textarea.addEventListener('input', function() {
         charCount.textContent = this.value.length;
-        if (this.value.length > 900) {
-            charCount.classList.add('text-red-500');
-        } else {
-            charCount.classList.remove('text-red-500');
-        }
     });
-
-    // Initial count already set in HTML
 });
 </script>
 @endsection

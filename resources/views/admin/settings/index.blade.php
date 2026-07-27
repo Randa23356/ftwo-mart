@@ -33,6 +33,8 @@
                 @foreach([
                     ['key' => 'general',  'icon' => 'fa-sliders-h',   'label' => 'General'],
                     ['key' => 'images',   'icon' => 'fa-images',      'label' => 'Images'],
+                    ['key' => 'login',    'icon' => 'fa-sign-in-alt', 'label' => 'Login Page'],
+                    ['key' => 'register', 'icon' => 'fa-user-plus',   'label' => 'Register Page'],
                     ['key' => 'about',    'icon' => 'fa-info-circle',  'label' => 'About Page'],
                     ['key' => 'contact',  'icon' => 'fa-address-book', 'label' => 'Contact Page'],
                 ] as $t)
@@ -109,6 +111,31 @@
                                 <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400">Rp</span>
                                 <input type="number" name="min_order" value="{{ old('min_order', $settings['min_order']->value ?? '0') }}" class="{{ $inp }} pl-10">
                             </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Komisi Platform (%)</label>
+                            <div class="relative">
+                                <input type="number" name="platform_commission_rate" value="{{ old('platform_commission_rate', $settings['platform_commission_rate']->value ?? '5') }}" min="0" max="100" step="0.5"
+                                       class="{{ $inp }} pr-8">
+                                <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400">%</span>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-1">Persentase komisi yang diambil dari setiap transaksi seller</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Harga Minimum COD (Rp)</label>
+                            <div class="relative">
+                                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400">Rp</span>
+                                <input type="number" name="cod_min_price" value="{{ old('cod_min_price', $settings['cod_min_price']->value ?? '10000') }}" class="{{ $inp }} pl-10" placeholder="10000">
+                            </div>
+                            <p class="text-xs text-gray-400 mt-1">Pesanan di bawah harga ini tidak bisa pakai COD</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Harga Maksimum COD (Rp)</label>
+                            <div class="relative">
+                                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400">Rp</span>
+                                <input type="number" name="cod_max_price" value="{{ old('cod_max_price', $settings['cod_max_price']->value ?? '500000') }}" class="{{ $inp }} pl-10" placeholder="500000">
+                            </div>
+                            <p class="text-xs text-gray-400 mt-1">Pesanan di atas harga ini tidak bisa pakai COD</p>
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Alamat</label>
@@ -225,6 +252,178 @@
                         @endif
                         <button type="submit" class="inline-flex items-center px-6 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl text-sm font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
                             <i class="fas fa-upload mr-2"></i> Update Hero Image
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- LOGIN PAGE TAB -->
+        <div x-show="tab === 'login'" x-transition>
+            <!-- Login Text Settings -->
+            <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden mb-6">
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 border-b border-green-100 flex items-center gap-3">
+                    <div class="w-9 h-9 bg-gradient-to-br from-green-600 to-emerald-700 rounded-xl flex items-center justify-center shadow-md">
+                        <i class="fas fa-sign-in-alt text-white text-sm"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-bold text-gray-900">Teks Halaman Login</h2>
+                        <p class="text-xs text-gray-500">Judul dan deskripsi yang tampil di sisi kiri halaman login</p>
+                    </div>
+                </div>
+                <form action="{{ route('admin.settings.login-page') }}" method="POST">
+                    @csrf @method('PUT')
+                    <div class="p-6 sm:p-8 space-y-5">
+                        @php $inp = 'w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm bg-gray-50 focus:bg-white'; @endphp
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Judul Login</label>
+                            <input type="text" name="login_title" value="{{ old('login_title', $settings['login_title']->value ?? '') }}" class="{{ $inp }}" placeholder="Selamat Datang Kembali">
+                            <p class="text-xs text-gray-400 mt-1">Contoh: "Selamat Datang Kembali" atau "Masuk ke Akun Anda"</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Deskripsi Login</label>
+                            <textarea name="login_description" rows="3" class="{{ $inp }} resize-none" placeholder="Temukan produk terbaik dari vendor terpercaya...">{{ old('login_description', $settings['login_description']->value ?? '') }}</textarea>
+                            <p class="text-xs text-gray-400 mt-1">Deskripsi singkat yang tampil di bawah judul</p>
+                        </div>
+                    </div>
+                    <div class="px-6 sm:px-8 py-4 bg-gray-50 border-t border-gray-100 flex justify-end">
+                        <button type="submit" class="inline-flex items-center px-6 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl text-sm font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
+                            <i class="fas fa-save mr-2"></i> Simpan Teks Login
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Login Image -->
+            <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 border-b border-green-100 flex items-center gap-3">
+                    <div class="w-9 h-9 bg-gradient-to-br from-green-600 to-emerald-700 rounded-xl flex items-center justify-center shadow-md">
+                        <i class="fas fa-image text-white text-sm"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-bold text-gray-900">Gambar Halaman Login</h2>
+                        <p class="text-xs text-gray-500">Ilustrasi yang tampil di sisi kiri halaman login (desktop)</p>
+                    </div>
+                </div>
+                <form action="{{ route('admin.settings.login-image') }}" method="POST" enctype="multipart/form-data">
+                    @csrf @method('PUT')
+                    <div class="p-6 sm:p-8">
+                        <div class="rounded-2xl overflow-hidden border-2 border-gray-200 mb-4 bg-gray-50 max-h-72 flex items-center justify-center">
+                            @if(isset($settings['login_image']) && $settings['login_image']->value)
+                                <img src="{{ asset('storage/' . $settings['login_image']->value) }}" alt="Login" class="w-full h-72 object-cover">
+                            @else
+                                <div class="flex flex-col items-center py-12 text-gray-300">
+                                    <i class="fas fa-image text-5xl mb-2"></i>
+                                    <p class="text-sm">Belum ada gambar login</p>
+                                    <p class="text-xs mt-1">Gunakan gambar ilustrasi 1:1 ratio</p>
+                                </div>
+                            @endif
+                        </div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Upload Gambar Baru</label>
+                        <input type="file" name="login_image" accept="image/*"
+                               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 transition-all">
+                        <p class="text-xs text-gray-400 mt-2"><i class="fas fa-info-circle mr-1 text-green-400"></i> Rekomendasi: JPG/PNG, rasio 1:1, min 500px</p>
+                        @error('login_image') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+                    </div>
+                    <div class="px-6 sm:px-8 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between gap-3">
+                        @if(isset($settings['login_image']) && $settings['login_image']->value)
+                            <form action="{{ route('admin.settings.login-image.delete') }}" method="POST" onsubmit="return confirm('Hapus gambar login ini?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="inline-flex items-center px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-sm font-semibold border border-red-200 transition-all duration-200">
+                                    <i class="fas fa-trash mr-2"></i> Hapus Gambar
+                                </button>
+                            </form>
+                        @else
+                            <div></div>
+                        @endif
+                        <button type="submit" class="inline-flex items-center px-6 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl text-sm font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
+                            <i class="fas fa-upload mr-2"></i> Update Gambar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- REGISTER PAGE TAB -->
+        <div x-show="tab === 'register'" x-transition>
+            {{-- Register Text Settings --}}
+            <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden mb-6">
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 border-b border-green-100 flex items-center gap-3">
+                    <div class="w-9 h-9 bg-gradient-to-br from-green-600 to-emerald-700 rounded-xl flex items-center justify-center shadow-md">
+                        <i class="fas fa-user-plus text-white text-sm"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-bold text-gray-900">Teks Halaman Register</h2>
+                        <p class="text-xs text-gray-500">Judul dan deskripsi yang tampil di sisi kiri halaman register</p>
+                    </div>
+                </div>
+                <form action="{{ route('admin.settings.register-page') }}" method="POST">
+                    @csrf @method('PUT')
+                    <div class="p-6 sm:p-8 space-y-5">
+                        @php $inp = 'w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm bg-gray-50 focus:bg-white'; @endphp
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Judul Register</label>
+                            <input type="text" name="register_title" value="{{ old('register_title', $settings['register_title']->value ?? '') }}" class="{{ $inp }}" placeholder="Bergabung Bersama Kami">
+                            <p class="text-xs text-gray-400 mt-1">Contoh: "Bergabung Bersama Kami" atau "Buat Akun Baru"</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Deskripsi Register</label>
+                            <textarea name="register_description" rows="3" class="{{ $inp }} resize-none" placeholder="Buat akun baru untuk mulai berbelanja...">{{ old('register_description', $settings['register_description']->value ?? '') }}</textarea>
+                            <p class="text-xs text-gray-400 mt-1">Deskripsi singkat yang tampil di bawah judul</p>
+                        </div>
+                    </div>
+                    <div class="px-6 sm:px-8 py-4 bg-gray-50 border-t border-gray-100 flex justify-end">
+                        <button type="submit" class="inline-flex items-center px-6 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl text-sm font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
+                            <i class="fas fa-save mr-2"></i> Simpan Teks Register
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            {{-- Register Image --}}
+            <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 border-b border-green-100 flex items-center gap-3">
+                    <div class="w-9 h-9 bg-gradient-to-br from-green-600 to-emerald-700 rounded-xl flex items-center justify-center shadow-md">
+                        <i class="fas fa-image text-white text-sm"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-bold text-gray-900">Gambar Halaman Register</h2>
+                        <p class="text-xs text-gray-500">Ilustrasi yang tampil di sisi kiri halaman register (desktop)</p>
+                    </div>
+                </div>
+                <form action="{{ route('admin.settings.register-image') }}" method="POST" enctype="multipart/form-data">
+                    @csrf @method('PUT')
+                    <div class="p-6 sm:p-8">
+                        <div class="rounded-2xl overflow-hidden border-2 border-gray-200 mb-4 bg-gray-50 max-h-72 flex items-center justify-center">
+                            @if(isset($settings['register_image']) && $settings['register_image']->value)
+                                <img src="{{ asset('storage/' . $settings['register_image']->value) }}" alt="Register" class="w-full h-72 object-cover">
+                            @else
+                                <div class="flex flex-col items-center py-12 text-gray-300">
+                                    <i class="fas fa-image text-5xl mb-2"></i>
+                                    <p class="text-sm">Belum ada gambar register</p>
+                                    <p class="text-xs mt-1">Gunakan gambar ilustrasi 1:1 ratio</p>
+                                </div>
+                            @endif
+                        </div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Upload Gambar Baru</label>
+                        <input type="file" name="register_image" accept="image/*"
+                               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 transition-all">
+                        <p class="text-xs text-gray-400 mt-2"><i class="fas fa-info-circle mr-1 text-green-400"></i> Rekomendasi: JPG/PNG, rasio 1:1, min 500px</p>
+                        @error('register_image') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+                    </div>
+                    <div class="px-6 sm:px-8 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between gap-3">
+                        @if(isset($settings['register_image']) && $settings['register_image']->value)
+                            <form action="{{ route('admin.settings.register-image.delete') }}" method="POST" onsubmit="return confirm('Hapus gambar register ini?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="inline-flex items-center px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-sm font-semibold border border-red-200 transition-all duration-200">
+                                    <i class="fas fa-trash mr-2"></i> Hapus Gambar
+                                </button>
+                            </form>
+                        @else
+                            <div></div>
+                        @endif
+                        <button type="submit" class="inline-flex items-center px-6 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl text-sm font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
+                            <i class="fas fa-upload mr-2"></i> Update Gambar
                         </button>
                     </div>
                 </form>

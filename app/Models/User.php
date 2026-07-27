@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\City;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -24,6 +25,7 @@ class User extends Authenticatable implements MustVerifyEmail
         "name",
         "email",
         "password",
+        "google_id",
         "phone",
         "address",
         "is_active",
@@ -34,6 +36,7 @@ class User extends Authenticatable implements MustVerifyEmail
         "gender",
         "username",
         "slug",
+        "origin_city_id",
     ];
 
     /**
@@ -91,6 +94,16 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Rating::class);
     }
 
+    public function seller()
+    {
+        return $this->hasOne(Seller::class);
+    }
+
+    public function originCity()
+    {
+        return $this->belongsTo(City::class, 'origin_city_id', 'city_id');
+    }
+
     public function isAdmin()
     {
         return $this->hasRole("admin");
@@ -106,14 +119,9 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasRole("user");
     }
 
-    public function getCartTotalAttribute()
+    public function isSeller()
     {
-        return $this->cartItems->sum("subtotal");
-    }
-
-    public function getFormattedCartTotalAttribute()
-    {
-        return "Rp " . number_format($this->cart_total, 0, ",", ".");
+        return $this->hasRole("seller");
     }
 
     /**
@@ -152,14 +160,6 @@ class User extends Authenticatable implements MustVerifyEmail
         $avatarIndex = $this->id % count($avatars);
         
         return $avatars[$avatarIndex];
-    }
-
-    /**
-     * Get the user's age based on birth date.
-     */
-    public function getAgeAttribute(): ?int
-    {
-        return $this->birth_date ? $this->birth_date->age : null;
     }
 
     /**

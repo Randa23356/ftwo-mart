@@ -12,13 +12,15 @@ class Conversation extends Model
 
     protected $fillable = [
         "user_id", 
+        "seller_id",
         "subject", 
         "status", 
         "visibility",
         "last_activity_at",
         "has_unread_admin",
         "has_unread_operator", 
-        "has_unread_user"
+        "has_unread_user",
+        "has_unread_seller",
     ];
 
     protected $casts = [
@@ -26,11 +28,17 @@ class Conversation extends Model
         'has_unread_admin' => 'boolean',
         'has_unread_operator' => 'boolean',
         'has_unread_user' => 'boolean',
+        'has_unread_seller' => 'boolean',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function seller()
+    {
+        return $this->belongsTo(Seller::class);
     }
 
     public function messages()
@@ -69,7 +77,7 @@ class Conversation extends Model
     public function markAsRead($role)
     {
         $field = "has_unread_{$role}";
-        if (in_array($field, $this->fillable)) {
+        if (in_array($field, $this->getFillable())) {
             $this->update([$field => false]);
         }
     }
@@ -90,6 +98,9 @@ class Conversation extends Model
         if ($senderRole !== 'user') {
             $updates['has_unread_user'] = true;
         }
+        if ($senderRole !== 'seller') {
+            $updates['has_unread_seller'] = true;
+        }
         
         $updates['last_activity_at'] = now();
         
@@ -105,6 +116,10 @@ class Conversation extends Model
             return 'guest';
         }
         
+        if ($this->visibility === 'seller_buyer') {
+            return 'seller_buyer';
+        }
+        
         if ($this->visibility === 'internal') {
             return 'internal'; // Admin ↔ Operator
         }
@@ -114,25 +129,6 @@ class Conversation extends Model
         }
         
         return 'operator_user'; // Operator ↔ User
-    }
-
-    /**
-     * Scope for filtering by conversation type
-     */
-    public function scopeByType($query, $type)
-    {
-        switch ($type) {
-            case 'guest':
-                return $query->whereNull('user_id');
-            case 'internal':
-                return $query->where('visibility', 'internal');
-            case 'admin_user':
-                return $query->where('visibility', 'admin_only')->whereNotNull('user_id');
-            case 'operator_user':
-                return $query->where('visibility', 'staff')->whereNotNull('user_id');
-            default:
-                return $query;
-        }
     }
 
     /**

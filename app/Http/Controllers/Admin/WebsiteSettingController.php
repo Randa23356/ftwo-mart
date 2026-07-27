@@ -33,13 +33,17 @@ class WebsiteSettingController extends Controller
             "opening_hours" => "required|string|max:255",
             "delivery_fee" => "required|numeric|min:0",
             "min_order" => "required|numeric|min:0",
+            "platform_commission_rate" => "required|numeric|min:0|max:100",
+            "cod_min_price" => "nullable|numeric|min:0",
+            "cod_max_price" => "nullable|numeric|min:0",
         ]);
 
         foreach ($request->all() as $key => $value) {
             if (in_array($key, [
                 "website_name", "website_description", "phone", "address",
                 "email", "instagram", "facebook", "opening_hours",
-                "delivery_fee", "min_order",
+                "delivery_fee", "min_order", "platform_commission_rate",
+                "cod_min_price", "cod_max_price",
             ])) {
                 WebsiteSetting::setValue($key, $value);
             }
@@ -146,6 +150,84 @@ class WebsiteSettingController extends Controller
         WebsiteSetting::setValue("contact_maps_embed", $request->contact_maps_embed);
 
         return back()->with("success", "Informasi kontak berhasil diupdate");
+    }
+
+    public function updateLoginPage(Request $request)
+    {
+        $request->validate([
+            "login_title" => "nullable|string|max:255",
+            "login_description" => "nullable|string|max:500",
+        ]);
+
+        WebsiteSetting::setValue("login_title", $request->login_title);
+        WebsiteSetting::setValue("login_description", $request->login_description);
+
+        return back()->with("success", "Pengaturan halaman login berhasil diupdate");
+    }
+
+    public function updateLoginImage(Request $request)
+    {
+        $request->validate([
+            "login_image" => "required|image|mimes:jpeg,png,jpg,gif|max:2048",
+        ]);
+
+        if ($request->hasFile("login_image")) {
+            $old = WebsiteSetting::getValue('login_image');
+            if ($old) Storage::disk('public')->delete($old);
+
+            $path = $request->file("login_image")->store("website", "public");
+            WebsiteSetting::setValue("login_image", $path, "image");
+        }
+
+        return back()->with("success", "Gambar halaman login berhasil diupdate");
+    }
+
+    public function deleteLoginImage()
+    {
+        $old = WebsiteSetting::getValue('login_image');
+        if ($old) Storage::disk('public')->delete($old);
+        WebsiteSetting::setValue('login_image', null, 'image');
+
+        return back()->with("success", "Gambar halaman login berhasil dihapus");
+    }
+
+    public function updateRegisterPage(Request $request)
+    {
+        $request->validate([
+            "register_title" => "nullable|string|max:255",
+            "register_description" => "nullable|string|max:500",
+        ]);
+
+        WebsiteSetting::setValue("register_title", $request->register_title);
+        WebsiteSetting::setValue("register_description", $request->register_description);
+
+        return back()->with("success", "Pengaturan halaman register berhasil diupdate");
+    }
+
+    public function updateRegisterImage(Request $request)
+    {
+        $request->validate([
+            "register_image" => "required|image|mimes:jpeg,png,jpg,gif|max:2048",
+        ]);
+
+        if ($request->hasFile("register_image")) {
+            $old = WebsiteSetting::getValue('register_image');
+            if ($old) Storage::disk('public')->delete($old);
+
+            $path = $request->file("register_image")->store("website", "public");
+            WebsiteSetting::setValue("register_image", $path, "image");
+        }
+
+        return back()->with("success", "Gambar halaman register berhasil diupdate");
+    }
+
+    public function deleteRegisterImage()
+    {
+        $old = WebsiteSetting::getValue('register_image');
+        if ($old) Storage::disk('public')->delete($old);
+        WebsiteSetting::setValue('register_image', null, 'image');
+
+        return back()->with("success", "Gambar halaman register berhasil dihapus");
     }
 
     public function inlineUpdate(Request $request)

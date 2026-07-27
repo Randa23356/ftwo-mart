@@ -47,14 +47,17 @@ public function run(): void
 
             'setting-view',
             'setting-edit',
+
+            'seller-manage',
+            'seller-withdraw',
         ];
 
         foreach ($permissions as $permission) {
-            Permission::create(['name' => $permission]);
+            Permission::firstOrCreate(['name' => $permission]);
         }
 
         // create roles and assign existing permissions
-        $operatorRole = Role::create(['name' => 'operator']);
+        $operatorRole = Role::firstOrCreate(['name' => 'operator']);
         $operatorRole->givePermissionTo([
             'dashboard-view',
             'product-view',
@@ -68,11 +71,22 @@ public function run(): void
             'customer-edit',
         ]);
 
-        $adminRole = Role::create(['name' => 'admin']);
+        $adminRole = Role::firstOrCreate(['name' => 'admin']);
         // Admin gets all permissions
         $adminRole->givePermissionTo(Permission::all());
 
         // create a default user role
-        Role::create(['name' => 'user']);
+        Role::firstOrCreate(['name' => 'user']);
+
+        // create seller role
+        $sellerRole = Role::firstOrCreate(['name' => 'seller']);
+        $sellerRole->givePermissionTo([
+            'dashboard-view',
+            'product-view',
+            'product-create',
+            'product-edit',
+            'product-delete',
+            'order-view',
+        ]);
     }
 }

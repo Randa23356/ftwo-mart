@@ -457,6 +457,19 @@
                         @endif
                     </a>
                     @endif
+
+                    @if(Auth::user()->isAdmin())
+                    <a href="{{ route('chat.index', ['filter' => 'seller_buyer']) }}" 
+                       class="filter-tab px-2 md:px-6 py-2 md:py-3 rounded-xl font-medium text-xs md:text-sm transition-all {{ $filter === 'seller_buyer' ? 'active' : 'text-gray-600 hover:text-gray-800 hover:bg-white hover:bg-opacity-50' }}"
+                       title="Seller ↔ Buyer">
+                        <i class="fas fa-store mr-1 md:mr-2 hidden md:inline"></i>
+                        <span class="hidden sm:inline">Seller ↔ Buyer</span>
+                        <span class="sm:hidden hidden xs:inline">S↔B</span>
+                        @if(isset($stats['seller_buyer']) && $stats['seller_buyer'] > 0)
+                            <span class="ml-1 md:ml-2 bg-white bg-opacity-20 text-current py-0.5 px-1 md:px-3 rounded-full text-xs font-semibold">{{ $stats['seller_buyer'] }}</span>
+                        @endif
+                    </a>
+                    @endif
                 </nav>
             </div>
         </div>
@@ -523,8 +536,13 @@
 
             @forelse ($conversations as $conversation)
                 @php
-                    $userRole = Auth::user()->isAdmin() ? 'admin' : (Auth::user()->isOperator() ? 'operator' : 'user');
-                    $hasUnread = $conversation->{"has_unread_{$userRole}"};
+                    $user = Auth::user();
+                    if ($user->isSeller() && $user->seller && $conversation->visibility === 'seller_buyer') {
+                        $hasUnread = $conversation->has_unread_seller;
+                    } else {
+                        $userRole = $user->isAdmin() ? 'admin' : ($user->isOperator() ? 'operator' : 'user');
+                        $hasUnread = $conversation->{"has_unread_{$userRole}"};
+                    }
                 @endphp
                 <div class="chat-item border-b border-gray-100 last:border-b-0 {{ $hasUnread ? 'bg-green-50' : '' }} w-full max-w-full" 
                      data-user-type="{{ $conversation->user ? 'user' : 'guest' }}"
@@ -534,7 +552,31 @@
                             <div class="flex items-start space-x-2 md:space-x-4 w-full max-w-full">
                                 <!-- Avatar -->
                                 <div class="flex-shrink-0 relative">
-                                    @if(Auth::user()->isAdmin() || Auth::user()->isOperator())
+                                    @if($conversation->visibility === 'seller_buyer')
+                                        @if(Auth::user()->seller && Auth::user()->seller->id === $conversation->seller_id)
+                                            {{-- Seller viewing: show buyer avatar --}}
+                                            @if($conversation->user)
+                                                <img src="{{ $conversation->user->profile_photo_url }}"
+                                                     alt="{{ $conversation->user->name }}"
+                                                     class="chat-avatar w-12 h-12 md:w-14 md:h-14 rounded-2xl object-cover border-2 border-gray-200 shadow-sm">
+                                            @else
+                                                <div class="chat-avatar w-12 h-12 md:w-14 md:h-14 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center border-2 border-gray-200 shadow-sm">
+                                                    <i class="fas fa-user text-white text-sm md:text-lg"></i>
+                                                </div>
+                                            @endif
+                                        @else
+                                            {{-- Buyer viewing: show seller avatar --}}
+                                            @if($conversation->seller && $conversation->seller->logo)
+                                                <img src="{{ $conversation->seller->logo_url }}"
+                                                     alt="{{ $conversation->seller->shop_name }}"
+                                                     class="chat-avatar w-12 h-12 md:w-14 md:h-14 rounded-2xl object-cover border-2 border-gray-200 shadow-sm">
+                                            @else
+                                                <div class="chat-avatar w-12 h-12 md:w-14 md:h-14 bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center border-2 border-gray-200 shadow-sm">
+                                                    <i class="fas fa-store text-white text-sm md:text-lg"></i>
+                                                </div>
+                                            @endif
+                                        @endif
+                                    @elseif(Auth::user()->isAdmin() || Auth::user()->isOperator())
                                         @if($conversation->user)
                                             <img src="{{ $conversation->user->profile_photo_url }}"
                                                  alt="{{ $conversation->user->name }}"
@@ -561,7 +603,19 @@
                                     <div class="flex items-start justify-between mb-2">
                                         <!-- Name and Status -->
                                         <div class="flex-1 min-w-0">
-                                            @if(Auth::user()->isAdmin() || Auth::user()->isOperator())
+                                            @if($conversation->visibility === 'seller_buyer')
+                                                @if(Auth::user()->seller && Auth::user()->seller->id === $conversation->seller_id)
+                                                    <h3 class="text-base md:text-lg font-semibold text-gray-900 hover:text-green-600 transition-colors truncate">
+                                                        {{ $conversation->user->name ?? 'Pembeli' }}
+                                                    </h3>
+                                                    <p class="text-xs text-gray-500 truncate">Pembeli</p>
+                                                @else
+                                                    <h3 class="text-base md:text-lg font-semibold text-gray-900 hover:text-green-600 transition-colors truncate">
+                                                        {{ $conversation->seller->shop_name ?? 'Penjual' }}
+                                                    </h3>
+                                                    <p class="text-xs text-gray-500 truncate">Penjual</p>
+                                                @endif
+                                            @elseif(Auth::user()->isAdmin() || Auth::user()->isOperator())
                                                 @if($conversation->user)
                                                     <h3 class="text-base md:text-lg font-semibold text-gray-900 hover:text-green-600 transition-colors truncate">
                                                         {{ $conversation->user->name }}

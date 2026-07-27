@@ -38,8 +38,8 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string',
-            'price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
+            'price' => 'nullable|numeric|min:0',
+            'stock' => 'nullable|integer|min:0',
             'weight' => 'required|integer|min:1|max:50000', // Weight in grams, max 50kg
             'category_id' => 'required|exists:categories,id',
             'images' => 'nullable|array|max:10', // Max 10 images
@@ -47,6 +47,12 @@ class ProductController extends Controller
             'image_alt_texts' => 'nullable|array',
             'image_alt_texts.*' => 'nullable|string|max:255',
             'primary_image_index' => 'nullable|integer|min:0',
+            'variant_options' => 'nullable|string',
+            'variant_combinations' => 'nullable|string',
+            'pricing_type' => 'nullable|in:fixed,variant',
+            'motif_name' => 'nullable|string|max:255',
+            'material_description' => 'nullable|string',
+            'origin_region' => 'nullable|string|max:255',
             'is_active' => 'boolean',
             'is_featured' => 'boolean'
         ]);
@@ -57,8 +63,42 @@ class ProductController extends Controller
             $data['slug'] = Str::slug($request->name);
             $data['is_active'] = $request->has('is_active');
             $data['is_featured'] = $request->has('is_featured');
+            $data['pricing_type'] = $request->input('pricing_type', 'fixed');
 
+            // Parse variant_options JSON string into array
+            if (!empty($data['variant_options'])) {
+                $decoded = json_decode($data['variant_options'], true);
+                if (is_array($decoded) && count($decoded) > 0) {
+                    $data['variant_options'] = $decoded;
+                    $data['has_variants'] = true;
+                } else {
+                    $data['variant_options'] = null;
+                    $data['has_variants'] = false;
+                }
+            } else {
+                $data['variant_options'] = null;
+                $data['has_variants'] = false;
+            }
+
+            // If pricing_type is variant, set base price/stock to 0
+            if ($data['pricing_type'] === 'variant') {
+                $data['price'] = 0;
+                $data['stock'] = 0;
+            } else {
+                // Fixed pricing: ensure price and stock are present
+                if (empty($data['price']) && $data['price'] !== '0' && $data['price'] !== 0) {
+                    return back()->withInput()->with('error', 'Harga wajib diisi untuk harga tetap.');
+                }
+                if ($data['stock'] === null || $data['stock'] === '') {
+                    return back()->withInput()->with('error', 'Stok wajib diisi untuk harga tetap.');
+                }
+            }
+
+            $data['uploaded_by'] = Auth::id();
             $product = Product::create($data);
+
+            // Save variant combinations
+            $this->saveVariantCombinations($product, $request->input('variant_combinations'));
 
             // Handle multiple images
             if ($request->hasFile('images')) {
@@ -99,8 +139,8 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string',
-            'price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
+            'price' => 'nullable|numeric|min:0',
+            'stock' => 'nullable|integer|min:0',
             'weight' => 'required|integer|min:1|max:50000', // Weight in grams, max 50kg
             'category_id' => 'required|exists:categories,id',
             'images' => 'nullable|array|max:10', // Max 10 images
@@ -111,6 +151,12 @@ class ProductController extends Controller
             'keep_existing_images' => 'nullable|boolean',
             'delete_image_ids' => 'nullable|array',
             'delete_image_ids.*' => 'integer|exists:product_images,id',
+            'variant_options' => 'nullable|string',
+            'variant_combinations' => 'nullable|string',
+            'pricing_type' => 'nullable|in:fixed,variant',
+            'motif_name' => 'nullable|string|max:255',
+            'material_description' => 'nullable|string',
+            'origin_region' => 'nullable|string|max:255',
             'is_active' => 'boolean',
             'is_featured' => 'boolean'
         ]);
@@ -121,8 +167,41 @@ class ProductController extends Controller
             $data['slug'] = Str::slug($request->name);
             $data['is_active'] = $request->has('is_active');
             $data['is_featured'] = $request->has('is_featured');
+            $data['pricing_type'] = $request->input('pricing_type', 'fixed');
+
+            // Parse variant_options JSON string into array
+            if (!empty($data['variant_options'])) {
+                $decoded = json_decode($data['variant_options'], true);
+                if (is_array($decoded) && count($decoded) > 0) {
+                    $data['variant_options'] = $decoded;
+                    $data['has_variants'] = true;
+                } else {
+                    $data['variant_options'] = null;
+                    $data['has_variants'] = false;
+                }
+            } else {
+                $data['variant_options'] = null;
+                $data['has_variants'] = false;
+            }
+
+            // If pricing_type is variant, set base price/stock to 0
+            if ($data['pricing_type'] === 'variant') {
+                $data['price'] = 0;
+                $data['stock'] = 0;
+            } else {
+                    // Fixed pricing: ensure price and stock are present
+                    if (empty($data['price']) && $data['price'] !== '0' && $data['price'] !== 0) {
+                    return back()->withInput()->with('error', 'Harga wajib diisi untuk harga tetap.');
+                }
+                if ($data['stock'] === null || $data['stock'] === '') {
+                    return back()->withInput()->with('error', 'Stok wajib diisi untuk harga tetap.');
+                }
+            }
 
             $product->update($data);
+
+            // Save variant combinations
+            $this->saveVariantCombinations($product, $request->input('variant_combinations'));
 
             // Delete selected images
             if ($request->has('delete_image_ids')) {
@@ -167,6 +246,33 @@ class ProductController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    private function saveVariantCombinations(Product $product, ?string $combinationsJson): void
+    {
+        $product->variantCombinations()->delete();
+
+        if (empty($combinationsJson)) return;
+
+        $combinations = json_decode($combinationsJson, true);
+        if (!is_array($combinations)) return;
+
+        foreach ($combinations as $combo) {
+            $key = $combo['key'] ?? null;
+            $price = $combo['price'] ?? null;
+            $stock = $combo['stock'] ?? 0;
+
+            if (empty($key) || $price === '' || $price === null) continue;
+
+            // Normalize key order for consistent JSON
+            $normalizedKey = Product::normalizeVariantKey($key);
+
+            $product->variantCombinations()->create([
+                'variant_key' => $normalizedKey,
+                'price' => (float) $price,
+                'stock' => (int) $stock,
+            ]);
         }
     }
 

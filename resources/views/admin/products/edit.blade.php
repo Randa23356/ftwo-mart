@@ -113,9 +113,27 @@
                     <div>
                         <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4 flex items-center gap-2">
                             <span class="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center text-green-700 text-xs font-bold">2</span>
-                            Harga & Stok
+                            Harga, Stok & Varian
                         </h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+
+                        <div class="mb-5">
+                            <div class="flex gap-6 mb-5">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="pricing_type" value="fixed"
+                                           x-model="pricingType"
+                                           class="w-4 h-4 text-green-600 focus:ring-green-500">
+                                    <span class="text-sm font-semibold text-gray-700">Harga Tetap</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="pricing_type" value="variant"
+                                           x-model="pricingType"
+                                           class="w-4 h-4 text-green-600 focus:ring-green-500">
+                                    <span class="text-sm font-semibold text-gray-700">Harga per Varian</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5" x-show="pricingType === 'fixed'">
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">Harga <span class="text-red-500">*</span></label>
                                 <div class="relative">
@@ -144,6 +162,252 @@
                                 @error('weight')
                                     <p class="text-xs text-red-600 mt-1 flex items-center gap-1"><i class="fas fa-exclamation-circle"></i> {{ $message }}</p>
                                 @enderror
+                            </div>
+                        </div>
+                        <div x-show="pricingType === 'variant'" class="mb-5 text-sm text-gray-500 bg-gray-50 rounded-xl p-3 border border-gray-200">
+                            <i class="fas fa-info-circle mr-1"></i> Harga dan stok diatur per kombinasi varian di bawah.
+                        </div>
+                        <div x-show="pricingType === 'variant'" class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-5">
+                            <div class="sm:col-start-3">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Berat (gram)</label>
+                                <div class="relative">
+                                    <input type="number" name="weight" value="{{ old('weight', $product->weight) }}" min="1" max="50000" class="w-full px-4 py-3 pr-14 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm bg-gray-50 focus:bg-white">
+                                    <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">gram</span>
+                                </div>
+                                <p class="text-xs text-gray-400 mt-1.5 flex items-center gap-1"><i class="fas fa-info-circle text-green-400"></i> Untuk perhitungan ongkir</p>
+                                @error('weight')
+                                    <p class="text-xs text-red-600 mt-1 flex items-center gap-1"><i class="fas fa-exclamation-circle"></i> {{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="border-gray-100">
+
+                    <!-- SECTION 2B: VARIANTS -->
+                    <div x-data="{
+                        variants: [],
+                        newLabel: '',
+                        newOption: '',
+                        combos: {},
+                        init() {
+                            const d = document.getElementById('product-variants-data');
+                            if (d) { try { this.variants = JSON.parse(d.textContent); } catch(e) {} }
+                            const cd = document.getElementById('product-combinations-data');
+                            if (cd) {
+                                try {
+                                    const existing = JSON.parse(cd.textContent);
+                                    existing.forEach(c => { this.combos[JSON.stringify(c.key)] = { price: c.price, stock: c.stock }; });
+                                } catch(e) {}
+                            }
+                            this.syncToInput();
+                            this.$watch('variants', () => this.syncToInput(), { deep: true });
+                        },
+                        addVariant() {
+                            const label = this.newLabel.trim();
+                            if (!label) return;
+                            if (this.variants.some(v => v.label === label)) {
+                                Swal.fire({ icon: 'warning', title: 'Varian sudah ada', text: 'Gunakan nama varian yang berbeda.', confirmButtonColor: '#10b981' });
+                                return;
+                            }
+                            this.variants.push({ label: label, options: [] });
+                            this.newLabel = '';
+                        },
+                        removeVariant(idx) {
+                            this.variants.splice(idx, 1);
+                        },
+                        addOption(idx) {
+                            const opt = this.newOption.trim();
+                            if (!opt) return;
+                            if (this.variants[idx].options.some(o => o === opt)) {
+                                Swal.fire({ icon: 'warning', title: 'Opsi sudah ada', confirmButtonColor: '#10b981' });
+                                return;
+                            }
+                            this.variants[idx].options.push(opt);
+                            this.newOption = '';
+                        },
+                        removeOption(idx, optIdx) {
+                            this.variants[idx].options.splice(optIdx, 1);
+                        },
+                        generateCombinations() {
+                            if (this.variants.length === 0) return [];
+                            const labels = this.variants.map(v => v.label);
+                            const opts = this.variants.map(v => v.options.filter(o => o.trim()));
+                            if (opts.some(o => o.length === 0)) return [];
+                            let result = [[]];
+                            for (let i = 0; i < opts.length; i++) {
+                                const tmp = [];
+                                for (const combo of result) {
+                                    for (const opt of opts[i]) {
+                                        const next = { ...combo, [labels[i]]: opt };
+                                        tmp.push(next);
+                                    }
+                                }
+                                result = tmp;
+                            }
+                            return result;
+                        },
+                        getComboKey(combo) {
+                            const sorted = {};
+                            Object.keys(combo).sort().forEach(k => { sorted[k] = combo[k]; });
+                            return JSON.stringify(sorted);
+                        },
+                        comboPrice(combo) {
+                            const k = this.getComboKey(combo);
+                            return this.combos[k]?.price ?? '';
+                        },
+                        comboStock(combo) {
+                            const k = this.getComboKey(combo);
+                            return this.combos[k]?.stock ?? '';
+                        },
+                        setComboPrice(combo, val) {
+                            const k = this.getComboKey(combo);
+                            if (!this.combos[k]) this.combos[k] = { price: '', stock: '' };
+                            this.combos[k].price = val ? parseFloat(val) : '';
+                            this.syncCombosInput();
+                        },
+                        setComboStock(combo, val) {
+                            const k = this.getComboKey(combo);
+                            if (!this.combos[k]) this.combos[k] = { price: '', stock: '' };
+                            this.combos[k].stock = val ? parseInt(val) : '';
+                            this.syncCombosInput();
+                        },
+                        syncToInput() {
+                            const el = document.getElementById('variant_options_input');
+                            if (el) {
+                                const obj = {};
+                                this.variants.forEach(v => { obj[v.label] = v.options; });
+                                el.value = JSON.stringify(obj);
+                            }
+                            this.syncCombosInput();
+                        },
+                        syncCombosInput() {
+                            const el = document.getElementById('variant_combinations_input');
+                            if (!el) return;
+                            const combos = this.generateCombinations();
+                            const arr = [];
+                            for (const combo of combos) {
+                                const k = this.getComboKey(combo);
+                                const data = this.combos[k];
+                                arr.push({ key: combo, price: data?.price ?? '', stock: data?.stock ?? '' });
+                            }
+                            el.value = JSON.stringify(arr);
+                        }
+                    }">
+                        <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4 flex items-center gap-2">
+                            <span class="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center text-green-700 text-xs font-bold">5</span>
+                            Varian Produk
+                        </h3>
+                        <p class="text-xs text-gray-500 mb-4">Tambahkan varian seperti Ukuran, Warna, Tipe, Material, dll. (opsional)</p>
+
+                        <script type="application/json" id="product-variants-data">
+                            @json(collect($product->variant_options ?? [])->map(fn($opts, $label) => ['label' => $label, 'options' => $opts])->values()->toArray())
+                        </script>
+                        <script type="application/json" id="product-combinations-data">
+                            @json($product->variantCombinations->map(fn($c) => ['key' => $c->variant_key, 'price' => (float) $c->price, 'stock' => $c->stock])->values()->toArray())
+                        </script>
+
+                        <template x-for="(variant, idx) in variants" :key="idx">
+                            <div class="bg-gray-50 rounded-xl p-4 mb-4 border border-gray-200">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-sm font-bold text-gray-800" x-text="variant.label"></span>
+                                    <button type="button" @click="removeVariant(idx)" class="text-red-400 hover:text-red-600 text-xs font-semibold">
+                                        <i class="fas fa-trash mr-1"></i> Hapus
+                                    </button>
+                                </div>
+                                <div class="flex flex-wrap gap-2 mb-3">
+                                    <template x-for="(opt, optIdx) in variant.options" :key="optIdx">
+                                        <span class="inline-flex items-center gap-1 bg-white border border-gray-200 rounded-full px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm">
+                                            <span x-text="opt"></span>
+                                            <button type="button" @click="removeOption(idx, optIdx)" class="text-gray-400 hover:text-red-500 ml-1 leading-none">&times;</button>
+                                        </span>
+                                    </template>
+                                    <span x-show="variant.options.length === 0" class="text-xs text-gray-400 italic">Belum ada pilihan</span>
+                                </div>
+                                <div class="flex gap-2">
+                                    <input type="text" x-model="newOption" @keydown.enter.prevent="addOption(idx)"
+                                           class="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                           placeholder="Tambah pilihan...">
+                                    <button type="button" @click="addOption(idx)"
+                                            class="px-4 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-semibold hover:bg-green-200 transition-colors">
+                                        Tambah
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+
+                        <div class="flex gap-2 mb-4">
+                            <input type="text" x-model="newLabel" @keydown.enter.prevent="addVariant()"
+                                   class="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-50"
+                                   placeholder="Nama varian (contoh: Ukuran, Warna, Tipe)">
+                            <button type="button" @click="addVariant()"
+                                    class="px-5 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-green-700 hover:to-emerald-700 transition-all shadow-md whitespace-nowrap">
+                                <i class="fas fa-plus mr-1"></i> Tambah Varian
+                            </button>
+                        </div>
+
+                        <!-- Kombinasi Harga Varian -->
+                        <template x-if="generateCombinations().length > 0">
+                            <div class="mt-6 border-t pt-5">
+                                <h4 class="text-sm font-bold text-gray-700 mb-2">Harga & Stok per Kombinasi</h4>
+                                <p class="text-xs text-gray-500 mb-4">Atur harga dan stok untuk setiap kombinasi varian.</p>
+                                <div class="overflow-x-auto rounded-xl border border-gray-200">
+                                    <table class="w-full text-sm">
+                                        <thead class="bg-gray-50 border-b">
+                                            <tr>
+                                                <template x-for="v in variants" :key="'h-'+v.label">
+                                                    <th class="text-left px-4 py-3 text-xs font-bold text-gray-600 uppercase tracking-wider" x-text="v.label"></th>
+                                                </template>
+                                                <th class="text-left px-4 py-3 text-xs font-bold text-gray-600 uppercase tracking-wider">Harga (Rp)</th>
+                                                <th class="text-left px-4 py-3 text-xs font-bold text-gray-600 uppercase tracking-wider">Stok</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-100">
+                                            <template x-for="(combo, ci) in generateCombinations()" :key="ci">
+                                                <tr class="hover:bg-gray-50 transition-colors">
+                                                    <template x-for="v in variants" :key="'c-'+v.label+'-'+ci">
+                                                        <td class="px-4 py-3 text-xs text-gray-700 font-medium" x-text="combo[v.label]"></td>
+                                                    </template>
+                                                    <td class="px-4 py-3">
+                                                        <input type="number" :value="comboPrice(combo)" @input="setComboPrice(combo, $event.target.value)" min="0"
+                                                               class="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="0">
+                                                    </td>
+                                                    <td class="px-4 py-3">
+                                                        <input type="number" :value="comboStock(combo)" @input="setComboStock(combo, $event.target.value)" min="0"
+                                                               class="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="0">
+                                                    </td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </template>
+
+                        <input type="hidden" name="variant_options" id="variant_options_input" value="">
+                        <input type="hidden" name="variant_combinations" id="variant_combinations_input" value="">
+                    </div>
+
+                    <hr class="border-gray-100">
+
+                    <!-- SECTION 2C: DETAILS -->
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4 flex items-center gap-2">
+                            <span class="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center text-green-700 text-xs font-bold">6</span>
+                            Detail Tambahan
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Motif</label>
+                                <input type="text" name="motif_name" value="{{ old('motif_name', $product->motif_name) }}"
+                                       placeholder="Contoh: Parang, Mega Mendung"
+                                       class="{{ $inp }}">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Asal Daerah</label>
+                                <input type="text" name="origin_region" value="{{ old('origin_region', $product->origin_region) }}"
+                                       placeholder="Contoh: Solo, Yogyakarta, Pekalongan"
+                                       class="{{ $inp }}">
                             </div>
                         </div>
                     </div>
@@ -316,6 +580,7 @@
 <script>
 function productForm() {
     return {
+        pricingType: '{{ old('pricing_type', $product->pricing_type ?? 'fixed') }}',
         images: [],
         primaryImageIndex: null,
 

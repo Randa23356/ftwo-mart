@@ -85,7 +85,7 @@
                                 <p class="text-xs text-gray-500">Total Belanja</p>
                                 <p class="text-lg font-bold text-gray-900">{{ $order->formatted_total_with_shipping }}</p>
                             </div>
-                            @if($order->payment_status === 'pending' && $order->order_status !== 'cancelled' && !$order->isExpired())
+                            @if($order->payment_status === 'pending' && $order->order_status !== 'cancelled' && !$order->isExpired() && $order->payment_method !== 'cod')
                                 <a href="{{ route('orders.pay', $order) }}" class="inline-flex items-center px-4 py-2 bg-green-700 hover:bg-green-800 text-white text-sm font-medium rounded-lg shadow-sm transition-colors">
                                     <i class="fas fa-credit-card mr-2"></i> Bayar Sekarang
                                 </a>

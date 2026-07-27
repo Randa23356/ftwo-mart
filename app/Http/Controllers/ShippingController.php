@@ -74,14 +74,16 @@ class ShippingController extends Controller
         $request->validate([
             'destination_city_id' => 'required|integer',
             'weight' => 'required|integer|min:1',
-            'courier' => 'nullable|string|in:jne,pos,tiki'
+            'courier' => 'nullable|string|in:jne,pos,tiki',
+            'origin_city_id' => 'nullable|integer',
         ]);
 
         try {
             $shippingOptions = $this->shippingService->calculateShippingCost(
                 $request->destination_city_id,
                 $request->weight,
-                $request->courier
+                $request->courier,
+                $request->origin_city_id
             );
 
             // Get city details for display

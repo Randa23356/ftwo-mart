@@ -16,8 +16,8 @@ class CheckoutProtection
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Allow if user has buy_now_item or selected_cart_items in session
-        if (session()->has('buy_now_item') || session()->has('selected_cart_items')) {
+        // Allow if user has buy_now_item, buy_now_items (plural), or selected_cart_items in session
+        if (session()->has('buy_now_item') || session()->has('buy_now_items') || session()->has('selected_cart_items')) {
             return $next($request);
         }
 

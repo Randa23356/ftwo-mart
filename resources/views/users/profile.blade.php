@@ -90,6 +90,24 @@
             </div>
         </div>
 
+        @auth
+            @if(auth()->id() === $user->id && !auth()->user()->isSeller() && !auth()->user()->isAdmin() && !auth()->user()->isOperator())
+            <div class="bg-orange-50 border border-orange-100 rounded-2xl p-5 md:p-6 mb-6 md:mb-8 flex flex-col sm:flex-row items-center gap-4">
+                <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-store text-orange-600 text-lg"></i>
+                </div>
+                <div class="text-center sm:text-left flex-1">
+                    <h3 class="font-bold text-gray-900 mb-0.5">Mau mulai jualan?</h3>
+                    <p class="text-gray-500 text-sm">Buka toko online di {{ $settings['website_name']->value ?? 'FtwoMart' }} sekarang. Gratis!</p>
+                </div>
+                <a href="{{ route('seller.register') }}" class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 py-3 rounded-xl flex items-center gap-2 shadow-md transition-all flex-shrink-0 active:scale-95">
+                    <i class="fas fa-store"></i>
+                    <span class="text-sm">Jadi Seller</span>
+                </a>
+            </div>
+            @endif
+        @endauth
+
         <!-- User Ratings with Modern Design -->
         <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-green-100/30 p-4 md:p-8">
             <div class="flex flex-col items-center justify-between mb-4 md:mb-8 md:flex-row">

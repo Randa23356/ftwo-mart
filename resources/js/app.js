@@ -137,19 +137,21 @@ function animateCartCounter() {
 }
 
 // Enhanced Add to Cart function with AJAX
-window.addToCart = async function (productId, quantity) {
+window.addToCart = async function (productId, quantity, selectedVariants, event) {
     if (!quantity || isNaN(quantity) || quantity <= 0) {
         cartNotification.show("error", "Jumlah produk tidak valid");
         return;
     }
 
+    const button = event ? event.target : null;
+
     try {
-        // Show loading state
-        const button = event.target;
-        const originalText = button.innerHTML;
-        button.disabled = true;
-        button.innerHTML =
-            '<i class="fas fa-spinner fa-spin mr-1"></i> Menambahkan...';
+        if (button) {
+            button.disabled = true;
+            button.dataset.originalText = button.innerHTML;
+            button.innerHTML =
+                '<i class="fas fa-spinner fa-spin mr-1"></i> Menambahkan...';
+        }
 
         const response = await fetch("/cart/add", {
             method: "POST",
@@ -163,19 +165,17 @@ window.addToCart = async function (productId, quantity) {
             body: JSON.stringify({
                 product_id: productId,
                 quantity: quantity,
+                selected_variants: selectedVariants || {},
             }),
         });
 
         const data = await response.json();
 
         if (response.ok) {
-            // Show success notification with product info
             cartNotification.show("success", data.message, data.product);
 
-            // Animate cart counter
             animateCartCounter();
 
-            // Update cart counter if exists
             if (data.cart_count !== undefined) {
                 const cartCounter = document.querySelector(".cart-counter");
                 if (cartCounter) {
@@ -184,11 +184,12 @@ window.addToCart = async function (productId, quantity) {
                 }
             }
 
-            // Add success animation to button
-            button.classList.add("bg-green-600", "hover:bg-green-700");
-            setTimeout(() => {
-                button.classList.remove("bg-green-600", "hover:bg-green-700");
-            }, 2000);
+            if (button) {
+                button.classList.add("bg-green-600", "hover:bg-green-700");
+                setTimeout(() => {
+                    button.classList.remove("bg-green-600", "hover:bg-green-700");
+                }, 2000);
+            }
         } else {
             cartNotification.show(
                 "error",
@@ -202,26 +203,30 @@ window.addToCart = async function (productId, quantity) {
             "Terjadi kesalahan saat menambahkan produk ke keranjang",
         );
     } finally {
-        // Reset button state
-        const button = event.target;
-        button.disabled = false;
-        button.innerHTML = originalText;
+        if (button) {
+            button.disabled = false;
+            button.innerHTML = button.dataset.originalText || '<i class="fas fa-shopping-cart"></i> <span>Tambah Keranjang</span>';
+            delete button.dataset.originalText;
+        }
     }
 };
 
 // Enhanced Buy Now function
-window.buyNow = async function (productId, quantity) {
+window.buyNow = async function (productId, quantity, selectedVariants, event) {
     if (!quantity || isNaN(quantity) || quantity <= 0) {
         cartNotification.show("error", "Jumlah produk tidak valid");
         return;
     }
 
+    const button = event ? event.target : null;
+
     try {
-        const button = event.target;
-        const originalText = button.innerHTML;
-        button.disabled = true;
-        button.innerHTML =
-            '<i class="fas fa-spinner fa-spin mr-1"></i> Memproses...';
+        if (button) {
+            button.disabled = true;
+            button.dataset.originalText = button.innerHTML;
+            button.innerHTML =
+                '<i class="fas fa-spinner fa-spin mr-1"></i> Memproses...';
+        }
 
         const response = await fetch("/buy-now", {
             method: "POST",
@@ -235,13 +240,13 @@ window.buyNow = async function (productId, quantity) {
             body: JSON.stringify({
                 product_id: productId,
                 quantity: quantity,
+                selected_variants: selectedVariants || {},
             }),
         });
 
         const data = await response.json();
 
         if (response.ok) {
-            // Show success and redirect
             cartNotification.show(
                 "success",
                 "Produk berhasil ditambahkan, mengalihkan ke checkout...",
@@ -254,8 +259,11 @@ window.buyNow = async function (productId, quantity) {
                 "error",
                 data.message || "Gagal memproses pesanan",
             );
-            button.disabled = false;
-            button.innerHTML = originalText;
+            if (button) {
+                button.disabled = false;
+                button.innerHTML = button.dataset.originalText || '<i class="fas fa-bolt"></i> <span>Beli Sekarang</span>';
+                delete button.dataset.originalText;
+            }
         }
     } catch (error) {
         console.error("Error in buy now:", error);
@@ -263,16 +271,20 @@ window.buyNow = async function (productId, quantity) {
             "error",
             "Terjadi kesalahan saat memproses pesanan",
         );
-        const button = event.target;
-        button.disabled = false;
-        button.innerHTML = originalText;
+        if (button) {
+            button.disabled = false;
+            button.innerHTML = button.dataset.originalText || '<i class="fas fa-bolt"></i> <span>Beli Sekarang</span>';
+            delete button.dataset.originalText;
+        }
     }
 };
 
 // Enhanced Update Quantity function
-window.updateQuantity = async function (cartId) {
-    const cartItem = event.target.closest("[x-data]");
-    const quantity = cartItem.__x.$data.quantity;
+window.updateQuantity = async function (cartId, event) {
+    const target = event ? event.target : null;
+    const cartItem = target ? target.closest("[x-data]") : null;
+    if (!cartItem || !cartItem._x_dataStack) return;
+    const quantity = cartItem._x_dataStack[0].quantity;
 
     if (!quantity || isNaN(quantity) || quantity <= 0) {
         cartNotification.show("error", "Jumlah produk tidak valid");
@@ -280,7 +292,9 @@ window.updateQuantity = async function (cartId) {
     }
 
     try {
-        cartItem.__x.$data.updating = true;
+        if (cartItem._x_dataStack) {
+            cartItem._x_dataStack[0].updating = true;
+        }
 
         const response = await fetch(`/cart/${cartId}/update`, {
             method: "PUT",
@@ -303,7 +317,6 @@ window.updateQuantity = async function (cartId) {
                 "success",
                 "Jumlah produk berhasil diperbarui",
             );
-            // Optionally reload the page or update the UI dynamically
             setTimeout(() => {
                 window.location.reload();
             }, 1000);
@@ -320,7 +333,9 @@ window.updateQuantity = async function (cartId) {
             "Terjadi kesalahan saat memperbarui jumlah produk",
         );
     } finally {
-        cartItem.__x.$data.updating = false;
+        if (cartItem && cartItem._x_dataStack) {
+            cartItem._x_dataStack[0].updating = false;
+        }
     }
 };
 

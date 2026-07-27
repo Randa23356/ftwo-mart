@@ -615,6 +615,17 @@
                                         </a>
                                     @endif
 
+                                    @if(auth()->user()->isSeller())
+                                        <a href="{{ route('seller.dashboard') }}" class="flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors">
+                                            <i class="fas fa-store w-4 text-center text-green-600 text-xs"></i>
+                                            <span class="font-semibold text-xs">Dashboard Seller</span>
+                                        </a>
+                                        <a href="{{ route('seller.profile') }}" class="flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors">
+                                            <i class="fas fa-cog w-4 text-center text-green-600 text-xs"></i>
+                                            <span class="font-semibold text-xs">Profil Toko</span>
+                                        </a>
+                                    @endif
+
                                     <div class="border-t border-gray-100 my-1"></div>
 
                                     <a href="{{ route('orders.index') }}" class="flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors">

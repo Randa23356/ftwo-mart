@@ -3,197 +3,200 @@
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" x-data="cartManager()">
     <!-- Header -->
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Keranjang Belanja</h1>
-        <p class="text-gray-600">Kelola produk yang ingin Anda beli</p>
+    <div class="mb-4 sm:mb-8">
+        <h1 class="text-xl sm:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">Keranjang Belanja</h1>
+        <p class="text-sm sm:text-gray-600">Kelola produk yang ingin Anda beli</p>
     </div>
 
     @if($cartItems->count() > 0)
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Cart Items -->
             <div class="lg:col-span-2">
-                <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                    <div class="px-6 py-4 bg-gray-50 border-b">
-                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
-                            <h2 class="text-lg font-semibold text-gray-900">Produk di Keranjang ({{ $cartItems->count() }})</h2>
-                            <div class="flex items-center space-x-4">
-                                <label class="flex items-center text-sm text-gray-600">
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="px-4 sm:px-6 py-3 sm:py-4 bg-gray-50 border-b">
+                        <div class="flex items-center justify-between gap-3">
+                            <h2 class="text-sm sm:text-lg font-semibold text-gray-900">Keranjang ({{ $cartItems->count() }})</h2>
+                            <div class="flex items-center gap-3">
+                                <label class="flex items-center text-xs sm:text-sm text-gray-600 cursor-pointer">
                                     <input type="checkbox"
                                            @change="toggleAllSelection($event.target.checked)"
                                            :checked="isAllSelected"
-                                           class="mr-2 text-green-600 focus:ring-green-500 border-gray-300 rounded">
-                                    <span x-text="isAllSelected ? 'Batalkan Semua' : 'Pilih Semua'"></span>
+                                           class="mr-1.5 sm:mr-2 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                    <span x-text="isAllSelected ? 'Batal' : 'Pilih Semua'" class="hidden sm:inline"></span>
+                                    <span x-text="isAllSelected ? '✕' : '✓'" class="sm:hidden"></span>
                                 </label>
-                                <span class="text-sm text-gray-500">
-                                    <span x-text="selectedCount"></span> dari {{ $cartItems->count() }} dipilih
+                                <span class="text-xs sm:text-sm text-gray-500">
+                                    <span x-text="selectedCount"></span>/{{ $cartItems->count() }}
                                 </span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="space-y-4">
+                    <div class="space-y-3">
                         @foreach($cartItems as $cartItem)
-                            <div class="p-4 bg-white rounded-lg shadow transition-shadow hover:shadow-md border border-transparent hover:border-gray-100">
-                                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                            <div class="p-3 sm:p-4 bg-white rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
+                                <!-- Top Row: Checkbox + Image + Name + Remove -->
+                                <div class="flex items-start gap-3">
                                     <!-- Selection Checkbox -->
-                                    <div class="flex-shrink-0">
-                                        <input type="checkbox"
-                                               @change="toggleItemSelection({{ $cartItem->id }}, $event.target.checked)"
-                                               :checked="selectedItems.includes({{ $cartItem->id }})"
-                                               class="w-5 h-5 text-green-600 focus:ring-green-500 border-gray-300 rounded">
-                                    </div>
+                                    <input type="checkbox"
+                                           @change="toggleItemSelection({{ $cartItem->id }}, $event.target.checked)"
+                                           :checked="selectedItems.includes({{ $cartItem->id }})"
+                                           class="mt-1 w-4 h-4 sm:w-5 sm:h-5 text-green-600 focus:ring-green-500 border-gray-300 rounded flex-shrink-0">
 
                                     <!-- Product Image -->
-                                    <div class="flex-shrink-0 overflow-hidden rounded-lg">
-                                        <img src="{{ $cartItem->product->image_url }}" alt="{{ $cartItem->product->name }}"
-                                             class="w-20 h-20 md:w-24 md:h-24 object-cover">
-                                    </div>
+                                    <img src="{{ $cartItem->product->image_url }}" alt="{{ $cartItem->product->name }}"
+                                         class="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg flex-shrink-0">
 
-                                    <!-- Product Info -->
+                                    <!-- Product Info + Price -->
                                     <div class="flex-1 min-w-0">
-                                        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                                        <div class="flex items-start justify-between gap-2">
                                             <div class="min-w-0">
-                                                <h3 class="text-lg md:text-xl font-semibold text-gray-900 truncate leading-tight">{{ $cartItem->product->name }}</h3>
-                                                <p class="text-xs text-green-600 font-medium mt-1">{{ $cartItem->product->category->name }}</p>
-                                                <p class="text-sm text-gray-500 mt-2 hidden sm:block truncate">{{ $cartItem->product->description }}</p>
-                                                <p class="text-sm text-gray-500 mt-2 block sm:hidden truncate">{{ Str::limit($cartItem->product->description, 80) }}</p>
+                                                <h3 class="text-sm sm:text-base font-semibold text-gray-900 truncate">{{ $cartItem->product->name }}</h3>
+                                                <p class="text-[10px] sm:text-xs text-green-600 font-medium mt-0.5">{{ $cartItem->product->category->name }}</p>
                                             </div>
-
-                                            <div class="flex-shrink-0 ml-3 sm:ml-0 text-right sm:text-right mt-1 sm:mt-0 sm:min-w-[110px]">
-                                                <div class="inline-flex items-baseline space-x-2 justify-end">
-                                                    <span class="text-lg md:text-2xl font-extrabold text-green-700 truncate sm:whitespace-nowrap">{{ $cartItem->product->formatted_price }}</span>
-                                                </div>
-                                                <p class="text-xs text-gray-500 mt-1 whitespace-nowrap">per item</p>
-                                            </div>
+                                            <button type="button"
+                                                    onclick="confirmAndSubmitForm(document.getElementById('remove-form-{{ $cartItem->id }}'), {{ Illuminate\Support\Js::from('Apakah Anda yakin ingin menghapus ' . $cartItem->product->name . ' dari keranjang?') }})"
+                                                    class="text-gray-400 hover:text-red-600 transition-colors p-1 rounded flex-shrink-0">
+                                                <i class="fas fa-trash text-xs sm:text-sm"></i>
+                                            </button>
                                         </div>
+                                        <form id="remove-form-{{ $cartItem->id }}" method="POST" action="{{ route('cart.remove', $cartItem) }}" class="hidden">
+                                            @csrf @method('DELETE')
+                                        </form>
 
-                                        <!-- Quantity Controls -->
-                                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-4 space-y-3 sm:space-y-0 sm:space-x-4"
-                                             x-data="{
-                                                 id: {{ $cartItem->id }},
-                                                 price: {{ $cartItem->product->price }},
-                                                 quantity: {{ $cartItem->quantity }},
-                                                 initialQuantity: {{ $cartItem->quantity }},
-                                                 updating: false,
-                                                 updateLocal() {
-                                                     try {
-                                                         updateItemData(this.id, this.quantity, this.price);
-                                                     } catch (e) {
-                                                         console.error(e);
-                                                     }
-                                                 },
-                                                 async updateQuantity() {
-                                                     if (!(this.quantity && !isNaN(this.quantity) && this.quantity > 0)) return;
+                                        <!-- Price -->
+                                        <p class="text-base sm:text-lg font-bold text-green-700 mt-1">{{ $cartItem->unit_price ? 'Rp ' . number_format($cartItem->unit_price, 0, ',', '.') : $cartItem->product->formatted_price }}</p>
+                                    </div>
+                                </div>
 
-                                                     const prev = this.initialQuantity;
-
-                                                     console.log('updateQuantity start', this.id, this.quantity);
-                                                     // optimistic update: reflect immediately in UI
-                                                     updateItemData(this.id, this.quantity, this.price);
-                                                     this.updating = true;
-
-                                                     try {
-                                                         const requestUrl = '{{ url("cart/".$cartItem->id."/update") }}';
-                                                         console.log('sending update to', requestUrl, 'quantity', this.quantity);
-                                                         const response = await fetch(requestUrl, {
-                                                             method: 'POST',
-                                                             headers: {
-                                                                 'Content-Type': 'application/json',
-                                                                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                                                 'X-HTTP-Method-Override': 'PUT'
-                                                             },
-                                                             body: JSON.stringify({ quantity: this.quantity })
-                                                         });
-
-                                                         console.log('updateQuantity response status', response.status);
-                                                         if (response.ok) {
-                                                             // commit the new baseline so Update button disables
-                                                             this.initialQuantity = this.quantity;
-                                                             // re-apply confirmed update to global state
-                                                             try { updateItemData(this.id, this.quantity, this.price); } catch (e) { console.error(e); }
-                                                            // inform global manager in case direct access isn't available
-                                                            try {
-                                                                window.dispatchEvent(new CustomEvent('cart-updated', { detail: { id: this.id, quantity: this.quantity, price: this.price } }));
-                                                            } catch (e) { /* ignore */ }
-                                                         } else {
-                                                             // rollback on failure
-                                                             console.warn('updateQuantity failed, rolling back');
-                                                             updateItemData(this.id, prev, this.price);
-                                                             this.quantity = prev;
-                                                         }
-                                                     } catch (error) {
-                                                         console.error('Error updating quantity:', error);
+                                <!-- Variant + Quantity Row -->
+                                <div class="mt-3 ml-7 sm:ml-[5.5rem] space-y-2.5">
+                                    @php
+                                        $cartVariants = is_array($cartItem->selected_variants) ? $cartItem->selected_variants : [];
+                                        $productVariants = is_array($cartItem->product->variant_options) ? $cartItem->product->variant_options : [];
+                                    @endphp
+                                    <script type="application/json" id="cart-variants-{{ $cartItem->id }}">@json($cartVariants)</script>
+                                    <div class="space-y-2.5"
+                                         x-data="{
+                                             id: {{ $cartItem->id }},
+                                             price: {{ $cartItem->unit_price ?? $cartItem->product->price }},
+                                             quantity: {{ $cartItem->quantity }},
+                                             initialQuantity: {{ $cartItem->quantity }},
+                                             updating: false,
+                                             selectedVariants: {},
+                                             init() {
+                                                 const el = document.getElementById('cart-variants-' + this.id);
+                                                 if (el) {
+                                                     try { this.selectedVariants = JSON.parse(el.textContent); } catch(e) { this.selectedVariants = {}; }
+                                                 }
+                                             },
+                                             updateLocal() {
+                                                 try { updateItemData(this.id, this.quantity, this.price); } catch (e) {}
+                                             },
+                                              async updateVariant() {
+                                                  this.updating = true;
+                                                  try {
+                                                      const response = await fetch('{{ url("cart/".$cartItem->id."/update") }}', {
+                                                          method: 'POST',
+                                                          headers: {
+                                                              'Content-Type': 'application/json',
+                                                              'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                                              'X-HTTP-Method-Override': 'PUT'
+                                                          },
+                                                          body: JSON.stringify({ quantity: this.quantity, selected_variants: this.selectedVariants })
+                                                      });
+                                                      if (response.ok) {
+                                                          const data = await response.json();
+                                                          if (data.unit_price) this.price = data.unit_price;
+                                                          window.dispatchEvent(new CustomEvent('cart-updated', { detail: { id: this.id, quantity: this.quantity, price: this.price } }));
+                                                      } else {
+                                                          location.reload();
+                                                      }
+                                                  } catch (error) {
+                                                      location.reload();
+                                                  } finally {
+                                                      this.updating = false;
+                                                  }
+                                              },
+                                             async updateQuantity() {
+                                                 if (!(this.quantity && !isNaN(this.quantity) && this.quantity > 0)) return;
+                                                 const prev = this.initialQuantity;
+                                                 updateItemData(this.id, this.quantity, this.price);
+                                                 this.updating = true;
+                                                 try {
+                                                     const response = await fetch('{{ url("cart/".$cartItem->id."/update") }}', {
+                                                         method: 'POST',
+                                                         headers: {
+                                                             'Content-Type': 'application/json',
+                                                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                                             'X-HTTP-Method-Override': 'PUT'
+                                                         },
+                                                         body: JSON.stringify({ quantity: this.quantity, selected_variants: this.selectedVariants })
+                                                     });
+                                                     if (response.ok) {
+                                                         this.initialQuantity = this.quantity;
+                                                         try { updateItemData(this.id, this.quantity, this.price); } catch (e) {}
+                                                         try { window.dispatchEvent(new CustomEvent('cart-updated', { detail: { id: this.id, quantity: this.quantity, price: this.price } })); } catch (e) {}
+                                                     } else {
                                                          updateItemData(this.id, prev, this.price);
                                                          this.quantity = prev;
-                                                     } finally {
-                                                         this.updating = false;
                                                      }
+                                                 } catch (error) {
+                                                     updateItemData(this.id, prev, this.price);
+                                                     this.quantity = prev;
+                                                 } finally {
+                                                     this.updating = false;
                                                  }
-                                             }">
-                                            <div class="flex items-center space-x-3 w-full sm:flex-1">
-                                                <div class="flex items-center space-x-3">
-                                                    <label for="quantity-{{ $cartItem->id }}" class="text-sm font-medium text-gray-700">Jumlah:</label>
-                                                    <div class="flex items-center border border-gray-300 rounded-lg">
-                                                        <button type="button"
-                                                                @click="quantity = Math.max(1, quantity - 1); updateLocal()"
-                                                            class="px-3 py-1 text-gray-600 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
-                                                            <i class="fas fa-minus text-xs"></i>
-                                                        </button>
-                                                        <input type="number"
-                                                               id="quantity-{{ $cartItem->id }}"
-                                                               name="quantity"
-                                                               x-model="quantity"
-                                                               @input="updateLocal()"
-                                                               min="1"
-                                                               max="{{ $cartItem->product->stock }}"
-                                                               class="w-16 text-center border-0 focus:ring-0 text-sm bg-transparent">
-                                                        <button type="button"
-                                                                @click="quantity = Math.min({{ $cartItem->product->stock }}, quantity + 1); updateLocal()"
-                                                            class="px-3 py-1 text-gray-600 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
-                                                            <i class="fas fa-plus text-xs"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-
-                                                <div class="w-full sm:w-auto ml-0 sm:ml-3">
-                                                    <button type="button" @click="updateLocal(); updateQuantity()"
-                                                        :disabled="updating || quantity === initialQuantity"
-                                                        :class="(updating || quantity === initialQuantity) ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'"
-                                                        class="text-white px-3 py-2 rounded text-sm font-medium transition-colors w-full sm:w-auto">
-                                                        <span x-show="!updating">Update</span>
-                                                        <span x-show="updating">Updating...</span>
-                                                    </button>
-                                                </div>
+                                             }
+                                         }">
+                                        @if(count($cartVariants) > 0)
+                                        <div class="flex flex-wrap gap-2">
+                                            @foreach($cartVariants as $label => $value)
+                                            <div class="inline-flex items-center gap-1.5">
+                                                <label class="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap">{{ $label }}:</label>
+                                                <select @change="selectedVariants['{{ $label }}'] = $event.target.value; updateVariant()"
+                                                    class="text-xs border border-gray-200 rounded-md px-2 py-1 focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-gray-50">
+                                                    @foreach($productVariants[$label] ?? [] as $opt)
+                                                        <option value="{{ $opt }}" {{ $value === $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                        @endif
+                                        <!-- Quantity Controls -->
+                                        <div class="flex flex-wrap items-center justify-between gap-2">
+                                        <div class="flex items-center gap-2">
+                                            <div class="flex items-center border border-gray-200 rounded-md bg-gray-50">
+                                                <button type="button" @click="quantity = Math.max(1, quantity - 1); updateLocal()"
+                                                    class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-l-md transition-colors">
+                                                    <i class="fas fa-minus text-[10px]"></i>
+                                                </button>
+                                                <input type="number" x-model.number="quantity" @input="updateLocal()" min="1" max="{{ $cartItem->stock }}"
+                                                    class="w-10 sm:w-12 text-center border-0 bg-transparent text-sm font-medium focus:ring-0 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none">
+                                                <button type="button" @click="quantity = Math.min({{ $cartItem->stock }}, quantity + 1); updateLocal()"
+                                                    class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-r-md transition-colors">
+                                                    <i class="fas fa-plus text-[10px]"></i>
+                                                </button>
                                             </div>
 
-                                            <div class="mt-2 sm:mt-0 sm:text-right">
-                                                <p class="text-lg font-bold text-green-700 whitespace-nowrap" x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(quantity * price)"></p>
-                                                <p class="text-sm text-gray-500 mt-1 text-right whitespace-normal sm:whitespace-nowrap">
-                                                    <span class="hidden sm:inline">Total: </span><span x-text="quantity"></span> × {{ $cartItem->product->formatted_price }}
-                                                </p>
-                                            </div>
+                                            @if($cartItem->stock < $cartItem->quantity)
+                                                <span class="text-[10px] text-red-500">Stok: {{ $cartItem->stock }}</span>
+                                            @endif
+
+                                            <button type="button" @click="updateLocal(); updateQuantity()"
+                                                x-show="quantity !== initialQuantity"
+                                                :disabled="updating"
+                                                class="text-xs text-green-600 hover:text-green-700 font-medium underline transition-colors ml-1">
+                                                Simpan
+                                            </button>
                                         </div>
 
-                                        <!-- Stock Warning -->
-                                        @if($cartItem->product->stock < $cartItem->quantity)
-                                            <div class="mt-2 p-2 bg-red-100 border border-red-300 rounded text-red-700 text-sm">
-                                                <i class="fas fa-exclamation-triangle mr-1"></i>
-                                                Stok tersedia hanya {{ $cartItem->product->stock }} item
-                                            </div>
-                                        @endif
+                                        <!-- Subtotal -->
+                                        <div class="text-right">
+                                            <p class="text-sm sm:text-base font-bold text-gray-900" x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(quantity * price)"></p>
+                                        </div>
                                     </div>
-
-                                    <!-- Remove Button -->
-                                    <div class="flex-shrink-0 mt-0 sm:mt-0">
-                                        <form method="POST" action="{{ route('cart.remove', $cartItem) }}">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="button"
-                                                    onclick="confirmAndSubmitForm(this.closest('form'), {{ Illuminate\Support\Js::from('Apakah Anda yakin ingin menghapus ' . $cartItem->product->name . ' dari keranjang?') }})"
-                                                    class="text-red-600 hover:text-red-800 transition-colors p-2 rounded-full hover:bg-red-50">
-                                                <i class="fas fa-trash text-lg"></i>
-                                            </button>
-                                        </form>
                                     </div>
                                 </div>
                             </div>
@@ -201,23 +204,21 @@
                     </div>
 
                     <!-- Cart Actions -->
-                    <div class="px-4 py-4 bg-white">
-                        <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
-                            <form method="POST" action="{{ route('cart.clear') }}" class="w-full sm:w-auto">
+                    <div class="px-3 sm:px-6 py-3 sm:py-4 bg-gray-50 border-t">
+                        <div class="flex items-center justify-between gap-3">
+                            <form method="POST" action="{{ route('cart.clear') }}">
                                 @csrf
                                 @method('DELETE')
-                                <x-button type="button"
-                                          variant="danger"
-                                          size="sm"
-                                          class="w-full sm:w-auto justify-center"
-                                          onclick="confirmAndSubmitForm(this.closest('form'), {{ Illuminate\Support\Js::from('Apakah Anda yakin ingin mengosongkan semua produk dari keranjang?') }})">
-                                    <i class="fas fa-trash mr-2"></i> Kosongkan Keranjang
-                                </x-button>
+                                <button type="button"
+                                        onclick="confirmAndSubmitForm(this.closest('form'), {{ Illuminate\Support\Js::from('Apakah Anda yakin ingin mengosongkan semua produk dari keranjang?') }})"
+                                        class="text-xs sm:text-sm text-red-600 hover:text-red-700 font-medium transition-colors">
+                                    <i class="fas fa-trash mr-1"></i> Hapus Semua
+                                </button>
                             </form>
 
-                            <x-button href="{{ route('products') }}" variant="outline" size="sm" class="w-full sm:w-auto justify-center">
-                                <i class="fas fa-plus mr-2"></i> Tambah Produk
-                            </x-button>
+                            <a href="{{ route('products') }}" class="text-xs sm:text-sm text-green-600 hover:text-green-700 font-medium transition-colors">
+                                <i class="fas fa-plus mr-1"></i> Tambah Produk
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -225,33 +226,28 @@
 
             <!-- Order Summary -->
             <div class="lg:col-span-1">
-                <div class="bg-white rounded-lg shadow-md p-6 lg:sticky lg:top-4">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Ringkasan Pesanan</h2>
+                <div class="bg-white rounded-lg shadow-sm p-4 sm:p-6 lg:sticky lg:top-4">
+                    <h2 class="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Ringkasan Pesanan</h2>
 
                     <!-- Selected Items Warning -->
-                    <div x-show="selectedCount === 0" class="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <div x-show="selectedCount === 0" class="mb-3 sm:mb-4 p-2.5 sm:p-3 bg-green-50 border border-green-200 rounded-lg">
                         <div class="flex items-center">
-                            <i class="fas fa-info-circle text-green-500 mr-2"></i>
-                            <p class="text-green-700 text-sm">Pilih produk yang ingin di-checkout</p>
+                            <i class="fas fa-info-circle text-green-500 mr-2 text-sm"></i>
+                            <p class="text-green-700 text-xs sm:text-sm">Pilih produk yang ingin di-checkout</p>
                         </div>
                     </div>
 
-                    <div class="space-y-3 mb-6">
-                        <div class="flex justify-between text-sm">
+                    <div class="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
+                        <div class="flex justify-between text-xs sm:text-sm">
                             <span class="text-gray-600">
-                                Subtotal (<span x-text="selectedQuantity"></span> item):
+                                Subtotal (<span x-text="selectedQuantity"></span> item)
                             </span>
                             <span class="font-medium" x-text="formatPrice(selectedTotal)"></span>
                         </div>
 
-                        <div class="flex justify-between text-sm" x-show="selectedCount > 0">
-                            <span class="text-gray-600">Biaya Pengiriman:</span>
-                            <span class="font-medium">Rp 5.000</span>
-                        </div>
-
-                        <div class="border-t pt-3" x-show="selectedCount > 0">
-                            <div class="flex justify-between text-lg font-bold">
-                                <span>Total:</span>
+                        <div class="border-t pt-2 sm:pt-3" x-show="selectedCount > 0">
+                            <div class="flex justify-between text-base sm:text-lg font-bold">
+                                <span>Total</span>
                                 <span class="text-green-600" x-text="formatPrice(selectedTotal)"></span>
                             </div>
                         </div>
@@ -259,17 +255,17 @@
 
                     @auth
                         @if(!Auth::user()->hasVerifiedEmail())
-                            <div class="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <div class="mb-3 sm:mb-4 p-2.5 sm:p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                                 <div class="flex items-center">
-                                    <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+                                    <i class="fas fa-exclamation-triangle text-yellow-500 mr-2 text-sm"></i>
                                     <div>
-                                        <p class="text-yellow-800 text-sm font-medium">Email Belum Diverifikasi</p>
-                                        <p class="text-yellow-700 text-xs mt-1">Verifikasi email diperlukan untuk checkout</p>
+                                        <p class="text-yellow-800 text-xs sm:text-sm font-medium">Email Belum Diverifikasi</p>
+                                        <p class="text-yellow-700 text-[10px] sm:text-xs mt-0.5">Verifikasi email diperlukan untuk checkout</p>
                                     </div>
                                 </div>
                                 <div class="mt-2">
                                     <a href="{{ route('verification.notice') }}"
-                                       class="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-yellow-800 bg-yellow-100 hover:bg-yellow-200">
+                                       class="inline-flex items-center px-2 py-1 border border-transparent text-[10px] sm:text-xs font-medium rounded text-yellow-800 bg-yellow-100 hover:bg-yellow-200">
                                         <i class="fas fa-envelope-open mr-1"></i>
                                         Verifikasi Sekarang
                                     </a>
@@ -314,20 +310,20 @@
                     </div>
 
                     <!-- Payment Methods Info -->
-                    <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-                        <h3 class="text-sm font-semibold text-gray-900 mb-2">Metode Pembayaran:</h3>
-                        <div class="space-y-1 text-xs text-gray-600">
+                    <div class="mt-4 sm:mt-6 p-3 sm:p-4 bg-gray-50 rounded-lg">
+                        <h3 class="text-xs sm:text-sm font-semibold text-gray-900 mb-2">Metode Pembayaran</h3>
+                        <div class="grid grid-cols-2 gap-1.5 sm:space-y-1 text-[10px] sm:text-xs text-gray-600">
                             <div class="flex items-center">
-                                <i class="fas fa-wallet mr-2 text-green-500"></i> E-wallet (GoPay, OVO, DANA)
+                                <i class="fas fa-wallet mr-1.5 sm:mr-2 text-green-500"></i> E-wallet
                             </div>
                             <div class="flex items-center">
-                                <i class="fas fa-qrcode mr-2 text-blue-500"></i> QRIS
+                                <i class="fas fa-qrcode mr-1.5 sm:mr-2 text-blue-500"></i> QRIS
                             </div>
                             <div class="flex items-center">
-                                <i class="fas fa-university mr-2 text-purple-500"></i> Transfer Bank
+                                <i class="fas fa-university mr-1.5 sm:mr-2 text-purple-500"></i> Transfer Bank
                             </div>
                             <div class="flex items-center">
-                                <i class="fas fa-credit-card mr-2 text-orange-500"></i> Midtrans
+                                <i class="fas fa-credit-card mr-1.5 sm:mr-2 text-orange-500"></i> Midtrans
                             </div>
                         </div>
                     </div>
@@ -336,29 +332,65 @@
         </div>
     @else
         <!-- Empty Cart -->
-        <div class="text-center py-16">
-            <div class="bg-white rounded-lg shadow-md p-12 max-w-md mx-auto">
-                <i class="fas fa-shopping-cart text-6xl text-gray-300 mb-6"></i>
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">Keranjang Belanja Kosong</h3>
-                <p class="text-gray-600 mb-6">Belum ada produk yang ditambahkan ke keranjang belanja Anda.</p>
-                <x-button href="{{ route('products') }}" variant="primary">
-                    <i class="fas fa-shopping-bag mr-2"></i> Mulai Belanja
-                </x-button>
+        <div class="text-center py-16 sm:py-24">
+            <div class="max-w-md mx-auto">
+                {{-- Illustration --}}
+                <div class="relative w-40 h-40 mx-auto mb-8">
+                    <div class="absolute inset-0 bg-gradient-to-br from-green-100 to-emerald-50 rounded-full animate-pulse"></div>
+                    <div class="absolute inset-2 bg-white rounded-full flex items-center justify-center shadow-lg">
+                        <i class="fas fa-shopping-cart text-6xl text-green-200"></i>
+                    </div>
+                    <div class="absolute -top-1 -right-1 w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center">
+                        <i class="fas fa-plus text-green-500 text-sm"></i>
+                    </div>
+                </div>
+
+                {{-- Title --}}
+                <h3 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">Keranjang Masih Kosong</h3>
+                <p class="text-sm sm:text-base text-gray-500 mb-8 max-w-xs mx-auto leading-relaxed">
+                    Yuk, mulai jelajahi koleksi produk kami dan temukan yang kamu suka!
+                </p>
+
+                {{-- CTA --}}
+                <a href="{{ route('products') }}"
+                   class="inline-flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
+                    <i class="fas fa-shopping-bag"></i> Mulai Belanja
+                </a>
+
+                {{-- Features --}}
+                <div class="grid grid-cols-3 gap-4 mt-12 pt-8 border-t border-gray-100">
+                    <div class="text-center">
+                        <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-truck text-green-600 text-sm"></i>
+                        </div>
+                        <p class="text-xs font-medium text-gray-600">Pengiriman Cepat</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-shield-alt text-blue-600 text-sm"></i>
+                        </div>
+                        <p class="text-xs font-medium text-gray-600">Pembayaran Aman</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-undo text-amber-600 text-sm"></i>
+                        </div>
+                        <p class="text-xs font-medium text-gray-600">Garansi Kembali</p>
+                    </div>
+                </div>
             </div>
         </div>
     @endif
-                    <!-- Mobile checkout bar (visible on small screens when items selected) -->
+                    <!-- Mobile checkout bar -->
                     <div x-cloak x-show="selectedCount > 0" class="fixed inset-x-0 bottom-0 z-50 lg:hidden">
-                        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                            <div class="bg-white border-t shadow-xl rounded-t-lg p-3 pb-safe-bottom flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <div class="text-sm text-gray-600">Dipilih: <span class="font-medium text-gray-900" x-text="selectedCount"></span></div>
-                                    <div class="text-sm text-gray-600">Total: <span class="font-semibold text-green-600" x-text="formatPrice(selectedTotal)"></span></div>
-                                </div>
-                                <button @click="proceedToCheckout()" :disabled="selectedCount === 0" :class="selectedCount === 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'" class="text-white px-4 py-2 rounded-md font-medium">
-                                    Checkout
-                                </button>
+                        <div class="bg-white border-t shadow-lg px-4 py-3 pb-[env(safe-area-inset-bottom)] flex items-center justify-between gap-3">
+                            <div class="flex flex-col min-w-0">
+                                <span class="text-xs text-gray-500"><span x-text="selectedCount"></span> dipilih</span>
+                                <span class="text-sm font-bold text-green-600 truncate" x-text="formatPrice(selectedTotal)"></span>
                             </div>
+                            <button @click="proceedToCheckout()" :disabled="selectedCount === 0" :class="selectedCount === 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'" class="text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors flex-shrink-0">
+                                Checkout
+                            </button>
                         </div>
                     </div>
 </div>
@@ -367,11 +399,12 @@
 <script>
 // Cart data from backend
 const cartData = {!! json_encode($cartItems->map(function($item) {
+    $price = $item->unit_price ?? $item->product->price;
     return [
         'id' => $item->id,
         'quantity' => $item->quantity,
-        'price' => $item->product->price,
-        'subtotal' => $item->product->price * $item->quantity
+        'price' => (float) $price,
+        'subtotal' => (float) $price * $item->quantity
     ];
 })) !!};
 

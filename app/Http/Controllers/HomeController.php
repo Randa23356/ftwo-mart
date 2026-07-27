@@ -80,7 +80,7 @@ class HomeController extends Controller
     {
         $product = Product::where("slug", $slug)
             ->where("is_active", true)
-            ->with("category")
+            ->with(["category", "seller.user"])
             ->with(['ratings' => function($query) {
                 $query->with('user')->with(['replies' => function($replyQuery) {
                     $replyQuery->with('user');

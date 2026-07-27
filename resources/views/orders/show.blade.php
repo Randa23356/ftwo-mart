@@ -25,7 +25,7 @@
             <div class="flex items-center gap-3 w-full md:w-auto mt-4 md:mt-0">
                 <div class="text-right w-full md:w-auto">
                     <p class="text-xs text-green-100 uppercase tracking-wider mb-1">Status Pesanan</p>
-                    @if($order->isExpired() && $order->payment_status === 'pending' && $order->order_status !== 'cancelled')
+            @if($order->isExpired() && $order->payment_status === 'pending' && $order->order_status !== 'cancelled' && $order->payment_method !== 'cod')
                     <span class="inline-block px-3 sm:px-4 py-1 sm:py-1.5 text-sm sm:text-base bg-red-500/90 text-white backdrop-blur-md rounded-full font-bold border border-red-300">
                         Expired
                     </span>
@@ -66,6 +66,11 @@
                             <div class="flex-1 min-w-0">
                                 <h4 class="font-bold text-gray-900 text-base sm:text-lg truncate">{{ $item->product_name }}</h4>
                                 <p class="text-xs sm:text-sm text-gray-500 mb-1 sm:mb-2 truncate">Kode: {{ $item->product_code }}</p>
+                                @if($item->selected_variants && count($item->selected_variants) > 0)
+                                    @foreach($item->selected_variants as $label => $value)
+                                    <p class="text-xs text-gray-600 mb-1"><span class="font-medium">{{ $label }}:</span> {{ $value }}</p>
+                                    @endforeach
+                                @endif
                                 <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 text-xs sm:text-sm">
                                     <span class="bg-green-50 text-green-700 px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-md font-medium border border-green-100 w-fit">
                                         {{ $item->quantity }} x {{ 'Rp ' . number_format($item->price, 0, ',', '.') }}
@@ -159,7 +164,7 @@
         <!-- Sidebar Summary -->
         <div class="lg:col-span-1 space-y-8">
             <!-- Payment Countdown & Expired Status -->
-            @if($order->isExpired() && $order->payment_status === 'pending' && $order->order_status !== 'cancelled')
+            @if($order->isExpired() && $order->payment_status === 'pending' && $order->order_status !== 'cancelled' && $order->payment_method !== 'cod')
                 @if($order->expires_at && $order->expires_at->isFuture())
                 <!-- Show countdown if not yet expired -->
                 <div class="bg-red-50 rounded-2xl sm:rounded-3xl p-4 sm:p-5 md:p-6 border border-red-100 shadow-inner">
@@ -194,7 +199,7 @@
                     @endif
                 </div>
                 @endif
-            @elseif($order->expires_at && $order->expires_at->isFuture() && $order->payment_status === 'pending' && $order->order_status !== 'cancelled')
+            @elseif($order->expires_at && $order->expires_at->isFuture() && $order->payment_status === 'pending' && $order->order_status !== 'cancelled' && $order->payment_method !== 'cod')
                 <!-- Show countdown for non-expired orders -->
                 <div class="bg-red-50 rounded-2xl sm:rounded-3xl p-4 sm:p-5 md:p-6 border border-red-100 shadow-inner">
                     <div class="text-center">
@@ -207,6 +212,187 @@
                     </div>
                 </div>
             @endif
+
+            @if($order->order_status === 'shipped')
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl sm:rounded-3xl p-4 sm:p-5 md:p-6 border border-green-200 shadow-inner">
+                <div class="text-center">
+                    @if(!$order->courier_confirmed_at)
+                        <div class="w-14 h-14 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                            <i class="fas fa-truck text-white text-xl"></i>
+                        </div>
+                        <h4 class="text-green-800 font-bold mb-1">Paket Sedang Dalam Pengiriman</h4>
+                        @if($order->tracking_number)
+                            <p class="text-xs text-green-600 mb-3">No. Resi: <span class="font-bold">{{ $order->tracking_number }}</span></p>
+                        @endif
+                        <p class="text-xs text-gray-500">Menunggu konfirmasi dari kurir.</p>
+                    @elseif($order->refund_status === 'pending')
+                        <div class="w-14 h-14 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                            <i class="fas fa-hourglass-half text-white text-xl"></i>
+                        </div>
+                        <h4 class="text-yellow-800 font-bold mb-1">Pengembalian Sedang Diproses</h4>
+                        <p class="text-xs text-gray-500">Permintaan pengembalian Anda sedang ditinjau oleh admin.</p>
+                    @elseif($order->refund_status === 'return_pending')
+                        <div class="w-14 h-14 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                            <i class="fas fa-box text-white text-xl"></i>
+                        </div>
+                        <h4 class="text-blue-800 font-bold mb-1">Kirim Barang Kembali</h4>
+                        <p class="text-xs text-gray-500 mb-4">Pengembalian disetujui. Silakan kirim barang kembali ke penjual.</p>
+                        @php $refund = $order->refundRequest; @endphp
+                        @if($refund && !$refund->buyer_returned_at)
+                        <div class="text-left bg-white rounded-xl p-4 mb-4 border border-gray-200">
+                            <form action="{{ route('orders.return', $order) }}" method="POST" enctype="multipart/form-data" id="returnForm">
+                                @csrf
+                                <div class="mb-3">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">No. Resi Pengembalian *</label>
+                                    <input type="text" name="return_tracking_number" required
+                                           class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                           placeholder="Masukkan nomor resi pengiriman barang kembali">
+                                </div>
+                                <div class="mb-4">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">Bukti Foto Pengiriman *</label>
+                                    <input type="file" name="return_evidence_image" accept="image/*" required
+                                           class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                    <p class="text-xs text-gray-400 mt-1">Foto struk/resi pengiriman (Maks 2MB)</p>
+                                </div>
+                                <button type="submit" onclick="return confirm('Kirim bukti pengembalian barang?')"
+                                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all">
+                                    <i class="fas fa-paper-plane mr-2"></i> Kirim Bukti Pengiriman
+                                </button>
+                            </form>
+                        </div>
+                        @elseif($refund && $refund->buyer_returned_at)
+                        <div class="bg-blue-50 rounded-xl p-4 mb-3">
+                            <p class="text-sm font-semibold text-blue-800"><i class="fas fa-check-circle mr-1"></i> Bukti sudah dikirim</p>
+                            <p class="text-xs text-blue-600 mt-1">Resi: <span class="font-bold">{{ $refund->return_tracking_number }}</span></p>
+                            <p class="text-xs text-blue-600">Menunggu seller mengkonfirmasi penerimaan barang.</p>
+                        </div>
+                        @endif
+                    @elseif($order->refund_status === 'return_shipped')
+                        <div class="w-14 h-14 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                            <i class="fas fa-truck text-white text-xl"></i>
+                        </div>
+                        <h4 class="text-purple-800 font-bold mb-1">Barang Sedang Dikirim Kembali</h4>
+                        <p class="text-xs text-gray-500">Barang sedang dalam perjalanan ke penjual. Menunggu konfirmasi dari seller.</p>
+                    @elseif($order->refund_status === 'completed')
+                        <div class="w-14 h-14 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                            <i class="fas fa-check-circle text-white text-xl"></i>
+                        </div>
+                        <h4 class="text-green-800 font-bold mb-1">Pengembalian Selesai</h4>
+                        <p class="text-xs text-gray-500">Barang telah diterima oleh penjual. Pesanan dibatalkan.</p>
+                    @elseif($order->refund_status === 'rejected')
+                        <div class="w-14 h-14 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                            <i class="fas fa-box-open text-white text-xl"></i>
+                        </div>
+                        <h4 class="text-green-800 font-bold mb-1">Paket Sudah Diterima Kurir</h4>
+                        <p class="text-xs text-gray-500 mb-4">Pengembalian ditolak. Silakan konfirmasi penerimaan.</p>
+                        <button type="button" onclick="document.getElementById('confirmDeliveryModal').classList.remove('hidden')"
+                                class="bg-green-700 hover:bg-green-800 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-lg">
+                            <i class="fas fa-check-circle mr-2"></i> Konfirmasi Terima
+                        </button>
+                    @else
+                        <div class="w-14 h-14 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                            <i class="fas fa-box-open text-white text-xl"></i>
+                        </div>
+                        <h4 class="text-green-800 font-bold mb-1">Paket Sudah Diterima Kurir</h4>
+                        <p class="text-xs text-gray-500 mb-1">Paket telah diterima oleh penerima.</p>
+                        @if($order->days_until_auto_complete !== null && $order->days_until_auto_complete > 0)
+                            <p class="text-xs text-orange-600 mb-4">
+                                <i class="fas fa-clock mr-1"></i>
+                                Pesanan akan otomatis selesai dalam <strong>{{ $order->days_until_auto_complete }} hari</strong>.
+                            </p>
+                        @endif
+                        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                            <button type="button" onclick="document.getElementById('confirmDeliveryModal').classList.remove('hidden')"
+                                    class="bg-green-700 hover:bg-green-800 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-lg">
+                                <i class="fas fa-check-circle mr-2"></i> Konfirmasi Terima
+                            </button>
+                            <button type="button" onclick="document.getElementById('refundModal').classList.remove('hidden')"
+                                    class="bg-white hover:bg-red-50 text-red-600 font-bold px-6 py-3 rounded-xl transition-all border border-red-200 hover:border-red-300">
+                                <i class="fas fa-undo mr-2"></i> Ajukan Pengembalian
+                            </button>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Refund Modal -->
+            @if($order->isAwaitingBuyerConfirmation() && !$order->refund_status)
+            <div id="refundModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold text-gray-900">Ajukan Pengembalian</h3>
+                        <button type="button" onclick="document.getElementById('refundModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <form action="{{ route('orders.refund', $order) }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="mb-4">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Alasan Pengembalian *</label>
+                            <select name="reason" required class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                                <option value="">Pilih alasan...</option>
+                                <option value="changed_mind">Berubah pikiran / tidak jadi beli</option>
+                                <option value="wrong_item">Produk yang dikirim salah</option>
+                                <option value="damaged">Produk rusak / cacat</option>
+                                <option value="not_as_described">Produk tidak sesuai deskripsi</option>
+                                <option value="late_delivery">Pengiriman terlambat</option>
+                                <option value="other">Lainnya</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Catatan (Opsional)</label>
+                            <textarea name="notes" rows="3" maxlength="500"
+                                      class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                      placeholder="Jelaskan alasan pengembalian..."></textarea>
+                        </div>
+                        <div class="mb-5">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Bukti Foto (Opsional)</label>
+                            <input type="file" name="evidence_image" accept="image/*"
+                                   class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100">
+                            <p class="text-xs text-gray-400 mt-1">Maks 2MB (JPG, PNG)</p>
+                        </div>
+                        <div class="flex gap-3">
+                            <button type="button" onclick="document.getElementById('refundModal').classList.add('hidden')"
+                                    class="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition-colors">
+                                Batal
+                            </button>
+                            <button type="submit" onclick="return confirm('Ajukan pengembalian untuk pesanan ini?')"
+                                    class="flex-1 px-4 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold transition-colors">
+                                Kirim
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            @endif
+            @endif
+
+            <!-- Confirm Delivery Modal -->
+            <div id="confirmDeliveryModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl text-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Konfirmasi Penerimaan</h3>
+                    <p class="text-sm text-gray-500 mb-6">Apakah Anda yakin sudah menerima pesanan ini? Tindakan ini tidak dapat dibatalkan.</p>
+                    <div class="flex gap-3">
+                        <button type="button" onclick="document.getElementById('confirmDeliveryModal').classList.add('hidden')"
+                                class="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition-colors text-sm">
+                            Batal
+                        </button>
+                        <button type="button" id="confirmDeliveryBtn"
+                                class="flex-1 px-4 py-3 rounded-xl bg-green-700 hover:bg-green-800 text-white font-bold transition-colors text-sm">
+                            Ya, Terima
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hidden form for confirm delivery -->
+            <form id="confirmDeliveryForm" action="{{ route('orders.confirm-delivery', $order) }}" method="POST" class="hidden">
+                @csrf
+                @method('PATCH')
+            </form>
 
             <!-- Order Summary Card -->
             <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
@@ -370,6 +556,37 @@ if ($pm === 'midtrans') {
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Confirm Delivery Modal
+    const confirmDeliveryBtn = document.getElementById('confirmDeliveryBtn');
+    const confirmDeliveryModal = document.getElementById('confirmDeliveryModal');
+    const confirmDeliveryForm = document.getElementById('confirmDeliveryForm');
+
+    if (confirmDeliveryBtn && confirmDeliveryForm) {
+        confirmDeliveryBtn.addEventListener('click', function() {
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Memproses...';
+            confirmDeliveryForm.submit();
+        });
+    }
+
+    if (confirmDeliveryModal) {
+        confirmDeliveryModal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.add('hidden');
+            }
+        });
+    }
+
+    // Refund Modal
+    const refundModal = document.getElementById('refundModal');
+    if (refundModal) {
+        refundModal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.add('hidden');
+            }
+        });
+    }
+
     const countdownElement = document.getElementById('countdown-timer');
     if (!countdownElement) return;
 
@@ -382,7 +599,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (timeLeft <= 0) {
             displayElement.textContent = 'EXPIRED';
-            // Optional: location reload
             return;
         }
 

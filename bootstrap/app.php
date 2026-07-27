@@ -42,6 +42,12 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->everyThirtyMinutes()
                 ->withoutOverlapping()
                 ->runInBackground();
+
+        // Auto-complete pesanan 3 hari setelah kurir konfirmasi
+        $schedule->command('orders:auto-complete')
+                ->daily()
+                ->withoutOverlapping()
+                ->runInBackground();
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

@@ -59,6 +59,9 @@
         </div>
 
         <!-- Product Info Section -->
+        @php
+            $isBlockedPurchase = Auth::check() && $product->isBlockedForUser(Auth::id());
+        @endphp
         <div class="space-y-8">
             <!-- Header -->
             <div>
@@ -66,7 +69,7 @@
                     <span class="px-3 py-1 rounded-full bg-green-50 text-green-600 text-xs font-semibold uppercase tracking-wide border border-green-100">
                         {{ $product->category->name }}
                     </span>
-                    @if($product->stock > 0)
+                    @if($product->total_stock > 0)
                         <span class="flex items-center gap-1.5 text-emerald-600 text-xs font-semibold uppercase tracking-wide">
                             <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
                             Tersedia
@@ -76,8 +79,55 @@
                     @endif
                 </div>
                 <h1 class="text-3xl lg:text-4xl font-bold text-gray-800 tracking-tight">{{ $product->name }}</h1>
-                <p class="text-3xl font-semibold text-gray-900 mt-2">{{ $product->formatted_price }}</p>
+                @if($product->pricing_type === 'variant' && $product->has_variants)
+                    <p class="text-sm text-gray-400 mt-1">Pilih varian untuk melihat harga</p>
+                @else
+                    <p class="text-3xl font-semibold text-gray-900 mt-2">{{ $product->formatted_price }}</p>
+                @endif
             </div>
+
+            <!-- Seller Info -->
+            @if($product->seller)
+                <div class="relative flex items-center justify-between p-4 rounded-xl border border-gray-200 overflow-hidden">
+                    @if($product->seller->banner)
+                        <img src="{{ $product->seller->banner_url }}" alt="" class="absolute inset-0 w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-black/40"></div>
+                    @endif
+                    <div class="relative flex items-center gap-3">
+                        @if($product->seller->logo)
+                            <img src="{{ $product->seller->logo_url }}" alt="{{ $product->seller->shop_name }}" class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm">
+                        @elseif($product->seller->user && $product->seller->user->profile_photo_path)
+                            <img src="{{ $product->seller->user->profile_photo_url }}" alt="{{ $product->seller->shop_name }}" class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm">
+                        @else
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">
+                                {{ strtoupper(substr($product->seller->shop_name, 0, 1)) }}
+                            </div>
+                        @endif
+                        <div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="font-semibold text-white drop-shadow-md">{{ $product->seller->shop_name }}</span>
+                                @if($product->seller->is_verified)
+                                    <span class="inline-flex items-center justify-center w-4 h-4 bg-blue-500 rounded-full">
+                                        <i class="fas fa-check text-white text-[8px]"></i>
+                                    </span>
+                                @endif
+                            </div>
+                            <p class="text-xs text-green-300 font-medium drop-shadow-md">Penjual</p>
+                        </div>
+                    </div>
+                    @auth
+                        @if(Auth::user()->hasVerifiedEmail())
+                            <form action="{{ route('chat.seller', $product->seller) }}" method="POST" class="relative">
+                                @csrf
+                                <button type="submit" class="flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-sm border border-white/50 rounded-lg text-sm font-medium text-gray-700 hover:bg-white transition-all shadow-md">
+                                    <i class="fas fa-comments text-green-600"></i>
+                                    Chat Penjual
+                                </button>
+                            </form>
+                        @endif
+                    @endauth
+                </div>
+            @endif
 
             <!-- Description -->
             <div class="border-t border-gray-200 pt-6">
@@ -90,7 +140,7 @@
             <!-- Stats -->
             <div class="grid grid-cols-2 gap-4 text-center py-4 border-y border-gray-200">
                 <div>
-                    <p class="text-2xl font-semibold text-gray-800">{{ $product->stock }}</p>
+                    <p class="text-2xl font-semibold text-gray-800">{{ $product->total_stock }}</p>
                     <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Stok</p>
                 </div>
                 <div>
@@ -125,8 +175,95 @@
                 </div>
             </div>
 
-            @if($product->stock > 0)
-                <div class="space-y-6" x-data="{ quantity: 1, maxQuantity: {{ $product->stock }} }">
+            @if($isBlockedPurchase)
+                <div class="p-4 bg-blue-50 rounded-lg border border-blue-200 text-sm text-blue-800">
+                    <i class="fas fa-store mr-2"></i> Anda tidak dapat membeli produk ini.
+                </div>
+            @elseif($product->total_stock > 0)
+                @php
+                    $rawOptions = is_array($product->variant_options) ? $product->variant_options : [];
+                    $variantOptions = \App\Models\Product::normalizeVariantOptions($rawOptions) ?? [];
+                    $hasVariants = count($variantOptions) > 0;
+                @endphp
+                <script type="application/json" id="product-variant-labels">@json(array_keys($variantOptions))</script>
+                <script type="application/json" id="product-combination-prices">
+                    @json($product->variantCombinations->map(fn($c) => ['key' => $c->variant_key, 'price' => (float) $c->price, 'stock' => $c->stock])->values()->toArray())
+                </script>
+                <div class="space-y-6" x-data="{
+                    quantity: 1,
+                    basePrice: {{ $product->is_pricing_variant ? ($product->variantCombinations->pluck('price')->filter()->min() ?? 0) : $product->price }},
+                    baseStock: {{ $product->total_stock }},
+                    selectedVariants: {},
+                    hasVariants: {{ $hasVariants ? 'true' : 'false' }},
+                    variantLabels: [],
+                    comboPrices: {},
+                    normalizeKey(obj) {
+                        const sorted = {};
+                        Object.keys(obj).sort().forEach(k => { sorted[k] = obj[k]; });
+                        return JSON.stringify(sorted);
+                    },
+                    init() {
+                        const el = document.getElementById('product-variant-labels');
+                        if (el) {
+                            try { this.variantLabels = JSON.parse(el.textContent); } catch(e) { this.variantLabels = []; }
+                        }
+                        const cp = document.getElementById('product-combination-prices');
+                        if (cp) {
+                            try {
+                                const data = JSON.parse(cp.textContent);
+                                this.comboPrices = {};
+                                data.forEach(c => { this.comboPrices[this.normalizeKey(c.key)] = { price: c.price, stock: c.stock }; });
+                            } catch(e) { this.comboPrices = {}; }
+                        }
+                    },
+                    get currentPrice() {
+                        if (!this.hasVariants || this.variantLabels.some(l => !this.selectedVariants[l])) return this.basePrice;
+                        return this.comboPrices[this.normalizeKey(this.selectedVariants)]?.price ?? this.basePrice;
+                    },
+                    get maxQuantity() {
+                        if (!this.hasVariants || this.variantLabels.some(l => !this.selectedVariants[l])) return this.baseStock;
+                        return this.comboPrices[this.normalizeKey(this.selectedVariants)]?.stock ?? this.baseStock;
+                    },
+                    get canAddToCart() {
+                        if (!this.hasVariants) return true;
+                        for (const label of this.variantLabels) {
+                            if (!this.selectedVariants[label]) return false;
+                        }
+                        return true;
+                    },
+                    addCart() {
+                        if (!this.canAddToCart) return;
+                        addToCart({{ $product->id }}, this.quantity, this.selectedVariants);
+                    },
+                    doBuyNow() {
+                        if (!this.canAddToCart) return;
+                        buyNow({{ $product->id }}, this.quantity, this.selectedVariants);
+                    }
+                }">
+                    @if($hasVariants)
+                    <div class="mb-2">
+                        <p class="text-3xl font-semibold text-gray-900" x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(currentPrice)">Rp {{ number_format($product->price, 0, ',', '.') }}</p>
+                    </div>
+                    @endif
+                    @foreach($variantOptions as $label => $options)
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ $label }}</label>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach($options as $option)
+                                <button type="button" @click="selectedVariants['{{ $label }}'] = '{{ $option }}'"
+                                    class="px-4 py-2 rounded-lg border-2 text-sm font-semibold transition-all"
+                                    :class="selectedVariants['{{ $label }}'] === '{{ $option }}' ? 'border-green-600 bg-green-50 text-green-700' : 'border-gray-200 bg-white text-gray-700 hover:border-green-300'">
+                                    {{ $option }}
+                                </button>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endforeach
+
+                    @if($hasVariants)
+                    <p x-show="!canAddToCart" x-cloak class="text-xs text-red-500">* Pilih semua variasi yang tersedia terlebih dahulu</p>
+                    @endif
+                    
                     <!-- Quantity -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah</label>
@@ -140,7 +277,7 @@
                                     <i class="fas fa-plus text-xs"></i>
                                 </button>
                             </div>
-                            <p class="text-xs text-gray-500">Stok tersisa: {{ $product->stock }}</p>
+                            <p class="text-xs text-gray-500" x-text="'Stok tersisa: ' + maxQuantity">Stok tersisa: {{ $product->total_stock }}</p>
                         </div>
                     </div>
                     
@@ -148,11 +285,17 @@
                     @auth
                         @if(Auth::user()->hasVerifiedEmail())
                             <div class="flex flex-col sm:flex-row gap-3">
-                                <button @click="addToCart({{ $product->id }}, quantity)" class="flex-1 px-5 py-3 bg-white border-2 border-green-600 text-green-600 rounded-lg font-semibold hover:bg-green-50 transition-all flex items-center justify-center gap-2">
+                                <button @click="addCart()"
+                                    :disabled="!canAddToCart"
+                                    :class="canAddToCart ? 'bg-white border-2 border-green-600 text-green-600 hover:bg-green-50' : 'bg-gray-200 border-2 border-gray-200 text-gray-400 cursor-not-allowed'"
+                                    class="flex-1 px-5 py-3 rounded-lg font-semibold transition-all flex items-center justify-center gap-2">
                                     <i class="fas fa-shopping-cart"></i>
                                     <span>Tambah Keranjang</span>
                                 </button>
-                                <button @click="buyNow({{ $product->id }}, quantity)" class="flex-1 px-5 py-3 bg-green-700 text-white rounded-lg font-semibold hover:bg-green-800 transition-all flex items-center justify-center gap-2">
+                                <button @click="doBuyNow()"
+                                    :disabled="!canAddToCart"
+                                    :class="canAddToCart ? 'bg-green-700 hover:bg-green-800' : 'bg-gray-400 cursor-not-allowed'"
+                                    class="flex-1 px-5 py-3 text-white rounded-lg font-semibold transition-all flex items-center justify-center gap-2">
                                     <i class="fas fa-bolt"></i>
                                     <span>Beli Sekarang</span>
                                 </button>

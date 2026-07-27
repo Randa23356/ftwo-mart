@@ -48,10 +48,14 @@ class OrderExpirationService
             return false;
         }
 
+        $oldStatus = $order->order_status;
+
         $order->update([
             'order_status' => 'cancelled',
             'payment_status' => 'failed'
         ]);
+
+        $order->logStatusChange($oldStatus, 'cancelled', null, 'system', 'Pesanan expired (belum dibayar)');
 
         // Kembalikan stok produk
         foreach ($order->orderItems as $item) {

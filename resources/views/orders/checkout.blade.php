@@ -6,7 +6,7 @@
     <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900 mb-2">Checkout</h1>
 
-        @if(session()->has('buy_now_item'))
+        @if(session()->has('buy_now_items') || session()->has('buy_now_item'))
             <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
                 <div class="flex items-center">
                     <i class="fas fa-bolt text-green-600 mr-2"></i>
@@ -85,7 +85,20 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('orders.store') }}" x-data="{ paymentMethod: 'midtrans' }" id="checkout-form">
+    @php
+        $codMin = (float) ($settings['cod_min_price']->value ?? 10000);
+        $codMax = (float) ($settings['cod_max_price']->value ?? 500000);
+    @endphp
+
+    <form method="POST" action="{{ route('orders.store') }}" x-data="{
+        paymentMethod: 'midtrans',
+        shippingCost: 0,
+        get codAvailable() {
+            const total = {{ $total }} + this.shippingCost;
+            return total >= {{ $codMin ?? 10000 }} && total <= {{ $codMax ?? 500000 }};
+        },
+        formatNumber(n) { return new Intl.NumberFormat('id-ID').format(n); }
+    }" @shippingSelected.window="shippingCost = $event.detail.cost || 0; if (!codAvailable && paymentMethod === 'cod') { paymentMethod = 'midtrans'; }" id="checkout-form">
         @csrf
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -154,7 +167,7 @@
                                     </div>
                                     <div>
                                         <p class="text-sm font-medium text-blue-900">Dikirim dari</p>
-                                        <p class="text-blue-800 font-semibold">Mataram, Lombok (NTB)</p>
+                                        <p class="text-blue-800 font-semibold">{{ $shippingOrigin->origin_city_name ?? 'Mataram' }}, {{ $shippingOrigin->origin_province ?? 'Nusa Tenggara Barat' }}</p>
                                     </div>
                                 </div>
                                 <div class="text-right">
@@ -362,31 +375,34 @@
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <h2 class="text-xl font-semibold text-gray-900 mb-4">Metode Pembayaran</h2>
 
-                    <div class="space-y-3">
-                        <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
-                            <input type="radio" name="payment_method" value="midtrans" x-model="paymentMethod"
-                                   class="text-green-600 focus:ring-green-500" checked>
-                            <div class="ml-3">
-                                <div class="flex items-center">
-                                    <i class="fas fa-credit-card text-green-600 mr-2"></i>
-                                    <span class="font-medium text-gray-900">Transfer (E-wallet, QRIS, Bank Transfer)</span>
+                <div class="space-y-3">
+                            <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                                <input type="radio" name="payment_method" value="midtrans" x-model="paymentMethod"
+                                       class="text-green-600 focus:ring-green-500" checked>
+                                <div class="ml-3">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-credit-card text-green-600 mr-2"></i>
+                                        <span class="font-medium text-gray-900">Transfer (E-wallet, QRIS, Bank Transfer)</span>
+                                    </div>
+                                    <p class="text-sm text-gray-500">Pembayaran aman dengan berbagai metode</p>
                                 </div>
-                                <p class="text-sm text-gray-500">Pembayaran aman dengan berbagai metode</p>
-                            </div>
-                        </label>
+                            </label>
 
-                        <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
-                            <input type="radio" name="payment_method" value="cod" x-model="paymentMethod"
-                                   class="text-green-600 focus:ring-green-500">
-                            <div class="ml-3">
-                                <div class="flex items-center">
-                                    <i class="fas fa-money-bill-wave text-green-600 mr-2"></i>
-                                    <span class="font-medium text-gray-900">Cash on Delivery (COD)</span>
+                            <label class="flex items-center p-4 border rounded-lg transition-all"
+                                   :class="codAvailable ? 'border-gray-300 cursor-pointer hover:bg-gray-50' : 'border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed'">
+                                <input type="radio" name="payment_method" value="cod" x-model="paymentMethod"
+                                       class="text-green-600 focus:ring-green-500"
+                                       :disabled="!codAvailable">
+                                <div class="ml-3">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-money-bill-wave text-green-600 mr-2"></i>
+                                        <span class="font-medium text-gray-900">Cash on Delivery (COD)</span>
+                                    </div>
+                                    <p class="text-sm text-gray-500" x-show="codAvailable">Bayar saat barang diterima</p>
+                                    <p class="text-sm text-red-500" x-show="!codAvailable" x-text="'COD tersedia untuk pesanan Rp ' + formatNumber({{ $codMin }}) + ' - Rp ' + formatNumber({{ $codMax }})"></p>
                                 </div>
-                                <p class="text-sm text-gray-500">Bayar saat barang diterima</p>
-                            </div>
-                        </label>
-                    </div>
+                            </label>
+                        </div>
 
                     <!-- Payment Info -->
                     <div x-show="paymentMethod === 'midtrans'" class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
@@ -436,7 +452,12 @@
                                      class="w-12 h-12 object-cover rounded">
                                 <div class="flex-1 min-w-0">
                                     <h4 class="text-sm font-medium text-gray-900 truncate">{{ $cartItem->product->name }}</h4>
-                                    <p class="text-sm text-gray-500">{{ $cartItem->quantity }} × {{ $cartItem->product->formatted_price }}</p>
+                                    @if($cartItem->selected_variants && count($cartItem->selected_variants) > 0)
+                                        @foreach($cartItem->selected_variants as $label => $value)
+                                        <p class="text-xs text-gray-500">{{ $label }}: {{ $value }}</p>
+                                        @endforeach
+                                    @endif
+                                    <p class="text-sm text-gray-500">{{ $cartItem->quantity }} × {{ isset($cartItem->unit_price) ? 'Rp ' . number_format($cartItem->unit_price, 0, ',', '.') : $cartItem->product->formatted_price }}</p>
                                 </div>
                                 <span class="font-medium text-gray-900">{{ $cartItem->formatted_subtotal }}</span>
                             </div>
@@ -495,7 +516,7 @@
                     @endif
 
                     <!-- Action Buttons Based on Flow -->
-                    @if(session()->has('buy_now_item'))
+                    @if(session()->has('buy_now_items') || session()->has('buy_now_item'))
                         <!-- Cancel Buy Now Button -->
                         <div class="mt-6 text-center">
                             <div class="relative">
@@ -557,7 +578,7 @@
     </form>
 
     <!-- Hidden Cancel Forms -->
-    @if(session()->has('buy_now_item'))
+    @if(session()->has('buy_now_items') || session()->has('buy_now_item'))
         <form id="cancel-buy-now-form" action="{{ route('buy_now.cancel') }}" method="POST" style="display: none;">
             @csrf
         </form>
@@ -674,6 +695,7 @@ function shippingCalculator() {
             const formData = new FormData();
             formData.append('destination_city_id', this.selectedCity.city_id);
             formData.append('weight', {{ $totalWeight ?? 500 }});
+            formData.append('origin_city_id', {{ $shippingOrigin->origin_city_id ?? 'null' }});
             formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
 
             fetch('{{ route('shipping.calculate') }}', {
@@ -783,7 +805,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Cancel Buy Now function with modern modal
-@if(session()->has('buy_now_item'))
+@if(session()->has('buy_now_items') || session()->has('buy_now_item'))
 function cancelBuyNow() {
     // Create modal overlay
     const modalOverlay = document.createElement('div');
