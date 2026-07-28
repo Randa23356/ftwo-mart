@@ -420,7 +420,7 @@
                                 <span class="text-sm text-gray-500"> atau drag & drop</span>
                                 <input type="file" id="images" name="images[]" multiple accept="image/*"
                                        @change="handleImageUpload($event)" class="hidden">
-                                <p class="text-xs text-gray-500 mt-2">PNG, JPG, GIF — max 2MB. Maks. 10 gambar total.</p>
+                                <p class="text-xs text-gray-500 mt-2">PNG, JPG, GIF — max 5MB. Maks. 10 gambar total.</p>
                             </div>
                         </div>
 
@@ -520,10 +520,23 @@ function productForm() {
         primaryImageIndex: null,
 
         handleImageUpload(event) {
+            const MAX_SIZE = 5 * 1024 * 1024;
             const files = Array.from(event.target.files);
-            files.forEach((file) => {
-                if (file.type.startsWith('image/')) {
-                    const reader = new FileReader();
+            const oversized = files.filter(f => f.size > MAX_SIZE);
+            if (oversized.length > 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Ukuran File Terlalu Besar',
+                    text: `File "${oversized[0].name}" (${(oversized[0].size / 1024 / 1024).toFixed(1)}MB) melebihi batas maksimal 5MB.`,
+                    confirmButtonColor: '#059669',
+                    confirmButtonText: 'Mengerti',
+                });
+                event.target.value = '';
+                return;
+            }
+            const validFiles = files.filter(f => f.type.startsWith('image/'));
+            validFiles.forEach((file) => {
+                const reader = new FileReader();
                     reader.onload = (e) => {
                         this.images.push({ file, url: e.target.result, altText: '' });
                         if (this.primaryImageIndex === null && this.images.length === 1) {

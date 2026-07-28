@@ -429,7 +429,7 @@
                                     <i class="fas fa-cloud-upload-alt text-green-500 text-2xl"></i>
                                 </div>
                                 <p class="text-sm font-semibold text-gray-700">Klik untuk upload foto</p>
-                                <p class="text-xs text-gray-500 mt-1">PNG, JPG, GIF — max 2MB per file, hingga 10 foto</p>
+                                <p class="text-xs text-gray-500 mt-1">PNG, JPG, GIF — max 5MB per file, hingga 10 foto</p>
                                 <p class="text-xs text-green-600 mt-2 font-medium">
                                     <i class="fas fa-info-circle mr-1"></i> Foto pertama akan dijadikan foto utama
                                 </p>
@@ -549,6 +549,20 @@ function productForm() {
 }
 
 function showImagePreview(input) {
+    const MAX_SIZE = 5 * 1024 * 1024;
+    const oversized = Array.from(input.files).filter(f => f.size > MAX_SIZE);
+    if (oversized.length > 0) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Ukuran File Terlalu Besar',
+            text: `File "${oversized[0].name}" (${(oversized[0].size / 1024 / 1024).toFixed(1)}MB) melebihi batas maksimal 5MB.`,
+            confirmButtonColor: '#059669',
+            confirmButtonText: 'Mengerti',
+        });
+        input.value = '';
+        return;
+    }
+
     const previewArea = document.getElementById('image-preview');
     const previewContainer = document.getElementById('preview-container');
     const imageCount = document.getElementById('image-count');
@@ -561,7 +575,7 @@ function showImagePreview(input) {
                 <i class="fas fa-cloud-upload-alt text-green-500 text-2xl"></i>
             </div>
             <p class="text-sm font-semibold text-gray-700">Klik untuk upload foto</p>
-            <p class="text-xs text-gray-500 mt-1">PNG, JPG, GIF — max 2MB per file, hingga 10 foto</p>
+            <p class="text-xs text-gray-500 mt-1">PNG, JPG, GIF — max 5MB per file, hingga 10 foto</p>
         `;
         return;
     }

@@ -43,7 +43,7 @@ class ProductController extends Controller
             'stock' => 'nullable|integer|min:0',
             'weight' => 'required|integer|min:1|max:50000', // Weight in grams, max 50kg
             'category_id' => 'required|exists:categories,id',
-            'images' => 'nullable|array|max:10', // Max 10 images
+            'images' => 'nullable|array|max:10', // Max 10 imagess
             'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:5120',
             'image_alt_texts' => 'nullable|array',
             'image_alt_texts.*' => 'nullable|string|max:255',
@@ -105,10 +105,10 @@ class ProductController extends Controller
             if ($request->hasFile('images')) {
                 $primaryIndex = $request->input('primary_image_index', 0);
                 $altTexts = $request->input('image_alt_texts', []);
-                
+
                 foreach ($request->file('images') as $index => $image) {
                     $imagePath = $image->store('products', 'public');
-                    
+
                     ProductImage::create([
                         'product_id' => $product->id,
                         'image_path' => $imagePath,
@@ -122,7 +122,7 @@ class ProductController extends Controller
             DB::commit();
             return redirect()->route('admin.products.index')
                 ->with('success', 'Produk berhasil ditambahkan');
-                
+
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
@@ -209,7 +209,7 @@ class ProductController extends Controller
                 $imagesToDelete = ProductImage::whereIn('id', $request->delete_image_ids)
                     ->where('product_id', $product->id)
                     ->get();
-                
+
                 foreach ($imagesToDelete as $imageToDelete) {
                     Storage::disk('public')->delete($imageToDelete->image_path);
                     $imageToDelete->delete();
@@ -221,15 +221,15 @@ class ProductController extends Controller
                 $existingImagesCount = $product->images()->count();
                 $primaryIndex = $request->input('primary_image_index');
                 $altTexts = $request->input('image_alt_texts', []);
-                
+
                 // Reset all existing images to non-primary if new primary is being set
                 if ($primaryIndex !== null) {
                     $product->images()->update(['is_primary' => false]);
                 }
-                
+
                 foreach ($request->file('images') as $index => $image) {
                     $imagePath = $image->store('products', 'public');
-                    
+
                     ProductImage::create([
                         'product_id' => $product->id,
                         'image_path' => $imagePath,
@@ -243,7 +243,7 @@ class ProductController extends Controller
             DB::commit();
             return redirect()->route('admin.products.index')
                 ->with('success', 'Produk berhasil diupdate');
-                
+
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
@@ -287,7 +287,7 @@ class ProductController extends Controller
             DB::commit();
             return redirect()->route('admin.products.index')
                 ->with('success', 'Produk berhasil dihapus');
-                
+
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
@@ -311,7 +311,7 @@ class ProductController extends Controller
     public function forceDelete($id)
     {
         $product = Product::onlyTrashed()->findOrFail($id);
-        
+
         DB::beginTransaction();
         try {
             // Delete all product images
@@ -338,7 +338,7 @@ class ProductController extends Controller
     public function toggleStatus(Product $product)
     {
         $product->update(['is_active' => !$product->is_active]);
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Status berhasil diubah',
@@ -349,7 +349,7 @@ class ProductController extends Controller
     public function toggleFeatured(Product $product)
     {
         $product->update(['is_featured' => !$product->is_featured]);
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Featured berhasil diubah',
@@ -407,7 +407,7 @@ class ProductController extends Controller
 
             DB::commit();
             return response()->json(['success' => true, 'message' => 'Urutan gambar berhasil diupdate']);
-            
+
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
@@ -424,7 +424,7 @@ class ProductController extends Controller
         try {
             // Reset all images to non-primary
             $product->images()->update(['is_primary' => false]);
-            
+
             // Set selected image as primary
             ProductImage::where('id', $request->image_id)
                 ->where('product_id', $product->id)
@@ -432,7 +432,7 @@ class ProductController extends Controller
 
             DB::commit();
             return response()->json(['success' => true, 'message' => 'Gambar utama berhasil diset']);
-            
+
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
@@ -457,13 +457,13 @@ class ProductController extends Controller
 
             // Delete file from storage
             Storage::disk('public')->delete($image->image_path);
-            
+
             // Delete from database
             $image->delete();
 
             DB::commit();
             return response()->json(['success' => true, 'message' => 'Gambar berhasil dihapus']);
-            
+
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);

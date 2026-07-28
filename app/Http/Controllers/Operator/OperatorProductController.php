@@ -44,7 +44,7 @@ class OperatorProductController extends Controller
 	{
 		$product = Product::onlyTrashed()->findOrFail($id);
 		$this->ensureNotSellerProduct($product);
-		
+
 		DB::beginTransaction();
 		try {
 			// Delete all product images
@@ -84,7 +84,7 @@ class OperatorProductController extends Controller
 			'weight' => 'required|integer|min:1|max:50000', // Weight in grams, max 50kg
 			'category_id' => 'required|exists:categories,id',
 			'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
-			'images' => 'nullable|array|max:10', // Support multiple images
+			'images' => 'nullable|array|max:10', // Support multiple imagess
 			'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:5120',
 			'variant_options' => 'nullable|string',
 			'variant_combinations' => 'nullable|string',
@@ -147,7 +147,7 @@ class OperatorProductController extends Controller
 			if ($request->hasFile('images')) {
 				foreach ($request->file('images') as $index => $image) {
 					$imagePath = $image->store('products', 'public');
-					
+
 					ProductImage::create([
 						'product_id' => $product->id,
 						'image_path' => $imagePath,
@@ -161,7 +161,7 @@ class OperatorProductController extends Controller
 			DB::commit();
 			return redirect()->route('operator.dashboard')
 				->with('success', 'Menu/Produk berhasil ditambahkan');
-				
+
 		} catch (\Exception $e) {
 			DB::rollBack();
 			return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
@@ -248,10 +248,10 @@ class OperatorProductController extends Controller
 			// Handle multiple images
 			if ($request->hasFile('images')) {
 				$existingImagesCount = $product->images()->count();
-				
+
 				foreach ($request->file('images') as $index => $image) {
 					$imagePath = $image->store('products', 'public');
-					
+
 					ProductImage::create([
 						'product_id' => $product->id,
 						'image_path' => $imagePath,
@@ -265,7 +265,7 @@ class OperatorProductController extends Controller
 			DB::commit();
 			return redirect()->route('operator.products.index')
 				->with('success', 'Menu/Produk berhasil diperbarui');
-				
+
 		} catch (\Exception $e) {
 			DB::rollBack();
 			return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
@@ -323,7 +323,7 @@ class OperatorProductController extends Controller
 			DB::commit();
 			return redirect()->route('operator.products.index')
 				->with('success', 'Menu/Produk berhasil dihapus');
-				
+
 		} catch (\Exception $e) {
 			DB::rollBack();
 			return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
@@ -350,7 +350,7 @@ class OperatorProductController extends Controller
 
 			// Delete file from storage
 			Storage::disk('public')->delete($image->image_path);
-			
+
 			// If this was the primary image, set another image as primary
 			$wasPrimary = $image->is_primary;
 			$image->delete();
@@ -363,20 +363,20 @@ class OperatorProductController extends Controller
 			}
 
 			DB::commit();
-			
+
 			if ($request->expectsJson()) {
 				return response()->json(['success' => true, 'message' => 'Gambar berhasil dihapus']);
 			}
-			
+
 			return back()->with('success', 'Gambar berhasil dihapus');
-			
+
 		} catch (\Exception $e) {
 			DB::rollBack();
-			
+
 			if ($request->expectsJson()) {
 				return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
 			}
-			
+
 			return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
 		}
 	}
@@ -388,7 +388,7 @@ class OperatorProductController extends Controller
 		DB::beginTransaction();
 		try {
 			$deletedCount = 0;
-			
+
 			// Delete all product images
 			foreach ($product->images as $image) {
 				Storage::disk('public')->delete($image->image_path);
@@ -404,23 +404,23 @@ class OperatorProductController extends Controller
 			}
 
 			DB::commit();
-			
+
 			if ($request->expectsJson()) {
 				return response()->json([
-					'success' => true, 
+					'success' => true,
 					'message' => "Berhasil menghapus {$deletedCount} gambar"
 				]);
 			}
-			
+
 			return back()->with('success', "Berhasil menghapus {$deletedCount} gambar");
-			
+
 		} catch (\Exception $e) {
 			DB::rollBack();
-			
+
 			if ($request->expectsJson()) {
 				return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
 			}
-			
+
 			return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
 		}
 	}

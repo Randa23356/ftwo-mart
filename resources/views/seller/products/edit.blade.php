@@ -460,7 +460,7 @@
                                 <span class="text-sm text-gray-500"> atau drag & drop</span>
                                 <input type="file" id="images" name="images[]" multiple accept="image/*"
                                        @change="handleImageUpload($event)" class="hidden">
-                                <p class="text-xs text-gray-500 mt-2">PNG, JPG, GIF — max 2MB. Maks. 10 gambar total.</p>
+                                <p class="text-xs text-gray-500 mt-2">PNG, JPG, GIF — max 5MB. Maks. 10 gambar total.</p>
                             </div>
                         </div>
 
