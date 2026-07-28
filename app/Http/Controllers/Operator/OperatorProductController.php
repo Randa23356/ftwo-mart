@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -82,9 +83,9 @@ class OperatorProductController extends Controller
 			'stock' => 'nullable|integer|min:0',
 			'weight' => 'required|integer|min:1|max:50000', // Weight in grams, max 50kg
 			'category_id' => 'required|exists:categories,id',
-			'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+			'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
 			'images' => 'nullable|array|max:10', // Support multiple images
-			'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+			'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:5120',
 			'variant_options' => 'nullable|string',
 			'variant_combinations' => 'nullable|string',
 			'pricing_type' => 'nullable|in:fixed,variant',
@@ -184,9 +185,9 @@ class OperatorProductController extends Controller
 			'stock' => 'nullable|integer|min:0',
 			'weight' => 'required|integer|min:1|max:50000', // Weight in grams, max 50kg
 			'category_id' => 'required|exists:categories,id',
-			'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+			'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
 			'images' => 'nullable|array|max:10', // Support multiple images
-			'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+			'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:5120',
 			'variant_options' => 'nullable|string',
 			'variant_combinations' => 'nullable|string',
 			'pricing_type' => 'nullable|in:fixed,variant',
