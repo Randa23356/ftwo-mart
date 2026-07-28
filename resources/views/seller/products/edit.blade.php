@@ -111,7 +111,7 @@
                         </h3>
 
                         <div class="mb-5">
-                            <div class="flex gap-6 mb-5">
+                            <div class="flex flex-col sm:flex-row gap-3 sm:gap-6 mb-5">
                                 <label class="flex items-center gap-2 cursor-pointer">
                                     <input type="radio" name="pricing_type" value="fixed"
                                            x-model="pricingType"
@@ -320,17 +320,17 @@
                                 </div>
                                 <div class="flex gap-2">
                                     <input type="text" x-model="newOption" @keydown.enter.prevent="addOption(idx)"
-                                           class="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                           class="flex-1 min-w-0 px-3 py-2 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                            placeholder="Tambah pilihan...">
                                     <button type="button" @click="addOption(idx)"
-                                            class="px-4 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-semibold hover:bg-green-200 transition-colors">
+                                            class="px-3 sm:px-4 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-semibold hover:bg-green-200 transition-colors whitespace-nowrap">
                                         Tambah
                                     </button>
                                 </div>
                             </div>
                         </template>
 
-                        <div class="flex gap-2 mb-4">
+                        <div class="flex flex-col sm:flex-row gap-2 mb-4">
                             <input type="text" x-model="newLabel" @keydown.enter.prevent="addVariant()"
                                    class="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-50"
                                    placeholder="Nama varian (contoh: Ukuran, Warna, Tipe)">
@@ -449,9 +449,9 @@
                         @endif
 
                         <p class="text-sm font-semibold text-gray-700 mb-3">Tambah Gambar Baru</p>
-                        <div class="border-2 border-dashed border-green-200 rounded-2xl p-6 text-center bg-green-50/30 hover:bg-green-50 hover:border-green-400 transition-all duration-200">
+                        <div class="border-2 border-dashed border-green-200 rounded-2xl p-4 sm:p-6 text-center bg-green-50/30 hover:bg-green-50 hover:border-green-400 transition-all duration-200">
                             <div class="text-center">
-                                <div class="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <div class="w-12 h-12 sm:w-14 sm:h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
                                     <i class="fas fa-cloud-upload-alt text-green-500 text-2xl"></i>
                                 </div>
                                 <label for="images" class="cursor-pointer text-sm font-semibold text-green-700 hover:text-green-800">

@@ -112,7 +112,7 @@
                         </h3>
 
                         <div class="mb-5">
-                            <div class="flex gap-6 mb-5">
+                            <div class="flex flex-col sm:flex-row gap-3 sm:gap-6 mb-5">
                                 <label class="flex items-center gap-2 cursor-pointer">
                                     <input type="radio" name="pricing_type" value="fixed"
                                            x-model="pricingType"
@@ -338,7 +338,7 @@
                             </div>
                         </template>
 
-                        <div class="flex gap-2 mb-4">
+                        <div class="flex flex-col sm:flex-row gap-2 mb-4">
                             <input type="text" x-model="newLabel" @keydown.enter.prevent="addVariant()"
                                    class="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-50"
                                    placeholder="Nama varian (contoh: Ukuran, Warna, Tipe)">
@@ -422,10 +422,10 @@
                             Foto Produk
                         </h3>
 
-                        <div class="border-2 border-dashed border-green-200 rounded-2xl p-6 text-center bg-green-50/30 hover:bg-green-50 hover:border-green-400 transition-all duration-200 cursor-pointer"
+                        <div class="border-2 border-dashed border-green-200 rounded-2xl p-4 sm:p-6 text-center bg-green-50/30 hover:bg-green-50 hover:border-green-400 transition-all duration-200 cursor-pointer"
                              onclick="document.getElementById('images').click()">
                             <div id="upload-placeholder">
-                                <div class="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <div class="w-12 h-12 sm:w-14 sm:h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
                                     <i class="fas fa-cloud-upload-alt text-green-500 text-2xl"></i>
                                 </div>
                                 <p class="text-sm font-semibold text-gray-700">Klik untuk upload foto</p>
