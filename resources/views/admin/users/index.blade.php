@@ -219,13 +219,14 @@
                                         @endcan
                                         @can('user-delete')
                                         @if(auth()->id() !== $user->id)
-                                        <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline" onsubmit="return confirm('Yakin hapus pengguna ini? Tindakan tidak dapat dibatalkan.')">
+                                        <button type="button"
+                                                onclick="openDeleteModal({{ $user->id }}, '{{ addslashes($user->name) }}')"
+                                                class="inline-flex items-center justify-center w-8 h-8 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 hover:border-red-300 transition-all duration-200 text-xs"
+                                                title="Hapus">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        <form id="delete-form-{{ $user->id }}" action="{{ route('admin.users.destroy', $user) }}" method="POST" style="display:none;">
                                             @csrf @method('DELETE')
-                                            <button type="submit"
-                                                    class="inline-flex items-center justify-center w-8 h-8 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 hover:border-red-300 transition-all duration-200 text-xs"
-                                                    title="Hapus">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
                                         </form>
                                         @endif
                                         @endcan
@@ -258,4 +259,63 @@
 
     </div>
 </div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all">
+        <div class="bg-gradient-to-r from-red-600 to-red-700 text-white p-5 rounded-t-2xl">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-white/20 p-2 rounded-lg">
+                        <i class="fas fa-exclamation-triangle text-lg"></i>
+                    </div>
+                    <h3 class="text-lg font-bold">Hapus Pengguna</h3>
+                </div>
+                <button onclick="closeDeleteModal()" class="text-white hover:text-gray-200 transition-colors">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-5">
+            <p class="text-gray-600 mb-2">Apakah Anda yakin ingin menghapus pengguna <strong id="deleteUserName" class="text-gray-900"></strong>?</p>
+            <p class="text-sm text-red-500 mb-5"><i class="fas fa-info-circle mr-1"></i>Tindakan ini tidak dapat dibatalkan.</p>
+            <div class="flex flex-col sm:flex-row justify-end gap-2">
+                <button onclick="closeDeleteModal()"
+                        class="w-full sm:w-auto px-5 py-2.5 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors text-sm font-semibold">
+                    Batal
+                </button>
+                <button onclick="submitDelete()"
+                        class="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:from-red-700 hover:to-red-800 transition-all shadow-lg text-sm font-semibold">
+                    <i class="fas fa-trash mr-1.5"></i>Ya, Hapus
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentDeleteUserId = null;
+
+function openDeleteModal(userId, userName) {
+    currentDeleteUserId = userId;
+    document.getElementById('deleteUserName').textContent = userName;
+    document.getElementById('deleteModal').classList.remove('hidden');
+}
+
+function closeDeleteModal() {
+    currentDeleteUserId = null;
+    document.getElementById('deleteModal').classList.add('hidden');
+}
+
+function submitDelete() {
+    if (currentDeleteUserId) {
+        document.getElementById('delete-form-' + currentDeleteUserId).submit();
+    }
+    closeDeleteModal();
+}
+
+document.getElementById('deleteModal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeDeleteModal();
+});
+</script>
 @endsection
