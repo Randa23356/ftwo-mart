@@ -131,21 +131,21 @@
 
             <!-- Description -->
             <div class="border-t border-gray-200 pt-6"
-                 x-data="{ showMore: false, truncated: @json(nl2br(e(\Illuminate\Support\Str::limit($product->description ?? '', 200)))), full: @json(nl2br(e($product->description))), isLong: {{ strlen(strip_tags($product->description ?? '')) > 200 ? 'true' : 'false' }} }">
+                 x-data="{ showMore: false }">
                 <h3 class="text-base font-semibold text-gray-800 mb-3">Deskripsi</h3>
                 <div class="prose prose-sm max-w-none text-gray-600 leading-relaxed overflow-hidden transition-all duration-500 ease-in-out"
-                     x-bind:style="{ maxHeight: showMore ? '3000px' : '64px' }"
-                     x-html="showMore ? full : truncated">
+                     x-bind:class="showMore ? 'max-h-[3000px]' : 'max-h-24'">
+                    {!! nl2br(e($product->description)) !!}
                 </div>
-                <template x-if="isLong">
-                    <button type="button"
-                            class="mt-2 text-sm font-semibold text-green-700 hover:text-green-800 transition-colors flex items-center gap-1 cursor-pointer"
-                            @click="showMore = !showMore">
-                        <span x-text="showMore ? 'Tampilkan Lebih Sedikit' : 'Lihat Selengkapnya'"></span>
-                        <i class="fas fa-chevron-down text-xs transition-transform duration-300 ease-in-out"
-                           x-bind:class="showMore ? 'rotate-180' : ''"></i>
-                    </button>
-                </template>
+                @if(strlen(strip_tags($product->description ?? '')) > 200)
+                <button type="button"
+                        class="mt-2 text-sm font-semibold text-green-700 hover:text-green-800 transition-colors flex items-center gap-1 cursor-pointer"
+                        @click="showMore = !showMore">
+                    <span x-text="showMore ? 'Tampilkan Lebih Sedikit' : 'Lihat Selengkapnya'"></span>
+                    <i class="fas fa-chevron-down text-xs transition-transform duration-300 ease-in-out"
+                       x-bind:class="showMore ? 'rotate-180' : ''"></i>
+                </button>
+                @endif
             </div>
 
             <!-- Stats -->
