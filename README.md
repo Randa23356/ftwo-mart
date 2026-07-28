@@ -1,51 +1,141 @@
 # FTWO Mart
 
-Website e-commerce multi-produk (bakery & batik) dengan fitur lengkap yang dibangun menggunakan Laravel 12.
+Multi-vendor e-commerce marketplace untuk produk batik & fashion, dibangun dengan Laravel 12.
 
 🌐 **Domain**: [https://mart.ftwodev.id](https://mart.ftwodev.id)
 
-## Fitur Utama
+---
 
-### 🛍️ E-commerce
-- Katalog produk dengan kategori
-- Keranjang belanja
-- Sistem pemesanan online
-- Status pesanan real-time
-- Riwayat pesanan
+## Fitur
 
-### 💳 Sistem Pembayaran
-- E-wallet (GoPay, OVO, DANA, dll)
-- QRIS
-- Transfer Bank
-- Midtrans Payment Gateway
+### 🛍️ Marketplace
+- Katalog produk dengan kategori & filter harga
+- Pencarian produk real-time (AJAX autocomplete)
+- Detail produk dengan multiple gambar
+- Sistem varian produk (ukuran, warna, dll) dengan harga & stok per kombinasi
+- Keranjang belanja dengan seleksi item
+- Checkout dengan pilihan pengiriman
+- Beli langsung (Buy Now)
+- COD (Cash on Delivery) dengan konfirmasi signed URL
+- Rating & ulasan produk dengan balasan admin/operator
 
-### 👥 Multi-role System
-- **User**: Melihat produk, memesan, tracking pesanan
-- **Operator**: Mengelola status pesanan, print invoice
-- **Admin**: Full control (produk, kategori, user, laporan, pengaturan website)
+### 💳 Pembayaran
+- **Midtrans Payment Gateway**: E-wallet (GoPay, OVO, DANA, LinkAja, ShopeePay), QRIS, Bank Transfer (BCA, BNI, BRI, Mandiri), Credit Card
+- **COD**: Konfirmasi pengiriman via halaman signed URL
+- Auto-cancel pesanan yang tidak dibayar (kadaluarsa)
+- Extend masa tenggat pembayaran
 
-### 🎨 Website Management
-- Pengaturan konten website dinamis
-- Upload dan edit gambar
-- Pengaturan informasi kontak
-- Pengaturan biaya pengiriman
+### 🚚 Pengiriman
+- Integrasi RajaOngkir (JNE, POS, TIKI, SiCepat, J&T, AnterAja, Ninja, BinderByte)
+- Kalkulator ongkir real-time
+- Multiplier biaya per provinsi
+- Base cost + biaya per kg
+- Tracking nomor resi
+- **Courier QR Scan**: Kode QR per pesanan untuk konfirmasi pengiriman kurir
+
+### 💬 Chat / Customer Service
+- Multi-role chat (Admin, Operator, Seller, User, Guest)
+- Visibilitas terkontrol per role
+- Status read/unread per role
+- User presence (online/offline)
+- Close/reopen percakapan
+- Tandai penting (important)
+- Restore & force delete
+- Balasan email dari admin ke guest
+
+### ⭐ Rating & Review
+- Rating per produk per pesanan
+- Balasan dari admin/operator
+- kelola rating di admin panel
+
+### 💰 Sistem Seller & Komisi
+- Registrasi seller dengan upload dokumen (KTP, NIB, NPWP, Rekening)
+- Approval workflow oleh admin
+- Dashboard seller (produk, pesanan, earnings, withdraw)
+- Komisi platform per item (dihitung otomatis saat delivered)
+- Pencairan dana (withdrawal) dengan approval admin
+- Tracking saldo, earnings, dan penarikan
+
+### 🔁 Sistem Refund
+- Request refund oleh user
+- Approval/reject oleh admin
+- Workflow: pending → approved → return shipped → completed / rejected
+- Upload bukti pengembalian
+
+### 📦 Manajemen Pesanan
+- Status pesanan: pending → processing → ready → shipped → delivered → cancelled
+- Audit trail status (order status history)
+- Print invoice (PDF via DomPDF)
+- Trash / restore / force delete
+- Auto-complete pesanan shipped setelah 3 hari
+
+### 👥 Multi-Role System (4 Role)
+| Role | Akses |
+|------|-------|
+| **Admin** | Full control — produk, kategori, pesanan, user, seller, withdraw, refund, pengaturan website, laporan |
+| **Operator** | Dashboard, kelola pesanan, kelola produk (CRUD), print invoice |
+| **Seller** | Dashboard seller, produk (CRUD), pesanan, earnings, withdraw |
+| **User** | Belanja, keranjang, checkout, riwayat pesanan, chat, rating, refund |
+
+### 🔐 Autentikasi & Otorisasi
+- Login / Register
+- Google OAuth (Laravel Socialite)
+- Email verification
+- Spatie Laravel Permission (22 permissions)
+- Profile publik dengan slug
+
+### 🎨 Website CMS
+- Logo, hero image, about page
+- Informasi kontak
+- Halaman login & register yang bisa dikustomisasi
+- Pengaturan biaya pengiriman & warehouse
+- Inline settings update
 
 ### 📊 Dashboard & Laporan
 - Dashboard admin dengan statistik
-- Laporan penjualan
-- Laporan produk terlaris
-- Laporan metode pembayaran
+- Dashboard seller
+- Dashboard operator
+- Laporan penjualan, produk terlaris, metode pembayaran
 
-## Teknologi yang Digunakan
+### 🔧 Fitur Teknis Lainnya
+- Soft delete (produk, kategori, pesanan, percakapan)
+- Trash → Restore → Force delete
+- Shared hosting storage fallback (tanpa symlink)
+- Scheduled tasks: auto-cancel expired orders, auto-complete delivered orders
+- Staff product blocking (produk staff tidak bisa dibeli oleh staff)
+- User presence tracking (online/offline)
+- Responsive UI (mobile-first)
 
-- **Backend**: Laravel 12
-- **Database**: MySQL/PostgreSQL
-- **Authentication**: Laravel Breeze
-- **Authorization**: Spatie Laravel Permission
-- **Payment Gateway**: Midtrans
-- **Image Processing**: Intervention Image
-- **PDF Generation**: DomPDF
-- **Frontend**: Blade Templates + Tailwind CSS
+---
+
+## Teknologi
+
+### Backend
+| Package | Fungsi |
+|---------|--------|
+| Laravel 12 | Framework |
+| Laravel Sanctum | API token auth |
+| Laravel Breeze | Auth scaffolding |
+| Laravel Socialite | Google OAuth |
+| Spatie Permission | Roles & permissions |
+| Midtrans PHP | Payment gateway |
+| DomPDF | PDF generation (invoice) |
+| Intervention Image | Image processing |
+| Bacon QR Code | QR code (courier scan) |
+
+### Frontend
+| Package | Fungsi |
+|---------|--------|
+| Tailwind CSS 3 | CSS framework |
+| Alpine.js 3 | Reactive JavaScript |
+| Vite 5 | Build tool |
+| Font Awesome | Icons |
+
+### Database
+- MySQL 8.0+ / PostgreSQL 13+
+- 30+ tabel (users, products, orders, sellers, conversations, messages, ratings, refund_requests, dll)
+
+---
 
 ## Instalasi
 
@@ -66,7 +156,7 @@ npm install
 cp .env.example .env
 ```
 
-Edit file `.env` dan sesuaikan konfigurasi:
+Edit `.env`:
 ```env
 APP_NAME="FTWO Mart"
 APP_URL=https://mart.ftwodev.id
@@ -74,164 +164,92 @@ APP_URL=https://mart.ftwodev.id
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=piciabakery
+DB_DATABASE=ftwo_mart
 DB_USERNAME=root
 DB_PASSWORD=
 
-# Midtrans Configuration
-MIDTRANS_SERVER_KEY=your_midtrans_server_key
-MIDTRANS_CLIENT_KEY=your_midtrans_client_key
+MIDTRANS_SERVER_KEY=your_server_key
+MIDTRANS_CLIENT_KEY=your_client_key
 MIDTRANS_IS_PRODUCTION=false
-MIDTRANS_MERCHANT_ID=your_midtrans_merchant_id
+
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
 ```
 
-### 4. Generate Application Key
+### 4. Generate Key & Setup DB
 ```bash
 php artisan key:generate
-```
-
-### 5. Setup Database
-```bash
 php artisan migrate
 php artisan db:seed
-```
-
-### 6. Setup Storage
-```bash
 php artisan storage:link
 ```
 
-### 7. Install Laravel Breeze
+### 5. Build & Run
 ```bash
-php artisan breeze:install
-npm install
 npm run build
-```
-
-### 8. Run Application
-```bash
 php artisan serve
 npm run dev
 ```
 
+---
+
 ## Akun Default
 
-Setelah menjalankan seeder, tersedia akun default:
-
-### Admin
-- Email: admin@piciabakery.com
-- Password: password
-
-### Operator
-- Email: operator@piciabakery.com
-- Password: password
-
-### User
-- Email: user@piciabakery.com
-- Password: password
-
-## Struktur Database
-
-### Tabel Utama
-- `users` - User dengan role (user, operator, admin)
-- `categories` - Kategori produk
-- `products` - Semua produk
-- `orders` - Pesanan customer
-- `order_items` - Item dalam pesanan
-- `cart` - Keranjang belanja
-- `payment_transactions` - Transaksi pembayaran
-- `website_settings` - Pengaturan website
-
-### Tabel Permission
-- `permissions` - Permission yang tersedia
-- `roles` - Role user
-- `model_has_permissions` - Relasi permission dengan user
-- `model_has_roles` - Relasi role dengan user
-- `role_has_permissions` - Relasi permission dengan role
-
-## API Endpoints
-
-### Public Routes
-- `GET /` - Homepage
-- `GET /products` - Katalog produk
-- `GET /products/{slug}` - Detail produk
-- `GET /about` - Halaman about
-- `GET /contact` - Halaman kontak
-
-### Protected Routes (Auth Required)
-- `GET /cart` - Keranjang belanja
-- `POST /cart/add` - Tambah ke keranjang
-- `GET /checkout` - Halaman checkout
-- `POST /orders` - Buat pesanan
-- `GET /orders` - Riwayat pesanan
-
-### Admin Routes
-- `GET /admin/dashboard` - Dashboard admin
-- `GET /admin/products` - Kelola produk
-- `GET /admin/categories` - Kelola kategori
-- `GET /admin/orders` - Kelola pesanan
-- `GET /admin/users` - Kelola user
-- `GET /admin/settings` - Pengaturan website
-- `GET /admin/reports` - Laporan
-
-### Operator Routes
-- `GET /operator/dashboard` - Dashboard operator
-- `GET /operator/orders` - Kelola pesanan
-- `GET /operator/orders/pending` - Pesanan pending
-- `GET /operator/orders/processing` - Pesanan diproses
-- `GET /operator/orders/ready` - Pesanan siap
-- `GET /operator/orders/delivered` - Pesanan terkirim
-
-## Fitur Pembayaran
-
-### Midtrans Integration
-Website ini terintegrasi dengan Midtrans untuk berbagai metode pembayaran:
-
-1. **E-wallet**: GoPay, OVO, DANA, LinkAja, ShopeePay
-2. **QRIS**: Pembayaran dengan scan QR
-3. **Bank Transfer**: BCA, BNI, BRI, Mandiri
-4. **Credit Card**: Visa, Mastercard, JCB
-
-### Setup Midtrans
-1. Daftar akun di [Midtrans](https://midtrans.com)
-2. Dapatkan Server Key dan Client Key
-3. Update file `.env` dengan key yang didapat
-4. Test dengan sandbox mode terlebih dahulu
-
-## Deployment
-
-### Production Checklist
-- [ ] Set `APP_ENV=production`
-- [ ] Set `APP_DEBUG=false`
-- [ ] Set `MIDTRANS_IS_PRODUCTION=true`
-- [ ] Setup SSL certificate
-- [ ] Setup database backup
-- [ ] Setup queue worker
-- [ ] Setup cron jobs
-
-### Server Requirements
-- PHP 8.2+
-- MySQL 8.0+ / PostgreSQL 13+
-- Composer 2.0+
-- Node.js 18+
-- NPM 9+
-
-## Contributing
-
-1. Fork repository
-2. Buat feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push ke branch (`git push origin feature/AmazingFeature`)
-5. Buat Pull Request
-
-## License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
-## Support
-
-Untuk dukungan teknis, silakan buat issue di repository ini atau hubungi tim development.
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@ftwomart.com | password |
+| Operator | operator@ftwomart.com | password |
+| User | user@ftwomart.com | password |
 
 ---
 
-**FTWO Mart** - Website E-commerce Multi-produk dengan Fitur Lengkap 🚀
+## Struktur Project
+
+```
+ftwo-mart/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── Admin/          # Admin controllers (7)
+│   │   │   ├── Operator/       # Operator controllers (2)
+│   │   │   ├── Seller/         # Seller controllers (1)
+│   │   │   └── *.php           # Public/Auth controllers (11)
+│   │   └── Middleware/          # Custom middleware (4)
+│   ├── Models/                 # Eloquent models (24)
+│   └── Providers/
+├── database/
+│   ├── migrations/             # 70+ migrations
+│   └── seeders/                # 11 seeders
+├── resources/
+│   └── views/
+│       ├── admin/              # Admin panel views
+│       ├── operator/           # Operator panel views
+│       ├── seller/             # Seller panel views
+│       ├── chat/               # Chat views
+│       ├── orders/             # Order views
+│       ├── components/         # Reusable Blade components
+│       └── layouts/            # Layout templates
+├── routes/
+│   ├── web.php                 # Web routes
+│   └── api.php                 # API routes (payment webhook)
+└── public/
+```
+
+---
+
+## Scheduled Tasks
+
+| Task | Frequency | Fungsi |
+|------|-----------|--------|
+| `orders:cancel-expired` | Setiap 30 menit | Auto-cancel pesanan yang belum dibayar |
+| `orders:auto-complete` | Setiap hari | Auto-complete pesanan shipped > 3 hari |
+
+---
+
+## License
+
+Distributed under the MIT License.
+
+---
+
+**FTWO Mart** — Multi-vendor e-commerce marketplace untuk produk batik 🇮🇩
