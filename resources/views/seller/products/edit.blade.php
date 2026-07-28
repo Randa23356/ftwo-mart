@@ -179,7 +179,7 @@
                     <hr class="border-gray-100">
 
                     <!-- SECTION 2B: VARIANTS -->
-                    <div x-data="{
+                    <div x-show="pricingType === 'variant'" x-data="{
                         variants: [],
                         newLabel: '',
                         newOption: '',
