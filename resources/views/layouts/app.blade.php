@@ -239,7 +239,7 @@
                                                             <p class="text-sm font-semibold text-gray-800 group-hover:text-green-700 truncate" x-text="item.name"></p>
                                                             <p class="text-[11px] text-gray-400" x-text="item.category"></p>
                                                         </div>
-                                                        <span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-lg whitespace-nowrap" x-text="item.price"></span>
+                                                        <span class="text-sm font-bold text-green-700 whitespace-nowrap flex-shrink-0" x-text="item.price"></span>
                                                     </a>
                                                 </template>
                                             </div>
@@ -528,7 +528,7 @@
                                                                 <p class="text-sm font-semibold text-gray-800 group-hover:text-green-700 truncate transition-colors" x-text="item.name"></p>
                                                                 <p class="text-[11px] text-gray-400" x-text="item.category"></p>
                                                             </div>
-                                                            <span class="text-xs font-bold text-green-600 bg-green-50 px-2.5 py-1 rounded-lg whitespace-nowrap" x-text="item.price"></span>
+                                                            <span class="text-sm font-bold text-green-700 whitespace-nowrap flex-shrink-0" x-text="item.price"></span>
                                                         </a>
                                                     </template>
                                                 </div>

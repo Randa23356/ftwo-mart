@@ -384,6 +384,46 @@ class AdminController extends Controller
         return redirect()->route('admin.users')->with('success', 'Pengguna baru berhasil ditambahkan.');
     }
 
+    public function edit(User $user)
+    {
+        $roles = Role::all();
+        return view('admin.users.edit', compact('user', 'roles'));
+    }
+
+    public function update(Request $request, User $user)
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class.',id,'.$user->id],
+            'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
+            'role' => ['required', 'exists:roles,name'],
+        ]);
+
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+        ]);
+
+        if ($request->filled('password')) {
+            $user->update(['password' => Hash::make($request->password)]);
+        }
+
+        $user->syncRoles([$request->role]);
+
+        return redirect()->route('admin.users.detail', $user)->with('success', 'Pengguna berhasil diperbarui.');
+    }
+
+    public function destroy(User $user)
+    {
+        if (auth()->id() === $user->id) {
+            return back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
+        }
+
+        $user->delete();
+
+        return redirect()->route('admin.users')->with('success', 'Pengguna berhasil dihapus.');
+    }
+
     public function reports()
     {
         $monthlyOrders = Order::selectRaw('MONTH(created_at) as month, COUNT(*) as total')

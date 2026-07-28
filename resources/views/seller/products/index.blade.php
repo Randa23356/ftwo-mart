@@ -6,16 +6,16 @@
         <div class="bg-white/80 backdrop-blur-xl rounded-2xl lg:rounded-3xl shadow-xl border border-white/20 p-6 lg:p-8 mb-8">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                 <h1 class="text-2xl font-bold text-gray-900"><i class="fas fa-box mr-2 text-green-600"></i>Produk Saya</h1>
-                <div class="flex gap-3">
-                    <form method="GET" class="flex gap-2">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
+                    <form method="GET" class="flex flex-1 sm:flex-none gap-2">
                         <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari produk..."
-                               class="px-4 py-2 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-green-500">
-                        <button class="bg-green-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-green-700 transition-all">
+                               class="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-green-500">
+                        <button class="bg-green-600 text-white px-4 py-2.5 rounded-xl text-sm hover:bg-green-700 transition-all flex-shrink-0">
                             <i class="fas fa-search"></i>
                         </button>
                     </form>
                     <a href="{{ route('seller.products.create') }}"
-                       class="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold px-5 py-2 rounded-xl transition-all shadow-lg whitespace-nowrap">
+                       class="w-full sm:w-auto bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold px-5 py-2.5 rounded-xl transition-all shadow-lg whitespace-nowrap text-sm">
                         <i class="fas fa-plus mr-1"></i> Tambah
                     </a>
                 </div>

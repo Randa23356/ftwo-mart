@@ -132,7 +132,7 @@
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">Harga <span class="text-red-500">*</span></label>
                                 <div class="relative">
                                     <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-500">Rp</span>
-                                    <input type="number" name="price" value="{{ old('price', $product->price) }}" min="0" step="1000"
+                                    <input type="number" name="price" value="{{ old('price', $product->price) }}" min="0" step="1"
                                            class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm bg-gray-50 focus:bg-white">
                                 </div>
                                 @error('price')
@@ -570,6 +570,10 @@ function productForm() {
         pricingType: '{{ old('pricing_type', $product->pricing_type ?? 'fixed') }}',
         images: [],
         primaryImageIndex: null,
+
+        init() {
+            if (this.pricingType !== 'variant') this.pricingType = 'fixed';
+        },
 
         handleImageUpload(event) {
             const files = Array.from(event.target.files);

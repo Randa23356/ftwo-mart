@@ -405,13 +405,13 @@
 
             <!-- Top Products -->
             <div class="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-                <div class="relative bg-gradient-to-r from-purple-50 to-pink-50 px-6 lg:px-8 py-4 lg:py-6 border-b border-purple-100/50">
+                <div class="relative bg-gradient-to-r from-purple-50 to-pink-50 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-6 border-b border-purple-100/50">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3">
                             <div class="bg-gradient-to-br from-purple-500 to-pink-600 p-2 rounded-xl shadow-lg">
                                 <i class="fas fa-fire text-white text-sm"></i>
                             </div>
-                            <h2 class="text-lg lg:text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                            <h2 class="text-base lg:text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                                 Produk Terlaris
                             </h2>
                         </div>
@@ -420,46 +420,45 @@
                 </div>
                 <div class="divide-y divide-gray-100/50">
                     @forelse($topProducts as $index => $p)
-                        <div class="px-6 lg:px-8 py-4 lg:py-5 hover:bg-gradient-to-r hover:from-purple-50/30 hover:to-pink-50/30 transition-all duration-300 group">
-                            <div class="flex items-center justify-between">
+                        <div class="px-4 sm:px-6 lg:px-8 py-3 sm:py-4 hover:bg-gradient-to-r hover:from-purple-50/30 hover:to-pink-50/30 transition-all duration-300 group">
+                            <div class="flex items-center justify-between gap-3">
                                 <div class="flex items-center space-x-3 flex-1 min-w-0">
-                                    <div class="relative">
-                                        <div class="bg-gradient-to-br from-purple-100 to-pink-100 w-10 h-10 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                                            <span class="text-purple-600 font-bold text-sm">{{ $index + 1 }}</span>
+                                    <div class="relative flex-shrink-0">
+                                        <div class="bg-gradient-to-br from-purple-100 to-pink-100 w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                            <span class="text-purple-600 font-bold text-xs sm:text-sm">{{ $index + 1 }}</span>
                                         </div>
                                         @if($index === 0)
-                                            <div class="absolute -top-1 -right-1 bg-gradient-to-br from-yellow-400 to-orange-500 w-4 h-4 rounded-full flex items-center justify-center">
-                                                <i class="fas fa-crown text-white text-xs"></i>
+                                            <div class="absolute -top-1 -right-1 bg-gradient-to-br from-yellow-400 to-orange-500 w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center">
+                                                <i class="fas fa-crown text-white text-[8px] sm:text-xs"></i>
                                             </div>
                                         @endif
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <div class="flex items-center gap-2">
-                                            <div class="font-bold text-gray-900 text-sm lg:text-base truncate">{{ $p->name }}</div>
+                                        <div class="flex items-center gap-2 min-w-0">
+                                            <div class="font-bold text-gray-900 text-sm sm:text-base truncate">{{ $p->name }}</div>
                                             @if($p->trashed())
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700">
-                                                    <i class="fas fa-trash text-xs mr-1"></i>
-                                                    Dihapus
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] sm:text-xs font-medium bg-red-100 text-red-700 flex-shrink-0">
+                                                    <i class="fas fa-trash text-[8px] sm:text-xs mr-0.5"></i>Hapus
                                                 </span>
                                             @endif
                                         </div>
-                                        <div class="text-xs text-gray-600 mt-1">{{ $p->category->name ?? 'Uncategorized' }}</div>
+                                        <div class="text-[11px] sm:text-xs text-gray-600 mt-0.5 truncate">{{ $p->category->name ?? 'Uncategorized' }}</div>
                                     </div>
                                 </div>
-                                <div class="text-right">
-                                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 px-3 py-1 rounded-full">
-                                        <span class="text-purple-700 font-bold text-sm">{{ $p->order_items_count }}</span>
-                                        <span class="text-purple-600 text-xs"> terjual</span>
+                                <div class="flex-shrink-0">
+                                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 px-2 sm:px-3 py-1 rounded-full">
+                                        <span class="text-purple-700 font-bold text-xs sm:text-sm">{{ $p->order_items_count }}</span>
+                                        <span class="text-purple-600 text-[10px] sm:text-xs"> terjual</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     @empty
-                        <div class="px-6 lg:px-8 py-8 lg:py-12 text-center">
-                            <div class="bg-gradient-to-br from-gray-100 to-gray-200 w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center">
-                                <i class="fas fa-chart-line text-gray-400 text-2xl"></i>
+                        <div class="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12 text-center">
+                            <div class="bg-gradient-to-br from-gray-100 to-gray-200 w-12 h-12 sm:w-16 sm:h-16 rounded-full mx-auto mb-4 flex items-center justify-center">
+                                <i class="fas fa-chart-line text-gray-400 text-xl sm:text-2xl"></i>
                             </div>
-                            <p class="text-gray-600 text-sm lg:text-base">Belum ada data</p>
+                            <p class="text-gray-600 text-sm sm:text-base">Belum ada data</p>
                         </div>
                     @endforelse
                 </div>

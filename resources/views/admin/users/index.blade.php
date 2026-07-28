@@ -198,13 +198,36 @@
                                     <span class="text-sm text-gray-600">{{ $user->created_at->format('d M Y') }}</span>
                                 </td>
                                 <td class="px-5 py-4">
-                                    <div class="flex items-center justify-center">
+                                    <div class="flex items-center justify-center gap-1">
                                         @can('user-edit')
-                                        <a href="{{ route('admin.users.detail', $user) }}"
-                                           class="inline-flex items-center px-3 py-2 bg-green-50 text-green-700 border border-green-200 rounded-lg hover:bg-green-100 hover:border-green-300 transition-all duration-200 text-xs font-semibold">
-                                            <i class="fas fa-eye mr-1.5"></i>
-                                            <span class="hidden sm:inline">Detail</span>
+                                        <a href="{{ route('admin.users.edit', $user) }}"
+                                           class="inline-flex items-center justify-center w-8 h-8 bg-green-50 text-green-700 border border-green-200 rounded-lg hover:bg-green-100 hover:border-green-300 transition-all duration-200 text-xs"
+                                           title="Edit">
+                                            <i class="fas fa-pen"></i>
                                         </a>
+                                        @endcan
+                                        @can('user-toggle-status')
+                                        <form action="{{ route('admin.users.toggle-status', $user) }}" method="POST" class="inline">
+                                            @csrf @method('PUT')
+                                            <button type="submit"
+                                                    class="inline-flex items-center justify-center w-8 h-8 {{ $user->is_active ? 'bg-amber-50 text-amber-600 border border-amber-200 hover:bg-amber-100' : 'bg-gray-50 text-gray-400 border border-gray-200 hover:bg-gray-100' }} rounded-lg transition-all duration-200 text-xs"
+                                                    title="{{ $user->is_active ? 'Nonaktifkan' : 'Aktifkan' }}"
+                                                    onclick="return confirm('{{ $user->is_active ? 'Yakin nonaktifkan pengguna ini?' : 'Yakin aktifkan pengguna ini?' }}')">
+                                                <i class="fas {{ $user->is_active ? 'fa-pause' : 'fa-play' }}"></i>
+                                            </button>
+                                        </form>
+                                        @endcan
+                                        @can('user-delete')
+                                        @if(auth()->id() !== $user->id)
+                                        <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline" onsubmit="return confirm('Yakin hapus pengguna ini? Tindakan tidak dapat dibatalkan.')">
+                                            @csrf @method('DELETE')
+                                            <button type="submit"
+                                                    class="inline-flex items-center justify-center w-8 h-8 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 hover:border-red-300 transition-all duration-200 text-xs"
+                                                    title="Hapus">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                        @endif
                                         @endcan
                                     </div>
                                 </td>

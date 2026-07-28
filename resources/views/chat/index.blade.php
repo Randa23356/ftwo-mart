@@ -348,24 +348,24 @@
                         <i class="fas fa-search text-gray-400"></i>
                     </div>
                     <input type="text" id="search-conversations"
-                           class="w-full pl-12 pr-4 py-3 bg-white bg-opacity-80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all shadow-sm"
+                           class="w-full pl-12 pr-4 py-3 bg-white bg-opacity-80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all shadow-sm text-sm"
                            placeholder="Cari percakapan...">
                 </div>
 
                 @if(Auth::user()->isAdmin() || Auth::user()->isOperator())
                 <!-- Filters and Button Container for Admin/Operator -->
-                <div class="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:space-x-3">
+                <div class="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:space-x-3 w-full md:w-auto">
                     <!-- Filters Row -->
-                    <div class="flex space-x-2 md:space-x-3">
+                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 md:space-x-3 w-full sm:w-auto">
                         <select id="status-filter"
-                                class="flex-1 md:flex-none px-3 md:px-4 py-3 bg-white bg-opacity-80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all shadow-sm text-sm">
+                                class="w-full sm:w-auto px-3 md:px-4 py-3 bg-white bg-opacity-80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all shadow-sm text-sm">
                             <option value="">Semua Status</option>
                             <option value="open">Aktif</option>
                             <option value="closed">Selesai</option>
                         </select>
 
                         <select id="user-type-filter"
-                                class="flex-1 md:flex-none px-3 md:px-4 py-3 bg-white bg-opacity-80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all shadow-sm text-sm">
+                                class="w-full sm:w-auto px-3 md:px-4 py-3 bg-white bg-opacity-80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all shadow-sm text-sm">
                             <option value="">Semua Pesan</option>
                             <option value="guest">Pesan Guest</option>
                             <option value="user">Pesan User</option>
@@ -374,7 +374,7 @@
 
                     <!-- New Chat Button -->
                     <button onclick="openChatModal()"
-                            class="w-full md:w-auto inline-flex items-center justify-center px-4 md:px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-sm md:text-base">
+                            class="w-full sm:w-auto inline-flex items-center justify-center px-4 md:px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-sm md:text-base">
                         <i class="fas fa-plus mr-2"></i>
                         <span class="hidden sm:inline">Percakapan Baru</span>
                         <span class="sm:hidden">Baru</span>
@@ -384,7 +384,7 @@
                 <!-- New Chat Button for Regular Users -->
                 <div class="flex justify-end">
                     <button onclick="openChatModal()"
-                            class="w-full md:w-auto inline-flex items-center justify-center px-4 md:px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-sm md:text-base">
+                            class="w-full sm:w-auto inline-flex items-center justify-center px-4 md:px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-sm md:text-base">
                         <i class="fas fa-plus mr-2"></i>
                         <span class="hidden sm:inline">Hubungi Customer Service</span>
                         <span class="sm:hidden">CS</span>
@@ -398,75 +398,63 @@
         @if(Auth::user()->isAdmin() || Auth::user()->isOperator())
         <div class="glass-card rounded-2xl mb-6 md:mb-8 p-2 w-full">
             <div class="filter-tabs-container w-full">
-                <nav class="flex space-x-1 md:space-x-2 min-w-max w-full" aria-label="Tabs">
-                    <a href="{{ route('chat.index', ['filter' => 'all']) }}" 
-                       class="filter-tab px-2 md:px-6 py-2 md:py-3 rounded-xl font-medium text-xs md:text-sm transition-all {{ $filter === 'all' ? 'active' : 'text-gray-600 hover:text-gray-800 hover:bg-white hover:bg-opacity-50' }}"
+                <nav class="flex space-x-1 md:space-x-2 w-full" aria-label="Tabs">
+                    <a href="{{ route('chat.index', ['filter' => 'all']) }}"
+                       class="filter-tab px-2 md:px-5 py-2 md:py-3 rounded-xl font-medium text-xs md:text-sm transition-all whitespace-nowrap {{ $filter === 'all' ? 'active' : 'text-gray-600 hover:text-gray-800 hover:bg-white hover:bg-opacity-50' }}"
                        title="Semua Percakapan">
-                        <i class="fas fa-list mr-1 md:mr-2 hidden md:inline"></i>
-                        <span class="hidden sm:inline">Semua</span>
-                        <span class="sm:hidden hidden xs:inline">All</span>
+                        <i class="fas fa-list mr-1 md:mr-2"></i>Semua
                         @if($stats['total'] > 0)
-                            <span class="ml-1 md:ml-2 bg-white bg-opacity-20 text-current py-0.5 px-1 md:px-3 rounded-full text-xs font-semibold">{{ $stats['total'] }}</span>
+                            <span class="ml-1 md:ml-2 bg-white bg-opacity-20 text-current py-0.5 px-1 md:px-2.5 rounded-full text-[10px] md:text-xs font-semibold">{{ $stats['total'] }}</span>
                         @endif
                     </a>
-                    
-                    <a href="{{ route('chat.index', ['filter' => 'guest']) }}" 
-                       class="filter-tab px-2 md:px-6 py-2 md:py-3 rounded-xl font-medium text-xs md:text-sm transition-all {{ $filter === 'guest' ? 'active' : 'text-gray-600 hover:text-gray-800 hover:bg-white hover:bg-opacity-50' }}"
+
+                    <a href="{{ route('chat.index', ['filter' => 'guest']) }}"
+                       class="filter-tab px-2 md:px-5 py-2 md:py-3 rounded-xl font-medium text-xs md:text-sm transition-all whitespace-nowrap {{ $filter === 'guest' ? 'active' : 'text-gray-600 hover:text-gray-800 hover:bg-white hover:bg-opacity-50' }}"
                        title="Pesan Guest">
-                        <i class="fas fa-user-secret mr-1 md:mr-2 hidden md:inline"></i>
-                        <span class="hidden sm:inline">Guest</span>
-                        <span class="sm:hidden hidden xs:inline">G</span>
+                        <i class="fas fa-user-secret mr-1 md:mr-2"></i>Guest
                         @if($stats['guest'] > 0)
-                            <span class="ml-1 md:ml-2 bg-white bg-opacity-20 text-current py-0.5 px-1 md:px-3 rounded-full text-xs font-semibold">{{ $stats['guest'] }}</span>
+                            <span class="ml-1 md:ml-2 bg-white bg-opacity-20 text-current py-0.5 px-1 md:px-2.5 rounded-full text-[10px] md:text-xs font-semibold">{{ $stats['guest'] }}</span>
                         @endif
                     </a>
 
                     @if(Auth::user()->isAdmin())
-                    <a href="{{ route('chat.index', ['filter' => 'admin_user']) }}" 
-                       class="filter-tab px-2 md:px-6 py-2 md:py-3 rounded-xl font-medium text-xs md:text-sm transition-all {{ $filter === 'admin_user' ? 'active' : 'text-gray-600 hover:text-gray-800 hover:bg-white hover:bg-opacity-50' }}"
+                    <a href="{{ route('chat.index', ['filter' => 'admin_user']) }}"
+                       class="filter-tab px-2 md:px-5 py-2 md:py-3 rounded-xl font-medium text-xs md:text-sm transition-all whitespace-nowrap {{ $filter === 'admin_user' ? 'active' : 'text-gray-600 hover:text-gray-800 hover:bg-white hover:bg-opacity-50' }}"
                        title="Admin ↔ User">
-                        <i class="fas fa-user-shield mr-1 md:mr-2 hidden md:inline"></i>
-                        <span class="hidden sm:inline">Admin ↔ User</span>
-                        <span class="sm:hidden hidden xs:inline">A↔U</span>
+                        <i class="fas fa-user-shield mr-1 md:mr-2"></i><span class="hidden sm:inline">Admin↔User</span><span class="sm:hidden">A↔U</span>
                         @if($stats['admin_user'] > 0)
-                            <span class="ml-1 md:ml-2 bg-white bg-opacity-20 text-current py-0.5 px-1 md:px-3 rounded-full text-xs font-semibold">{{ $stats['admin_user'] }}</span>
+                            <span class="ml-1 md:ml-2 bg-white bg-opacity-20 text-current py-0.5 px-1 md:px-2.5 rounded-full text-[10px] md:text-xs font-semibold">{{ $stats['admin_user'] }}</span>
                         @endif
                     </a>
                     @endif
 
-                    <a href="{{ route('chat.index', ['filter' => 'operator_user']) }}" 
-                       class="filter-tab px-2 md:px-6 py-2 md:py-3 rounded-xl font-medium text-xs md:text-sm transition-all {{ $filter === 'operator_user' ? 'active' : 'text-gray-600 hover:text-gray-800 hover:bg-white hover:bg-opacity-50' }}"
+                    <a href="{{ route('chat.index', ['filter' => 'operator_user']) }}"
+                       class="filter-tab px-2 md:px-5 py-2 md:py-3 rounded-xl font-medium text-xs md:text-sm transition-all whitespace-nowrap {{ $filter === 'operator_user' ? 'active' : 'text-gray-600 hover:text-gray-800 hover:bg-white hover:bg-opacity-50' }}"
                        title="Operator ↔ User">
-                        <i class="fas fa-headset mr-1 md:mr-2 hidden md:inline"></i>
-                        <span class="hidden sm:inline">Operator ↔ User</span>
-                        <span class="sm:hidden hidden xs:inline">O↔U</span>
+                        <i class="fas fa-headset mr-1 md:mr-2"></i><span class="hidden sm:inline">Op↔User</span><span class="sm:hidden">O↔U</span>
                         @if($stats['operator_user'] > 0)
-                            <span class="ml-1 md:ml-2 bg-white bg-opacity-20 text-current py-0.5 px-1 md:px-3 rounded-full text-xs font-semibold">{{ $stats['operator_user'] }}</span>
+                            <span class="ml-1 md:ml-2 bg-white bg-opacity-20 text-current py-0.5 px-1 md:px-2.5 rounded-full text-[10px] md:text-xs font-semibold">{{ $stats['operator_user'] }}</span>
                         @endif
                     </a>
 
                     @if(Auth::user()->isAdmin() || Auth::user()->isOperator())
-                    <a href="{{ route('chat.index', ['filter' => 'internal']) }}" 
-                       class="filter-tab px-2 md:px-6 py-2 md:py-3 rounded-xl font-medium text-xs md:text-sm transition-all {{ $filter === 'internal' ? 'active' : 'text-gray-600 hover:text-gray-800 hover:bg-white hover:bg-opacity-50' }}"
+                    <a href="{{ route('chat.index', ['filter' => 'internal']) }}"
+                       class="filter-tab px-2 md:px-5 py-2 md:py-3 rounded-xl font-medium text-xs md:text-sm transition-all whitespace-nowrap {{ $filter === 'internal' ? 'active' : 'text-gray-600 hover:text-gray-800 hover:bg-white hover:bg-opacity-50' }}"
                        title="Internal Chat">
-                        <i class="fas fa-users mr-1 md:mr-2 hidden md:inline"></i>
-                        <span class="hidden sm:inline">Internal</span>
-                        <span class="sm:hidden hidden xs:inline">Int</span>
+                        <i class="fas fa-users mr-1 md:mr-2"></i><span class="hidden sm:inline">Internal</span><span class="sm:hidden">Int</span>
                         @if($stats['internal'] > 0)
-                            <span class="ml-1 md:ml-2 bg-white bg-opacity-20 text-current py-0.5 px-1 md:px-3 rounded-full text-xs font-semibold">{{ $stats['internal'] }}</span>
+                            <span class="ml-1 md:ml-2 bg-white bg-opacity-20 text-current py-0.5 px-1 md:px-2.5 rounded-full text-[10px] md:text-xs font-semibold">{{ $stats['internal'] }}</span>
                         @endif
                     </a>
                     @endif
 
                     @if(Auth::user()->isAdmin())
-                    <a href="{{ route('chat.index', ['filter' => 'seller_buyer']) }}" 
-                       class="filter-tab px-2 md:px-6 py-2 md:py-3 rounded-xl font-medium text-xs md:text-sm transition-all {{ $filter === 'seller_buyer' ? 'active' : 'text-gray-600 hover:text-gray-800 hover:bg-white hover:bg-opacity-50' }}"
+                    <a href="{{ route('chat.index', ['filter' => 'seller_buyer']) }}"
+                       class="filter-tab px-2 md:px-5 py-2 md:py-3 rounded-xl font-medium text-xs md:text-sm transition-all whitespace-nowrap {{ $filter === 'seller_buyer' ? 'active' : 'text-gray-600 hover:text-gray-800 hover:bg-white hover:bg-opacity-50' }}"
                        title="Seller ↔ Buyer">
-                        <i class="fas fa-store mr-1 md:mr-2 hidden md:inline"></i>
-                        <span class="hidden sm:inline">Seller ↔ Buyer</span>
-                        <span class="sm:hidden hidden xs:inline">S↔B</span>
+                        <i class="fas fa-store mr-1 md:mr-2"></i><span class="hidden sm:inline">Seller↔Buyer</span><span class="sm:hidden">S↔B</span>
                         @if(isset($stats['seller_buyer']) && $stats['seller_buyer'] > 0)
-                            <span class="ml-1 md:ml-2 bg-white bg-opacity-20 text-current py-0.5 px-1 md:px-3 rounded-full text-xs font-semibold">{{ $stats['seller_buyer'] }}</span>
+                            <span class="ml-1 md:ml-2 bg-white bg-opacity-20 text-current py-0.5 px-1 md:px-2.5 rounded-full text-[10px] md:text-xs font-semibold">{{ $stats['seller_buyer'] }}</span>
                         @endif
                     </a>
                     @endif

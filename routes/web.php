@@ -336,6 +336,9 @@ Route::middleware(["auth", "role:admin"])
         ])->name("users.toggle-status");
         Route::get('/users/create', [AdminController::class, 'create'])->name('users.create');
         Route::post('/users', [AdminController::class, 'store'])->name('users.store');
+        Route::get('/users/{user}/edit', [AdminController::class, 'edit'])->name('users.edit');
+        Route::put('/users/{user}', [AdminController::class, 'update'])->name('users.update');
+        Route::delete('/users/{user}', [AdminController::class, 'destroy'])->name('users.destroy');
         Route::get("/reports", [AdminController::class, "reports"])->name(
             "reports",
         );

@@ -8,7 +8,7 @@
     </div>
 
     @if($refunds->isEmpty())
-        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-12 text-center">
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8 md:p-12 text-center">
             <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-undo text-gray-400 text-2xl"></i>
             </div>
@@ -21,37 +21,37 @@
                 <table class="w-full">
                     <thead class="bg-gray-50 border-b border-gray-100">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Pesanan</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Pembeli</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Alasan</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Tanggal</th>
-                            <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Aksi</th>
+                            <th class="px-4 md:px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Pesanan</th>
+                            <th class="px-4 md:px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase hidden lg:table-cell">Pembeli</th>
+                            <th class="px-4 md:px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase hidden md:table-cell">Alasan</th>
+                            <th class="px-4 md:px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Status</th>
+                            <th class="px-4 md:px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase hidden sm:table-cell">Tanggal</th>
+                            <th class="px-4 md:px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         @foreach($refunds as $refund)
                         <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4">
+                            <td class="px-4 md:px-6 py-4">
                                 <span class="font-semibold text-gray-900 text-sm">#{{ $refund->order->order_number }}</span>
                             </td>
-                            <td class="px-6 py-4">
+                            <td class="px-4 md:px-6 py-4 hidden lg:table-cell">
                                 <span class="text-sm text-gray-700">{{ $refund->user->name ?? '-' }}</span>
                             </td>
-                            <td class="px-6 py-4">
+                            <td class="px-4 md:px-6 py-4 hidden md:table-cell">
                                 <span class="text-sm text-gray-700">{{ $refund->reason_label }}</span>
                             </td>
-                            <td class="px-6 py-4">
+                            <td class="px-4 md:px-6 py-4">
                                 <span class="px-2.5 py-1 rounded-full text-xs font-semibold {{ $refund->status_badge }}">
                                     {{ $refund->status_label }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4">
+                            <td class="px-4 md:px-6 py-4 hidden sm:table-cell">
                                 <span class="text-xs text-gray-500">{{ $refund->created_at->format('d M Y, H:i') }}</span>
                             </td>
-                            <td class="px-6 py-4 text-right">
-                                <a href="{{ route('admin.refunds.show', $refund) }}" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded-lg text-xs font-semibold">
-                                    Detail
+                            <td class="px-4 md:px-6 py-4 text-right">
+                                <a href="{{ route('admin.refunds.show', $refund) }}" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-2 rounded-lg text-xs font-semibold transition-all">
+                                    <i class="fas fa-eye mr-1"></i>Detail
                                 </a>
                             </td>
                         </tr>
