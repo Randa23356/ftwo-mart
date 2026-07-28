@@ -231,7 +231,7 @@
                                                 <div class="px-3 py-2" :class="categories.length > 0 ? 'border-t border-gray-100 mt-1 pt-3' : ''">
                                                     <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Produk</p>
                                                 </div>
-                                                <template x-for="(item, i) in products" :key="'p'+i">
+                                                 <template x-for="(item, i) in products" :key="'p'+i">
                                                     <a :href="item.url" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-green-50 transition-all group">
                                                         <img :src="item.image" :alt="item.name"
                                                              class="w-11 h-11 rounded-xl object-cover bg-gray-100 flex-shrink-0 border border-gray-100">
@@ -239,7 +239,9 @@
                                                             <p class="text-sm font-semibold text-gray-800 group-hover:text-green-700 truncate" x-text="item.name"></p>
                                                             <p class="text-[11px] text-gray-400" x-text="item.category"></p>
                                                         </div>
-                                                        <span class="text-sm font-bold text-green-700 whitespace-nowrap flex-shrink-0" x-text="item.price"></span>
+                                                        <div class="text-right flex-shrink-0 ml-1">
+                                                            <p class="text-[11px] font-bold text-green-700 leading-tight" x-text="item.price"></p>
+                                                        </div>
                                                     </a>
                                                 </template>
                                             </div>
@@ -528,7 +530,9 @@
                                                                 <p class="text-sm font-semibold text-gray-800 group-hover:text-green-700 truncate transition-colors" x-text="item.name"></p>
                                                                 <p class="text-[11px] text-gray-400" x-text="item.category"></p>
                                                             </div>
-                                                            <span class="text-sm font-bold text-green-700 whitespace-nowrap flex-shrink-0" x-text="item.price"></span>
+                                                            <div class="text-right flex-shrink-0 ml-1">
+                                                                <p class="text-[11px] font-bold text-green-700 leading-tight" x-text="item.price"></p>
+                                                            </div>
                                                         </a>
                                                     </template>
                                                 </div>

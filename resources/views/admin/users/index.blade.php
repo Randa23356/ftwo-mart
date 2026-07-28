@@ -200,6 +200,11 @@
                                 <td class="px-5 py-4">
                                     <div class="flex items-center justify-center gap-1">
                                         @can('user-edit')
+                                        <a href="{{ route('admin.users.detail', $user) }}"
+                                           class="inline-flex items-center justify-center w-8 h-8 bg-blue-50 text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-100 hover:border-blue-300 transition-all duration-200 text-xs"
+                                           title="Detail">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
                                         <a href="{{ route('admin.users.edit', $user) }}"
                                            class="inline-flex items-center justify-center w-8 h-8 bg-green-50 text-green-700 border border-green-200 rounded-lg hover:bg-green-100 hover:border-green-300 transition-all duration-200 text-xs"
                                            title="Edit">
