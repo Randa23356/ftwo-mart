@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -43,7 +44,7 @@ class ProductController extends Controller
             'weight' => 'required|integer|min:1|max:50000', // Weight in grams, max 50kg
             'category_id' => 'required|exists:categories,id',
             'images' => 'nullable|array|max:10', // Max 10 images
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:5120',
             'image_alt_texts' => 'nullable|array',
             'image_alt_texts.*' => 'nullable|string|max:255',
             'primary_image_index' => 'nullable|integer|min:0',
@@ -144,7 +145,7 @@ class ProductController extends Controller
             'weight' => 'required|integer|min:1|max:50000', // Weight in grams, max 50kg
             'category_id' => 'required|exists:categories,id',
             'images' => 'nullable|array|max:10', // Max 10 images
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:5120',
             'image_alt_texts' => 'nullable|array',
             'image_alt_texts.*' => 'nullable|string|max:255',
             'primary_image_index' => 'nullable|integer|min:0',
