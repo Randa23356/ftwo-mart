@@ -130,11 +130,43 @@
             @endif
 
             <!-- Description -->
-            <div class="border-t border-gray-200 pt-6">
+            <div class="border-t border-gray-200 pt-6"
+                 x-data="{ showMore: false, isLong: {{ strlen(strip_tags($product->description ?? '')) > 200 ? 'true' : 'false' }} }">
                 <h3 class="text-base font-semibold text-gray-800 mb-3">Deskripsi</h3>
-                <div class="prose prose-sm max-w-none text-gray-600 leading-relaxed">
+                <div class="prose prose-sm max-w-none text-gray-600 leading-relaxed"
+                     x-show="!showMore"
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="transition ease-in duration-200"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0">
+                    {!! nl2br(e(\Illuminate\Support\Str::limit($product->description ?? '', 200))) !!}
+                </div>
+                <div class="prose prose-sm max-w-none text-gray-600 leading-relaxed overflow-hidden"
+                     x-show="showMore"
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="opacity-0 max-h-0"
+                     x-transition:enter-end="opacity-100 max-h-[2000px]"
+                     x-transition:leave="transition ease-in duration-200"
+                     x-transition:leave-start="opacity-100 max-h-[2000px]"
+                     x-transition:leave-end="opacity-0 max-h-0">
                     {!! nl2br(e($product->description)) !!}
                 </div>
+                @if(strlen(strip_tags($product->description ?? '')) > 200)
+                <button type="button"
+                        class="mt-2 text-sm font-semibold text-green-700 hover:text-green-800 transition-colors flex items-center gap-1 cursor-pointer"
+                        @click="showMore = !showMore">
+                    <span x-show="!showMore">Lihat Selengkapnya</span>
+                    <span x-show="showMore">Tampilkan Lebih Sedikit</span>
+                    <i class="fas fa-chevron-down text-xs transition-transform duration-200"
+                       x-show="!showMore"
+                       x-bind:class="{ 'rotate-180': showMore }"></i>
+                    <i class="fas fa-chevron-up text-xs transition-transform duration-200"
+                       x-show="showMore"
+                       x-bind:class="{ 'rotate-180': !showMore }"></i>
+                </button>
+                @endif
             </div>
 
             <!-- Stats -->
