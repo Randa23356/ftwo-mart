@@ -76,31 +76,29 @@
         max-width: 100%;
         overflow-x: hidden;
     }
-    
+
     /* Mobile Responsive */
-    @media (max-width: 768px) {
+    @media (max-width: 640px) {
         .chat-page {
             padding: 0;
             margin: 0;
         }
         
         .container {
-            padding-left: 1rem;
-            padding-right: 1rem;
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
         }
         
-        /* Ensure all form elements are properly sized */
+        .glass-card {
+            padding: 0.75rem;
+            border-radius: 1rem;
+        }
+        
         input, select, button {
             min-width: 0;
             max-width: 100%;
         }
         
-        /* Fix button text wrapping */
-        button {
-            white-space: nowrap;
-        }
-        
-        /* Ensure proper flex behavior */
         .flex {
             min-width: 0;
         }
@@ -110,48 +108,39 @@
             flex: 1 1 0%;
         }
         
-        /* Header responsive layout */
-        .space-y-3 > * + * {
-            margin-top: 0.75rem;
-        }
-        
-        /* Ensure proper spacing on mobile */
-        @media (min-width: 768px) {
-            .space-y-3 > * + * {
-                margin-top: 0;
-            }
-        }
-        
         .filter-tab {
-            font-size: 0.625rem;
-            padding: 0.375rem 0.5rem;
+            font-size: 0.75rem;
+            padding: 0.5rem 0.625rem;
             min-width: auto;
             flex-shrink: 0;
+            gap: 0.25rem;
         }
         
         .filter-tab i {
             display: none;
         }
-        
-        /* Make tabs more compact on mobile */
-        .filter-tab span:not(.bg-white) {
+
+        .filter-tab .tab-count {
             font-size: 0.625rem;
-        }
-        
-        /* Hide count badges on very small screens */
-        .filter-tab .bg-white {
-            font-size: 0.5rem;
-            padding: 0.125rem 0.25rem;
-            margin-left: 0.25rem;
+            padding: 0.0625rem 0.25rem;
+            margin-left: 0;
         }
         
         .stats-grid {
             grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem;
+            gap: 0.5rem;
+        }
+
+        .stats-grid .glass-card {
+            padding: 0.75rem;
+        }
+
+        .stats-grid .glass-card p.text-sm {
+            font-size: 0.625rem;
         }
         
         .chat-item-content {
-            padding: 0.75rem;
+            padding: 0.625rem;
         }
         
         .chat-avatar {
@@ -163,7 +152,6 @@
             display: none;
         }
         
-        /* Fix text overflow */
         .chat-item h3,
         .chat-item h4,
         .chat-item p {
@@ -173,10 +161,20 @@
             max-width: 100%;
         }
         
-        /* Fix flex items */
+        .chat-item h3 {
+            font-size: 0.875rem;
+        }
+
+        .chat-item h4 {
+            font-size: 0.75rem;
+        }
+
+        .chat-item p {
+            font-size: 0.6875rem;
+        }
+        
         .chat-item .flex {
             min-width: 0;
-            flex-wrap: wrap;
         }
         
         .chat-item .flex-1 {
@@ -184,7 +182,6 @@
             flex: 1 1 0%;
         }
         
-        /* Fix badges on mobile */
         .mobile-badges {
             flex-wrap: wrap;
             gap: 0.25rem;
@@ -192,113 +189,26 @@
         
         .mobile-badges span {
             font-size: 0.625rem;
-            padding: 0.25rem 0.5rem;
+            padding: 0.125rem 0.375rem;
         }
-    }
-    
-    /* Extra small screens - ultra compact tabs */
-    @media (max-width: 380px) {
-        .filter-tab {
-            padding: 0.25rem 0.25rem;
-            font-size: 0.5rem;
-            min-width: auto;
-        }
-        
-        /* Show only count badges on ultra small screens */
-        .filter-tab span:not(.bg-white) {
-            display: none;
-        }
-        
-        .filter-tab .bg-white {
-            margin-left: 0;
-            font-size: 0.5rem;
-            padding: 0.125rem 0.25rem;
-        }
-        
-        /* If no count, show minimal text */
-        .xs\:hidden {
-            display: none;
-        }
-    }
 
-    @media (max-width: 480px) {
-        .container {
-            padding-left: 0.75rem;
-            padding-right: 0.75rem;
+        /* Modal responsive */
+        #newChatModal .bg-gradient-to-r {
+            padding: 1rem;
         }
-        
-        .stats-grid {
-            grid-template-columns: 1fr;
+
+        #newChatModal form {
+            padding: 1rem;
+        }
+
+        #newChatModal .flex.justify-end {
+            flex-direction: column-reverse;
             gap: 0.5rem;
         }
-        
-        .filter-tab {
-            padding: 0.25rem 0.375rem;
-            font-size: 0.5rem;
-            min-width: auto;
-        }
-        
-        /* Hide text on ultra small screens, keep only badges */
-        .filter-tab span:not(.bg-white) {
-            display: none;
-        }
-        
-        /* Make badges even smaller */
-        .filter-tab .bg-white {
-            font-size: 0.5rem;
-            padding: 0.125rem 0.25rem;
-            margin-left: 0.125rem;
-        }
-        
-        .glass-card {
-            margin-bottom: 0.75rem;
-            padding: 0.75rem;
-        }
-        
-        .chat-item-content {
-            padding: 0.5rem;
-        }
-        
-        .chat-avatar {
-            width: 2rem;
-            height: 2rem;
-        }
-        
-        /* Ultra mobile text fixes */
-        .chat-item h3 {
-            font-size: 0.875rem;
-        }
-        
-        .chat-item h4 {
-            font-size: 0.75rem;
-        }
-        
-        .chat-item p {
-            font-size: 0.625rem;
-        }
-        
-        /* Extra small screen header adjustments */
-        .glass-card {
-            padding: 0.75rem;
-        }
-        
-        /* Make sure buttons don't overflow */
-        button {
-            font-size: 0.75rem;
-            padding: 0.5rem 0.75rem;
-        }
-        
-        /* Compact select elements */
-        select {
-            font-size: 0.75rem;
-            padding: 0.5rem;
-        }
-        
-        /* Compact input */
-        input {
-            font-size: 0.75rem;
-            padding: 0.5rem 0.75rem;
-            padding-left: 2rem;
+
+        #newChatModal .flex.justify-end button {
+            width: 100%;
+            justify-content: center;
         }
     }
     
@@ -348,33 +258,33 @@
                         <i class="fas fa-search text-gray-400"></i>
                     </div>
                     <input type="text" id="search-conversations"
-                           class="w-full pl-12 pr-4 py-3 bg-white bg-opacity-80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all shadow-sm text-sm"
+                           class="w-full pl-12 pr-4 py-2.5 md:py-3 bg-white bg-opacity-80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all shadow-sm text-sm"
                            placeholder="Cari percakapan...">
                 </div>
 
                 @if(Auth::user()->isAdmin() || Auth::user()->isOperator())
                 <!-- Filters and Button Container for Admin/Operator -->
-                <div class="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:space-x-3 w-full md:w-auto">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2 w-full md:w-auto">
                     <!-- Filters Row -->
-                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 md:space-x-3 w-full sm:w-auto">
+                    <div class="flex gap-2 w-full sm:w-auto">
                         <select id="status-filter"
-                                class="w-full sm:w-auto px-3 md:px-4 py-3 bg-white bg-opacity-80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all shadow-sm text-sm">
+                                class="flex-1 sm:flex-none px-3 py-2.5 md:py-3 bg-white bg-opacity-80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all shadow-sm text-sm">
                             <option value="">Semua Status</option>
                             <option value="open">Aktif</option>
                             <option value="closed">Selesai</option>
                         </select>
 
                         <select id="user-type-filter"
-                                class="w-full sm:w-auto px-3 md:px-4 py-3 bg-white bg-opacity-80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all shadow-sm text-sm">
+                                class="flex-1 sm:flex-none px-3 py-2.5 md:py-3 bg-white bg-opacity-80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all shadow-sm text-sm">
                             <option value="">Semua Pesan</option>
-                            <option value="guest">Pesan Guest</option>
-                            <option value="user">Pesan User</option>
+                            <option value="guest">Guest</option>
+                            <option value="user">User</option>
                         </select>
                     </div>
 
                     <!-- New Chat Button -->
                     <button onclick="openChatModal()"
-                            class="w-full sm:w-auto inline-flex items-center justify-center px-4 md:px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-sm md:text-base">
+                            class="w-full sm:w-auto inline-flex items-center justify-center px-4 md:px-6 py-2.5 md:py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-sm md:text-base whitespace-nowrap">
                         <i class="fas fa-plus mr-2"></i>
                         <span class="hidden sm:inline">Percakapan Baru</span>
                         <span class="sm:hidden">Baru</span>
@@ -384,7 +294,7 @@
                 <!-- New Chat Button for Regular Users -->
                 <div class="flex justify-end">
                     <button onclick="openChatModal()"
-                            class="w-full sm:w-auto inline-flex items-center justify-center px-4 md:px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-sm md:text-base">
+                            class="w-full sm:w-auto inline-flex items-center justify-center px-4 md:px-6 py-2.5 md:py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-sm md:text-base whitespace-nowrap">
                         <i class="fas fa-plus mr-2"></i>
                         <span class="hidden sm:inline">Hubungi Customer Service</span>
                         <span class="sm:hidden">CS</span>
@@ -396,65 +306,65 @@
 
         <!-- Filter Tabs -->
         @if(Auth::user()->isAdmin() || Auth::user()->isOperator())
-        <div class="glass-card rounded-2xl mb-6 md:mb-8 p-2 w-full">
+        <div class="glass-card rounded-xl md:rounded-2xl mb-4 md:mb-8 p-1.5 md:p-2 w-full">
             <div class="filter-tabs-container w-full">
-                <nav class="flex space-x-1 md:space-x-2 w-full" aria-label="Tabs">
+                <nav class="flex gap-1 md:gap-2 w-full overflow-x-auto pb-0.5" aria-label="Tabs">
                     <a href="{{ route('chat.index', ['filter' => 'all']) }}"
-                       class="filter-tab px-2 md:px-5 py-2 md:py-3 rounded-xl font-medium text-xs md:text-sm transition-all whitespace-nowrap {{ $filter === 'all' ? 'active' : 'text-gray-600 hover:text-gray-800 hover:bg-white hover:bg-opacity-50' }}"
+                       class="filter-tab px-3 md:px-5 py-2.5 md:py-3 rounded-xl font-medium text-xs md:text-sm transition-all whitespace-nowrap {{ $filter === 'all' ? 'active' : 'text-gray-600 hover:text-gray-800 hover:bg-white hover:bg-opacity-50' }}"
                        title="Semua Percakapan">
-                        <i class="fas fa-list mr-1 md:mr-2"></i>Semua
+                        <i class="fas fa-list mr-1.5 hidden sm:inline"></i><span class="tab-label">Semua</span>
                         @if($stats['total'] > 0)
-                            <span class="ml-1 md:ml-2 bg-white bg-opacity-20 text-current py-0.5 px-1 md:px-2.5 rounded-full text-[10px] md:text-xs font-semibold">{{ $stats['total'] }}</span>
+                            <span class="ml-1.5 md:ml-2 bg-white bg-opacity-20 text-current py-0.5 px-1.5 md:px-2.5 rounded-full text-[10px] md:text-xs font-bold tab-count">{{ $stats['total'] }}</span>
                         @endif
                     </a>
 
                     <a href="{{ route('chat.index', ['filter' => 'guest']) }}"
-                       class="filter-tab px-2 md:px-5 py-2 md:py-3 rounded-xl font-medium text-xs md:text-sm transition-all whitespace-nowrap {{ $filter === 'guest' ? 'active' : 'text-gray-600 hover:text-gray-800 hover:bg-white hover:bg-opacity-50' }}"
+                       class="filter-tab px-3 md:px-5 py-2.5 md:py-3 rounded-xl font-medium text-xs md:text-sm transition-all whitespace-nowrap {{ $filter === 'guest' ? 'active' : 'text-gray-600 hover:text-gray-800 hover:bg-white hover:bg-opacity-50' }}"
                        title="Pesan Guest">
-                        <i class="fas fa-user-secret mr-1 md:mr-2"></i>Guest
+                        <i class="fas fa-user-secret mr-1.5 hidden sm:inline"></i><span class="tab-label">Guest</span>
                         @if($stats['guest'] > 0)
-                            <span class="ml-1 md:ml-2 bg-white bg-opacity-20 text-current py-0.5 px-1 md:px-2.5 rounded-full text-[10px] md:text-xs font-semibold">{{ $stats['guest'] }}</span>
+                            <span class="ml-1.5 md:ml-2 bg-white bg-opacity-20 text-current py-0.5 px-1.5 md:px-2.5 rounded-full text-[10px] md:text-xs font-bold tab-count">{{ $stats['guest'] }}</span>
                         @endif
                     </a>
 
                     @if(Auth::user()->isAdmin())
                     <a href="{{ route('chat.index', ['filter' => 'admin_user']) }}"
-                       class="filter-tab px-2 md:px-5 py-2 md:py-3 rounded-xl font-medium text-xs md:text-sm transition-all whitespace-nowrap {{ $filter === 'admin_user' ? 'active' : 'text-gray-600 hover:text-gray-800 hover:bg-white hover:bg-opacity-50' }}"
+                       class="filter-tab px-3 md:px-5 py-2.5 md:py-3 rounded-xl font-medium text-xs md:text-sm transition-all whitespace-nowrap {{ $filter === 'admin_user' ? 'active' : 'text-gray-600 hover:text-gray-800 hover:bg-white hover:bg-opacity-50' }}"
                        title="Admin ↔ User">
-                        <i class="fas fa-user-shield mr-1 md:mr-2"></i><span class="hidden sm:inline">Admin↔User</span><span class="sm:hidden">A↔U</span>
+                        <i class="fas fa-user-shield mr-1.5 hidden sm:inline"></i><span class="tab-label">Admin↔User</span>
                         @if($stats['admin_user'] > 0)
-                            <span class="ml-1 md:ml-2 bg-white bg-opacity-20 text-current py-0.5 px-1 md:px-2.5 rounded-full text-[10px] md:text-xs font-semibold">{{ $stats['admin_user'] }}</span>
+                            <span class="ml-1.5 md:ml-2 bg-white bg-opacity-20 text-current py-0.5 px-1.5 md:px-2.5 rounded-full text-[10px] md:text-xs font-bold tab-count">{{ $stats['admin_user'] }}</span>
                         @endif
                     </a>
                     @endif
 
                     <a href="{{ route('chat.index', ['filter' => 'operator_user']) }}"
-                       class="filter-tab px-2 md:px-5 py-2 md:py-3 rounded-xl font-medium text-xs md:text-sm transition-all whitespace-nowrap {{ $filter === 'operator_user' ? 'active' : 'text-gray-600 hover:text-gray-800 hover:bg-white hover:bg-opacity-50' }}"
+                       class="filter-tab px-3 md:px-5 py-2.5 md:py-3 rounded-xl font-medium text-xs md:text-sm transition-all whitespace-nowrap {{ $filter === 'operator_user' ? 'active' : 'text-gray-600 hover:text-gray-800 hover:bg-white hover:bg-opacity-50' }}"
                        title="Operator ↔ User">
-                        <i class="fas fa-headset mr-1 md:mr-2"></i><span class="hidden sm:inline">Op↔User</span><span class="sm:hidden">O↔U</span>
+                        <i class="fas fa-headset mr-1.5 hidden sm:inline"></i><span class="tab-label">Op↔User</span>
                         @if($stats['operator_user'] > 0)
-                            <span class="ml-1 md:ml-2 bg-white bg-opacity-20 text-current py-0.5 px-1 md:px-2.5 rounded-full text-[10px] md:text-xs font-semibold">{{ $stats['operator_user'] }}</span>
+                            <span class="ml-1.5 md:ml-2 bg-white bg-opacity-20 text-current py-0.5 px-1.5 md:px-2.5 rounded-full text-[10px] md:text-xs font-bold tab-count">{{ $stats['operator_user'] }}</span>
                         @endif
                     </a>
 
                     @if(Auth::user()->isAdmin() || Auth::user()->isOperator())
                     <a href="{{ route('chat.index', ['filter' => 'internal']) }}"
-                       class="filter-tab px-2 md:px-5 py-2 md:py-3 rounded-xl font-medium text-xs md:text-sm transition-all whitespace-nowrap {{ $filter === 'internal' ? 'active' : 'text-gray-600 hover:text-gray-800 hover:bg-white hover:bg-opacity-50' }}"
+                       class="filter-tab px-3 md:px-5 py-2.5 md:py-3 rounded-xl font-medium text-xs md:text-sm transition-all whitespace-nowrap {{ $filter === 'internal' ? 'active' : 'text-gray-600 hover:text-gray-800 hover:bg-white hover:bg-opacity-50' }}"
                        title="Internal Chat">
-                        <i class="fas fa-users mr-1 md:mr-2"></i><span class="hidden sm:inline">Internal</span><span class="sm:hidden">Int</span>
+                        <i class="fas fa-users mr-1.5 hidden sm:inline"></i><span class="tab-label">Internal</span>
                         @if($stats['internal'] > 0)
-                            <span class="ml-1 md:ml-2 bg-white bg-opacity-20 text-current py-0.5 px-1 md:px-2.5 rounded-full text-[10px] md:text-xs font-semibold">{{ $stats['internal'] }}</span>
+                            <span class="ml-1.5 md:ml-2 bg-white bg-opacity-20 text-current py-0.5 px-1.5 md:px-2.5 rounded-full text-[10px] md:text-xs font-bold tab-count">{{ $stats['internal'] }}</span>
                         @endif
                     </a>
                     @endif
 
                     @if(Auth::user()->isAdmin())
                     <a href="{{ route('chat.index', ['filter' => 'seller_buyer']) }}"
-                       class="filter-tab px-2 md:px-5 py-2 md:py-3 rounded-xl font-medium text-xs md:text-sm transition-all whitespace-nowrap {{ $filter === 'seller_buyer' ? 'active' : 'text-gray-600 hover:text-gray-800 hover:bg-white hover:bg-opacity-50' }}"
+                       class="filter-tab px-3 md:px-5 py-2.5 md:py-3 rounded-xl font-medium text-xs md:text-sm transition-all whitespace-nowrap {{ $filter === 'seller_buyer' ? 'active' : 'text-gray-600 hover:text-gray-800 hover:bg-white hover:bg-opacity-50' }}"
                        title="Seller ↔ Buyer">
-                        <i class="fas fa-store mr-1 md:mr-2"></i><span class="hidden sm:inline">Seller↔Buyer</span><span class="sm:hidden">S↔B</span>
+                        <i class="fas fa-store mr-1.5 hidden sm:inline"></i><span class="tab-label">Seller↔Buyer</span>
                         @if(isset($stats['seller_buyer']) && $stats['seller_buyer'] > 0)
-                            <span class="ml-1 md:ml-2 bg-white bg-opacity-20 text-current py-0.5 px-1 md:px-2.5 rounded-full text-[10px] md:text-xs font-semibold">{{ $stats['seller_buyer'] }}</span>
+                            <span class="ml-1.5 md:ml-2 bg-white bg-opacity-20 text-current py-0.5 px-1.5 md:px-2.5 rounded-full text-[10px] md:text-xs font-bold tab-count">{{ $stats['seller_buyer'] }}</span>
                         @endif
                     </a>
                     @endif
@@ -465,48 +375,48 @@
 
         <!-- Stats Cards -->
         @if(Auth::user()->isAdmin() || Auth::user()->isOperator())
-        <div class="stats-grid grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
-            <div class="glass-card p-6 rounded-2xl hover:transform hover:-translate-y-1 transition-all">
+        <div class="stats-grid grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-4 md:mb-8">
+            <div class="glass-card p-3 md:p-6 rounded-xl md:rounded-2xl hover:transform hover:-translate-y-1 transition-all">
                 <div class="flex items-center">
-                    <div class="bg-gradient-to-r from-green-500 to-green-600 p-3 rounded-xl mr-4 shadow-lg">
-                        <i class="fas fa-comments text-white text-lg"></i>
+                    <div class="bg-gradient-to-r from-green-500 to-green-600 p-2 md:p-3 rounded-lg md:rounded-xl mr-2.5 md:mr-4 shadow-lg">
+                        <i class="fas fa-comments text-white text-sm md:text-lg"></i>
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-gray-600 mb-1">Total Percakapan</p>
-                        <p class="text-2xl font-bold text-gray-900">{{ $stats['total'] }}</p>
+                        <p class="text-[10px] md:text-sm font-medium text-gray-600 mb-0.5 md:mb-1">Total</p>
+                        <p class="text-lg md:text-2xl font-bold text-gray-900">{{ $stats['total'] }}</p>
                     </div>
                 </div>
             </div>
-            <div class="glass-card p-6 rounded-2xl hover:transform hover:-translate-y-1 transition-all">
+            <div class="glass-card p-3 md:p-6 rounded-xl md:rounded-2xl hover:transform hover:-translate-y-1 transition-all">
                 <div class="flex items-center">
-                    <div class="bg-gradient-to-r from-red-500 to-red-600 p-3 rounded-xl mr-4 shadow-lg">
-                        <i class="fas fa-bell text-white text-lg"></i>
+                    <div class="bg-gradient-to-r from-red-500 to-red-600 p-2 md:p-3 rounded-lg md:rounded-xl mr-2.5 md:mr-4 shadow-lg">
+                        <i class="fas fa-bell text-white text-sm md:text-lg"></i>
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-gray-600 mb-1">Belum Dibaca</p>
-                        <p class="text-2xl font-bold text-red-600">{{ $stats['unread'] }}</p>
+                        <p class="text-[10px] md:text-sm font-medium text-gray-600 mb-0.5 md:mb-1">Belum Dibaca</p>
+                        <p class="text-lg md:text-2xl font-bold text-red-600">{{ $stats['unread'] }}</p>
                     </div>
                 </div>
             </div>
-            <div class="glass-card p-6 rounded-2xl hover:transform hover:-translate-y-1 transition-all">
+            <div class="glass-card p-3 md:p-6 rounded-xl md:rounded-2xl hover:transform hover:-translate-y-1 transition-all">
                 <div class="flex items-center">
-                    <div class="bg-gradient-to-r from-green-500 to-green-600 p-3 rounded-xl mr-4 shadow-lg">
-                        <i class="fas fa-check-circle text-white text-lg"></i>
+                    <div class="bg-gradient-to-r from-green-500 to-green-600 p-2 md:p-3 rounded-lg md:rounded-xl mr-2.5 md:mr-4 shadow-lg">
+                        <i class="fas fa-check-circle text-white text-sm md:text-lg"></i>
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-gray-600 mb-1">Aktif</p>
-                        <p class="text-2xl font-bold text-green-600">{{ $conversations->where('status', 'open')->count() }}</p>
+                        <p class="text-[10px] md:text-sm font-medium text-gray-600 mb-0.5 md:mb-1">Aktif</p>
+                        <p class="text-lg md:text-2xl font-bold text-green-600">{{ $conversations->where('status', 'open')->count() }}</p>
                     </div>
                 </div>
             </div>
-            <div class="glass-card p-6 rounded-2xl hover:transform hover:-translate-y-1 transition-all">
+            <div class="glass-card p-3 md:p-6 rounded-xl md:rounded-2xl hover:transform hover:-translate-y-1 transition-all">
                 <div class="flex items-center">
-                    <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 p-3 rounded-xl mr-4 shadow-lg">
-                        <i class="fas fa-clock text-white text-lg"></i>
+                    <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 p-2 md:p-3 rounded-lg md:rounded-xl mr-2.5 md:mr-4 shadow-lg">
+                        <i class="fas fa-clock text-white text-sm md:text-lg"></i>
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-gray-600 mb-1">Hari Ini</p>
-                        <p class="text-2xl font-bold text-yellow-600">{{ $conversations->where('created_at', '>=', today())->count() }}</p>
+                        <p class="text-[10px] md:text-sm font-medium text-gray-600 mb-0.5 md:mb-1">Hari Ini</p>
+                        <p class="text-lg md:text-2xl font-bold text-yellow-600">{{ $conversations->where('created_at', '>=', today())->count() }}</p>
                     </div>
                 </div>
             </div>

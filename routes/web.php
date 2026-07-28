@@ -326,19 +326,19 @@ Route::middleware(["auth", "role:admin"])
         Route::delete("/orders/{order}", [AdminController::class, "destroyOrder"])->name("orders.destroy");
 
         Route::get("/users", [AdminController::class, "users"])->name("users");
+        Route::get('/users/create', [AdminController::class, 'create'])->name('users.create');
+        Route::post('/users', [AdminController::class, 'store'])->name('users.store');
         Route::get("/users/{user}", [
             AdminController::class,
             "userDetail",
         ])->name("users.detail");
+        Route::get('/users/{user}/edit', [AdminController::class, 'edit'])->name('users.edit');
+        Route::put('/users/{user}', [AdminController::class, 'update'])->name('users.update');
+        Route::delete('/users/{user}', [AdminController::class, 'destroy'])->name('users.destroy');
         Route::put("/users/{user}/toggle-status", [
             AdminController::class,
             "toggleUserStatus",
         ])->name("users.toggle-status");
-        Route::get('/users/create', [AdminController::class, 'create'])->name('users.create');
-        Route::post('/users', [AdminController::class, 'store'])->name('users.store');
-        Route::get('/users/{user}/edit', [AdminController::class, 'edit'])->name('users.edit');
-        Route::put('/users/{user}', [AdminController::class, 'update'])->name('users.update');
-        Route::delete('/users/{user}', [AdminController::class, 'destroy'])->name('users.destroy');
         Route::get("/reports", [AdminController::class, "reports"])->name(
             "reports",
         );

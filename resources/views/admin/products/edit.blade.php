@@ -613,7 +613,6 @@ function productForm() {
                         }
                     };
                     reader.readAsDataURL(file);
-                }
             });
         },
 
