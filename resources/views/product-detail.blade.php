@@ -134,7 +134,7 @@
                  x-data="{ showMore: false }">
                 <h3 class="text-base font-semibold text-gray-800 mb-3">Deskripsi</h3>
                 <div class="prose prose-sm max-w-none text-gray-600 leading-relaxed overflow-hidden transition-all duration-500 ease-in-out"
-                     x-bind:class="showMore ? 'max-h-[3000px]' : 'max-h-24'">
+                     x-bind:style="showMore ? 'max-height: 3000px' : 'max-height: 96px'">
                     {!! nl2br(e($product->description)) !!}
                 </div>
                 @if(strlen(strip_tags($product->description ?? '')) > 200)
